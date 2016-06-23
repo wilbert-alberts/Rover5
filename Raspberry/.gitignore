@@ -1,0 +1,6 @@
+eclipse/**/Debug/*
+*.o
+*.so
+*.d
+.project
+.cproject

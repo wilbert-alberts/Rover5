@@ -64,7 +64,7 @@ static void col_readSensors(short* dst)
 
 static void col_digitalize()
 {
-  short offset;
+  uint16_t offset;
   
   REG_read16(REG_AMBOFFSET, &offset);
 

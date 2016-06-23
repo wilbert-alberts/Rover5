@@ -1,12 +1,19 @@
-#include <Arduino.h>
+#include <stdint.h>
+#include <semaphore.h>
+#include <strings.h>
 
-#include "REG.h"
+#include "rv_reg.h"
 
-static uint8_t* reg_address[REG_MAX];
 static REG_map reg_map;
+static sem_t   reg_sem;
+static uint8_t*   reg_address[REG_MAX];
 
-extern void REG_setup()
+
+void REG_setup()
 {
+  bzero(&reg_map, sizeof(reg_map));
+  sem_init(&reg_sem, 0, 1);
+  
   reg_address[REG_MICROS] = (uint8_t*) &reg_map.MICROS;
   reg_address[REG_MILLIS] = (uint8_t*) &reg_map.MILLIS;
   reg_address[REG_LEFTDIR] = (uint8_t*) &reg_map.LEFTDIR;
@@ -42,54 +49,70 @@ extern void REG_setup()
   reg_address[REG_IR_LINE_WS] = (uint8_t*) &reg_map.IR_LINE_WS;
   reg_address[REG_IR_LINE_WN] = (uint8_t*) &reg_map.IR_LINE_WN;
   reg_address[REG_IR_LINE_NW] = (uint8_t*) &reg_map.IR_LINE_NW;
+
 }
 
 extern void REG_write8(int id, uint8_t val)
 {
   uint8_t* dst = (uint8_t*)(reg_address[id]);
+  
+  sem_wait(&reg_sem);
   *dst=val;
+  sem_post(&reg_sem);
 }
 
 extern void REG_write16(int id, uint16_t val)
 {
   uint16_t* dst = (uint16_t*)(reg_address[id]);
+  sem_wait(&reg_sem);
   *dst=val;
+  sem_post(&reg_sem);
 }
 
-extern void REG_write32(int id, uint32_t val)
+extern void REG_write32(int id, int32_t val)
 {
-  uint32_t* dst = (uint32_t*)(reg_address[id]);
+  int32_t* dst = (int32_t*)(reg_address[id]);
+  sem_wait(&reg_sem);
   *dst=val;
+  sem_post(&reg_sem);
 }
 
 extern void REG_read8(int id, uint8_t* val)
 {
   uint8_t* src = (uint8_t*)(reg_address[id]);
-  *val=*src;
+  sem_wait(&reg_sem);
+  *val = *src;
+  sem_post(&reg_sem);
 }
 
 extern void REG_read16(int id, uint16_t* val)
 {
   uint16_t* src = (uint16_t*)(reg_address[id]);
-  *val=*src;
+  sem_wait(&reg_sem);
+  *val = *src;
+  sem_post(&reg_sem);
 }
 
-extern void REG_read32(int id, uint32_t* val)
+extern void REG_read32(int id, int32_t* val)
 {
-  uint32_t* src = (uint32_t*)(reg_address[id]);
-  *val=*src;
+  int32_t* src = (int32_t*)(reg_address[id]);
+  sem_wait(&reg_sem);
+  *val = *src;
+  sem_post(&reg_sem);
 }
 
 extern void REG_readAll(REG_map* dst)
 {
+  sem_wait(&reg_sem);
   *dst = reg_map;
+  sem_post(&reg_sem);
 }
 
 extern void REG_writeAll(REG_map* src)
 {
+  sem_wait(&reg_sem);
   reg_map = *src;
+  sem_post(&reg_sem);
 }
-
-
 
 

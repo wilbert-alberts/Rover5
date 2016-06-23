@@ -3,8 +3,8 @@
 #include "HSI.h"
 #include "REG.h"
 
-static long pos_Left = 0;
-static long pos_Right = 0;
+static int32_t pos_Left = 0;
+static int32_t pos_Right = 0;
 
 static void pos_isrLeftAUp();
 static void pos_isrLeftADown();

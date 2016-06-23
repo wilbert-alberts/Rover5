@@ -7,7 +7,7 @@
 
 static short line_ambient[LINE_NR_SENSORS];
 static short line_active[LINE_NR_SENSORS];
-static byte  line_digitalized[LINE_NR_SENSORS];
+static int8_t  line_digitalized[LINE_NR_SENSORS];
 
 static void line_setLights(int value);
 static void line_readSensors(short* dst);
@@ -70,7 +70,7 @@ static void line_readSensors(short* dst)
 
 static void line_digitalize()
 {
-  short offset;
+  uint16_t offset;
   
   REG_read16(REG_AMBOFFSET, &offset);
 
@@ -111,7 +111,7 @@ static void line_writeRegisters()
     REG_LINE_WN,
     REG_LINE_NW
   };
-  static byte mask = 0;
+  static int8_t mask = 0;
   
   for (int i=0; i<LINE_NR_SENSORS; i++) {
     REG_write16(registersAmb[i], line_ambient[i]);
