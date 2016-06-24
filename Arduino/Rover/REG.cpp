@@ -56,7 +56,7 @@ extern void REG_write16(int id, uint16_t val)
   *dst=val;
 }
 
-extern void REG_write32(int id, uint32_t val)
+extern void REG_write32(int id, int32_t val)
 {
   uint32_t* dst = (uint32_t*)(reg_address[id]);
   *dst=val;
@@ -74,7 +74,7 @@ extern void REG_read16(int id, uint16_t* val)
   *val=*src;
 }
 
-extern void REG_read32(int id, uint32_t* val)
+extern void REG_read32(int id, int32_t* val)
 {
   uint32_t* src = (uint32_t*)(reg_address[id]);
   *val=*src;
