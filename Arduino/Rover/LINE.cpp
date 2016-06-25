@@ -5,12 +5,12 @@
 
 #define LINE_NR_SENSORS (8)
 
-static short line_ambient[LINE_NR_SENSORS];
-static short line_active[LINE_NR_SENSORS];
-static int8_t  line_digitalized[LINE_NR_SENSORS];
+static uint16_t line_ambient[LINE_NR_SENSORS];
+static uint16_t line_active[LINE_NR_SENSORS];
+static uint8_t  line_digitalized[LINE_NR_SENSORS];
 
 static void line_setLights(int value);
-static void line_readSensors(short* dst);
+static void line_readSensors(uint16_t* dst);
 static void line_digitalize();
 static void line_writeRegisters();
 
@@ -46,7 +46,7 @@ static void line_setLights(int value)
   digitalWrite(PIN_LINE_LIGHT, value);
 }
 
-static void line_readSensors(short* dst)
+static void line_readSensors(uint16_t* dst)
 {
   static const int pins[] = { 
     PIN_LINE_NE,

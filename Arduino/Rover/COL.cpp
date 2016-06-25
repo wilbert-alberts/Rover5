@@ -5,12 +5,12 @@
 
 #define COL_NR_SENSORS (4)
 
-static short col_ambient[COL_NR_SENSORS];
-static short col_active[COL_NR_SENSORS];
-static byte  col_digitalized[COL_NR_SENSORS];
+static uint16_t col_ambient[COL_NR_SENSORS];
+static uint16_t col_active[COL_NR_SENSORS];
+static uint8_t  col_digitalized[COL_NR_SENSORS];
 
 static void col_setLights(int value);
-static void col_readSensors(short* dst);
+static void col_readSensors(uint16_t* dst);
 static void col_digitalize();
 static void col_writeRegisters();
 
@@ -49,7 +49,7 @@ static void col_setLights(int value)
   }
 }
 
-static void col_readSensors(short* dst)
+static void col_readSensors(uint16_t* dst)
 {
   static const int pins[] = { PIN_COL_NE, PIN_COL_SE, PIN_COL_SW, PIN_COL_NW }; 
   int v;
