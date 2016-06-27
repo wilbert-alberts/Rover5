@@ -1,4 +1,5 @@
 eclipse/**/Debug/*
+eclipse/.metadata/*
 *.o
 *.so
 *.d

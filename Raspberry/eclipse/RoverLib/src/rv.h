@@ -1,5 +1,13 @@
-#ifndef ROVER_H
-#define ROVER_H
+#ifndef RV_H
+#define RV_H
+
+/*
+ * rv.h - public API for Rover clients.
+ *
+ *  Created on: Jun 27, 2016
+ *      Author: walberts
+ *      Copyright: ASML.
+ */
 
 #include <stdint.h>
 
@@ -26,21 +34,21 @@
 #define REG_COL_SW (1<<2)
 #define REG_COL_NW (1<<3)
 
-typedef void (*RV_collisionCB)(uint8_t* collisionReg);
-typedef void (*RV_lineCB)(uint8_t* lineReg);
-
 extern int RV_start();
+
 extern int RV_stop();
 
+extern int RV_waitForNewData();
+
 extern int RV_getPosition(long* leftPos, long* rightPos);
+
 extern int RV_move(int leftDirection, // FORWARD, BACKWARD
 				   int rightDirection,
 				   int leftDC,        // from 0 to 255
 				   int rightDC);
+
 extern int RV_getCollision(uint8_t* mask);
+
 extern int RV_getLine(uint8_t* mask);
-
-
-
 
 #endif
