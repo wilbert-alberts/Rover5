@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "rv_exchange.h"
 #include "rv_loop.h"
 #include "rv_reg.h"
 #include "rv.h"
@@ -24,8 +25,7 @@
 
 extern int RV_start()
 {
-  printf("Starting exchange loop.");
-
+  RV_exchangeSetup();
   RV_startLoop();    
   REG_setup();
   return OK;
