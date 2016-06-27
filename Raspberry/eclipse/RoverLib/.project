@@ -3,6 +3,7 @@
 	<name>RoverLib</name>
 	<comment></comment>
 	<projects>
+		<project>wiringPi</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

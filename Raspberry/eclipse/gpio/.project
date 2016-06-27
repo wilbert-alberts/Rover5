@@ -3,6 +3,8 @@
 	<name>gpio</name>
 	<comment></comment>
 	<projects>
+		<project>wiringPi</project>
+		<project>wiringPiDev</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

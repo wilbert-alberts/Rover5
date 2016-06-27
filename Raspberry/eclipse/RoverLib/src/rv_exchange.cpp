@@ -5,9 +5,13 @@
  *      Author: walberts
  */
 
-#include "rv_reg.h"
+#include <stdio.h>
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+
+#include "rv.h"
+#include "rv_log.h"
+#include "rv_reg.h"
 
 
 #define REQEXC (5)
@@ -25,14 +29,23 @@ static REG_map rv_exchangeBuffer;
 
 extern int RV_exchangeSetup()
 {
+	int result = OK;
+	RV_LogEntry(__func__, NULL);
+
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 	pinMode(ACKEXC, INPUT);
 	wiringPiSPISetup (SPICHANNEL, SPISPEED) ;
+
+	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
 extern int RV_exchangeWithMega()
 {
+	int result = OK;
+	RV_LogEntry(__func__, NULL);
+
 	digitalWrite(REQEXC, HIGH);
 	while (digitalRead(ACKEXC)==LOW)
 		;// Busy wait
@@ -42,15 +55,25 @@ extern int RV_exchangeWithMega()
 	while (digitalRead(ACKEXC)==HIGH)
 		; // Busy wait
 	digitalWrite(REQEXC, LOW);
+
+	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
 static int rv_exchangeSPI()
 {
+	int result = OK;
+	RV_LogEntry(__func__, NULL);
+
 	REG_readAll(&rv_exchangeBuffer);
 	rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer);
 	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
-	if (rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer)==0)
+	result = rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer);
+	if (result==0)
 		REG_writeAll(&rv_exchangeBuffer);
+
+	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
 static void rv_exchangeFillHeaderTrailer(REG_map* m)

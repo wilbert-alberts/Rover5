@@ -8,6 +8,7 @@ int main (int argc, char* argv[])
 {
     long l;
     long r;
+    RV_LoggingOn();
     RV_start();
     
     sleep(1);

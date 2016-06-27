@@ -3,6 +3,7 @@
 	<name>RoverBin</name>
 	<comment></comment>
 	<projects>
+		<project>RoverLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
