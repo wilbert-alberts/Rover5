@@ -47,6 +47,15 @@ extern int RV_stop() {
 	return result;
 }
 
+extern int RV_LoggingOn()
+{
+	RV_SetLogging(pthread_self(), true);
+}
+extern int RV_LoggingOff()
+{
+	RV_SetLogging(pthread_self(), false);
+}
+
 extern int RV_getPosition(long* left, long* right) {
 	int32_t lft;
 	int32_t rgt;

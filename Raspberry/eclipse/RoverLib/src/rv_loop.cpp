@@ -7,7 +7,7 @@
 #include "rv_log.h"
 #include "rv_exchange.h"
 
-#define RV_LOOP_FREQUENCY (2) // Hz
+static int rv_frequency = 2;
 
 static bool RV_running;
 static pthread_t rv_loopTID;
@@ -17,7 +17,7 @@ static bool rv_loopWaiterBlocked;
 
 static void* rv_loop(void* args);
 
-extern void RV_startLoop() {
+extern int RV_startLoop() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
@@ -26,15 +26,38 @@ extern void RV_startLoop() {
 	pthread_create(&rv_loopTID, NULL, rv_loop, NULL);
 
 	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
-extern void RV_stopLoop() {
+extern int RV_stopLoop() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
 	RV_running = false;
 
 	RV_LogExit(__func__, result, NULL);
+	return result;
+}
+
+extern int RV_loopLogginOn() {
+	RV_SetLogging(rv_loopTID, true);
+	return OK;
+}
+
+extern int  RV_loopLogginOff() {
+	RV_SetLogging(rv_loopTID, false);
+	return OK;
+}
+
+extern int RV_setFrequency(int herz)
+{
+	int result = OK;
+	RV_LogEntry(__func__, "herz: %d", herz);
+
+	rv_frequency = herz;
+
+	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
 extern int RV_waitForNewData() {
@@ -72,7 +95,7 @@ static void* rv_loop(void* args) {
 	while (RV_running) {
 		RV_exchangeWithMega();
 		rv_notifyWaiters();
-		usleep(1000 / RV_LOOP_FREQUENCY);
+		usleep(1000 / rv_frequency);
 	}
 
 	RV_LogExit(__func__, result, NULL);
