@@ -19,7 +19,6 @@ static REG_map reg_map;
 extern void REG_setup()
 {
   REG_ADDREGISTER(MICROS)
-  REG_ADDREGISTER(MICROS)
   REG_ADDREGISTER(MILLIS)
   REG_ADDREGISTER(LEFTDIR)
   REG_ADDREGISTER(LEFTDC)
@@ -102,10 +101,17 @@ extern void REG_writeAll(REG_map* src)
   reg_map = *src;
 }
 
+extern void REG_loop()
+{
+  REG_write32(REG_MICROS, micros());
+  REG_write32(REG_MILLIS, millis());
+
+  REG_logAll();
+}
+
 extern void REG_logAll()
 {
   Serial.println("reg_map: ");
-  REG_LOGREGISTER(MICROS)
   REG_LOGREGISTER(MICROS)
   REG_LOGREGISTER(MILLIS)
   REG_LOGREGISTER(LEFTDIR)
