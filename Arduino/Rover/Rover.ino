@@ -8,6 +8,9 @@
 
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("Setup started.");
+  
   // put your setup code here, to run once
   MDC_setup();
   REG_setup();
@@ -19,12 +22,15 @@ void setup() {
 }
 
 void loop() {
+  Serial.print("loop: ");
+  Serial.println(millis());
   // put your main code here, to run repeatedly:
   COL_loop();
   LINE_loop();
   POS_loop();
   MTR_loop();
   COMM_loop();
+
 }
 
 

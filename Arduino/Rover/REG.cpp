@@ -3,10 +3,18 @@
 #include "REG.h"
 
 static uint8_t* reg_address[REG_MAX];
+static const char* reg_name[REG_MAX];
 static REG_map reg_map;
+
+#define REG_ADDREGISTER(R) \
+  reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; \
+  reg_name[REG_ ## R] = #R; \
+
 
 extern void REG_setup()
 {
+  REG_ADDREGISTER(MICROS)
+  
   reg_address[REG_MICROS] = (uint8_t*) &reg_map.MICROS;
   reg_address[REG_MILLIS] = (uint8_t*) &reg_map.MILLIS;
   reg_address[REG_LEFTDIR] = (uint8_t*) &reg_map.LEFTDIR;
@@ -90,6 +98,17 @@ extern void REG_writeAll(REG_map* src)
   reg_map = *src;
 }
 
+extern void REG_logAll()
+{
+  Serial.println("reg_map: ");
+  for (int i=0; i<REG_MAX; i++) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(reg_name[i]);
+    Serial.print(" = ");
+    Serial.println(reg_map[i]); 
+  }
+}
 
 
 
