@@ -6,50 +6,54 @@ static uint8_t* reg_address[REG_MAX];
 static const char* reg_name[REG_MAX];
 static REG_map reg_map;
 
-#define REG_ADDREGISTER(R) \
-  reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; \
-  reg_name[REG_ ## R] = #R; \
+#define REG_ADDREGISTER(R) 							\
+  reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; 	\
+  reg_name[REG_ ## R] = #R;
+
+#define REG_LOGREGISTER(R) 					\
+	    Serial.print(reg_name[REG_ ## R]); 	\
+	    Serial.print(": ");					\
+	    Serial.println(reg_map.R); 			\
 
 
 extern void REG_setup()
 {
   REG_ADDREGISTER(MICROS)
-  
-  reg_address[REG_MICROS] = (uint8_t*) &reg_map.MICROS;
-  reg_address[REG_MILLIS] = (uint8_t*) &reg_map.MILLIS;
-  reg_address[REG_LEFTDIR] = (uint8_t*) &reg_map.LEFTDIR;
-  reg_address[REG_LEFTDC] = (uint8_t*) &reg_map.LEFTDC;
-  reg_address[REG_RIGHTDIR] = (uint8_t*) &reg_map.RIGHTDIR;
-  reg_address[REG_RIGHTDC] = (uint8_t*) &reg_map.RIGHTDC;
-  reg_address[REG_COLLISION] = (uint8_t*) &reg_map.COLLISION;
-  reg_address[REG_LINE] = (uint8_t*) &reg_map.LINE;
-  reg_address[REG_LEFTPOS] = (uint8_t*) &reg_map.LEFTPOS;
-  reg_address[REG_RIGHTPOS] = (uint8_t*) &reg_map.RIGHTPOS;
-  reg_address[REG_AMBOFFSET] = (uint8_t*) &reg_map.AMBOFFSET;
-  reg_address[REG_AMB_COL_NE] = (uint8_t*) &reg_map.AMB_COL_NE;
-  reg_address[REG_AMB_COL_SE] = (uint8_t*) &reg_map.AMB_COL_SE;
-  reg_address[REG_AMB_COL_SW] = (uint8_t*) &reg_map.AMB_COL_SW;
-  reg_address[REG_AMB_COL_NW] = (uint8_t*) &reg_map.AMB_COL_NW;
-  reg_address[REG_AMB_LINE_NE] = (uint8_t*) &reg_map.AMB_LINE_NE;
-  reg_address[REG_AMB_LINE_EN] = (uint8_t*) &reg_map.AMB_LINE_EN;
-  reg_address[REG_AMB_LINE_ES] = (uint8_t*) &reg_map.AMB_LINE_ES;
-  reg_address[REG_AMB_LINE_SE] = (uint8_t*) &reg_map.AMB_LINE_SE;
-  reg_address[REG_AMB_LINE_SW] = (uint8_t*) &reg_map.AMB_LINE_SW;
-  reg_address[REG_AMB_LINE_WS] = (uint8_t*) &reg_map.AMB_LINE_WS;
-  reg_address[REG_AMB_LINE_WN] = (uint8_t*) &reg_map.AMB_LINE_WN;
-  reg_address[REG_AMB_LINE_NW] = (uint8_t*) &reg_map.AMB_LINE_NW;
-  reg_address[REG_IR_COL_NE] = (uint8_t*) &reg_map.IR_COL_NE;
-  reg_address[REG_IR_COL_SE] = (uint8_t*) &reg_map.IR_COL_SE;
-  reg_address[REG_IR_COL_SW] = (uint8_t*) &reg_map.IR_COL_SW;
-  reg_address[REG_IR_COL_NW] = (uint8_t*) &reg_map.IR_COL_NW;
-  reg_address[REG_IR_LINE_NE] = (uint8_t*) &reg_map.IR_LINE_NE;
-  reg_address[REG_IR_LINE_EN] = (uint8_t*) &reg_map.IR_LINE_EN;
-  reg_address[REG_IR_LINE_ES] = (uint8_t*) &reg_map.IR_LINE_ES;
-  reg_address[REG_IR_LINE_SE] = (uint8_t*) &reg_map.IR_LINE_SE;
-  reg_address[REG_IR_LINE_SW] = (uint8_t*) &reg_map.IR_LINE_SW;
-  reg_address[REG_IR_LINE_WS] = (uint8_t*) &reg_map.IR_LINE_WS;
-  reg_address[REG_IR_LINE_WN] = (uint8_t*) &reg_map.IR_LINE_WN;
-  reg_address[REG_IR_LINE_NW] = (uint8_t*) &reg_map.IR_LINE_NW;
+  REG_ADDREGISTER(MICROS)
+  REG_ADDREGISTER(MILLIS)
+  REG_ADDREGISTER(LEFTDIR)
+  REG_ADDREGISTER(LEFTDC)
+  REG_ADDREGISTER(RIGHTDIR)
+  REG_ADDREGISTER(RIGHTDC)
+  REG_ADDREGISTER(COLLISION)
+  REG_ADDREGISTER(LINE)
+  REG_ADDREGISTER(LEFTPOS)
+  REG_ADDREGISTER(RIGHTPOS)
+  REG_ADDREGISTER(AMBOFFSET)
+  REG_ADDREGISTER(AMB_COL_NE)
+  REG_ADDREGISTER(AMB_COL_SE)
+  REG_ADDREGISTER(AMB_COL_SW)
+  REG_ADDREGISTER(AMB_COL_NW)
+  REG_ADDREGISTER(AMB_LINE_NE)
+  REG_ADDREGISTER(AMB_LINE_EN)
+  REG_ADDREGISTER(AMB_LINE_ES)
+  REG_ADDREGISTER(AMB_LINE_SE)
+  REG_ADDREGISTER(AMB_LINE_SW)
+  REG_ADDREGISTER(AMB_LINE_WS)
+  REG_ADDREGISTER(AMB_LINE_WN)
+  REG_ADDREGISTER(AMB_LINE_NW)
+  REG_ADDREGISTER(IR_COL_NE)
+  REG_ADDREGISTER(IR_COL_SE)
+  REG_ADDREGISTER(IR_COL_SW)
+  REG_ADDREGISTER(IR_COL_NW)
+  REG_ADDREGISTER(IR_LINE_NE)
+  REG_ADDREGISTER(IR_LINE_EN)
+  REG_ADDREGISTER(IR_LINE_ES)
+  REG_ADDREGISTER(IR_LINE_SE)
+  REG_ADDREGISTER(IR_LINE_SW)
+  REG_ADDREGISTER(IR_LINE_WS)
+  REG_ADDREGISTER(IR_LINE_WN)
+  REG_ADDREGISTER(IR_LINE_NW)
 }
 
 extern void REG_write8(int id, uint8_t val)
@@ -101,13 +105,42 @@ extern void REG_writeAll(REG_map* src)
 extern void REG_logAll()
 {
   Serial.println("reg_map: ");
-  for (int i=0; i<REG_MAX; i++) {
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.print(reg_name[i]);
-    Serial.print(" = ");
-    Serial.println(reg_map[i]); 
-  }
+  REG_LOGREGISTER(MICROS)
+  REG_LOGREGISTER(MICROS)
+  REG_LOGREGISTER(MILLIS)
+  REG_LOGREGISTER(LEFTDIR)
+  REG_LOGREGISTER(LEFTDC)
+  REG_LOGREGISTER(RIGHTDIR)
+  REG_LOGREGISTER(RIGHTDC)
+  REG_LOGREGISTER(COLLISION)
+  REG_LOGREGISTER(LINE)
+  REG_LOGREGISTER(LEFTPOS)
+  REG_LOGREGISTER(RIGHTPOS)
+  REG_LOGREGISTER(AMBOFFSET)
+  REG_LOGREGISTER(AMB_COL_NE)
+  REG_LOGREGISTER(AMB_COL_SE)
+  REG_LOGREGISTER(AMB_COL_SW)
+  REG_LOGREGISTER(AMB_COL_NW)
+  REG_LOGREGISTER(AMB_LINE_NE)
+  REG_LOGREGISTER(AMB_LINE_EN)
+  REG_LOGREGISTER(AMB_LINE_ES)
+  REG_LOGREGISTER(AMB_LINE_SE)
+  REG_LOGREGISTER(AMB_LINE_SW)
+  REG_LOGREGISTER(AMB_LINE_WS)
+  REG_LOGREGISTER(AMB_LINE_WN)
+  REG_LOGREGISTER(AMB_LINE_NW)
+  REG_LOGREGISTER(IR_COL_NE)
+  REG_LOGREGISTER(IR_COL_SE)
+  REG_LOGREGISTER(IR_COL_SW)
+  REG_LOGREGISTER(IR_COL_NW)
+  REG_LOGREGISTER(IR_LINE_NE)
+  REG_LOGREGISTER(IR_LINE_EN)
+  REG_LOGREGISTER(IR_LINE_ES)
+  REG_LOGREGISTER(IR_LINE_SE)
+  REG_LOGREGISTER(IR_LINE_SW)
+  REG_LOGREGISTER(IR_LINE_WS)
+  REG_LOGREGISTER(IR_LINE_WN)
+  REG_LOGREGISTER(IR_LINE_NW)
 }
 
 
