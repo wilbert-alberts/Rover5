@@ -39,7 +39,7 @@ extern int RV_stopLoop() {
 	return result;
 }
 
-extern int RV_loopLogginOn() {
+extern int RV_loopLoggingOn() {
 	RV_SetLogging(rv_loopTID, true);
 	return OK;
 }

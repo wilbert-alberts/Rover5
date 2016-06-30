@@ -34,10 +34,10 @@
 #define REG_COL_SW (1<<2)
 #define REG_COL_NW (1<<3)
 
-extern int RV_LoopLoggingOn();
-extern int RV_LoopLoggingOff();
-extern int RV_LoggingOn();
-extern int RV_LoggingOff();
+extern int RV_loopLoggingOn();
+extern int RV_loopLoggingOff();
+extern int RV_loggingOn();
+extern int RV_loggingOff();
 
 extern int RV_start();
 extern int RV_setFrequency(int herz);

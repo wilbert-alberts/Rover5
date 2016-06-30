@@ -8,9 +8,14 @@ int main (int argc, char* argv[])
 {
     long l;
     long r;
-    RV_LoggingOn();
+    RV_loopLoggingOn();
+    RV_setFrequency(1);
+    RV_loggingOn();
     RV_start();
     
+    while (1);
+
+
     sleep(1);
     for (int i=0; i<4; i++) {
       RV_getPosition(&l, &r);

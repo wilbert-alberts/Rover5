@@ -47,11 +47,11 @@ extern int RV_stop() {
 	return result;
 }
 
-extern int RV_LoggingOn()
+extern int RV_loggingOn()
 {
 	RV_SetLogging(pthread_self(), true);
 }
-extern int RV_LoggingOff()
+extern int RV_loggingOff()
 {
 	RV_SetLogging(pthread_self(), false);
 }
