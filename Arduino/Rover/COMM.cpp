@@ -48,8 +48,6 @@ static void comm_doExchange()
 
 static void comm_FillSendBuffer()
 {
-  REG_write32(REG_MICROS, micros());
-  REG_write32(REG_MILLIS, millis());
   REG_readAll(&comm_SendBuffer);
   comm_FillHeaderTrailer(&comm_SendBuffer);
 }
