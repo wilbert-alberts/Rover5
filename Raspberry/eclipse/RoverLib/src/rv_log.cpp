@@ -17,10 +17,14 @@
 static pthread_t rv_loggingThreads[MAX_NR_THREADS];
 
 extern int RV_SetLogging(pthread_t tid, bool on) {
+	printf("Setting logging for: %d\n", tid);
 	if (on) {
 		for (int i = 0; i < MAX_NR_THREADS; i++)
-			if (rv_loggingThreads[i] == 0)
-				rv_loggingThreads[i] = pthread_self();
+			if (rv_loggingThreads[i] == 0) {
+				rv_loggingThreads[i] = tid;
+				return OK;
+			}
+
 	} else {
 		int i;
 		for (i = 0; i < MAX_NR_THREADS; i++)
@@ -37,9 +41,11 @@ extern int RV_SetLogging(pthread_t tid, bool on) {
 }
 
 extern bool rv_isLogginOn(pthread_t tid) {
-	for (int i = 0; i < MAX_NR_THREADS; i++)
+	for (int i = 0; i < MAX_NR_THREADS; i++) {
+		//printf("rv_logginTrhreads %d, %d vs %d\n", i, rv_loggingThreads[i], tid);
 		if (rv_loggingThreads[i] == tid)
 			return true;
+	}
 	return false;
 }
 

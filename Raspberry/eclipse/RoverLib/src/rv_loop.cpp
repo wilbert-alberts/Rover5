@@ -21,9 +21,12 @@ extern int RV_startLoop() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	sem_init(&rv_loopWaitProtectionSem, 0, 1);
-	sem_init(&rv_loopWaitSem, 0, 0);
-	pthread_create(&rv_loopTID, NULL, rv_loop, NULL);
+	result = sem_init(&rv_loopWaitProtectionSem, 0, 1);
+	printf("Created loop wait protection semaphore: %d\n", result);
+	result = sem_init(&rv_loopWaitSem, 0, 0);
+	printf("Created loop wait semaphore: %d\n", result);
+	result = pthread_create(&rv_loopTID, NULL, rv_loop, NULL);
+	printf("Created thread: %d\n", result);
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
@@ -89,11 +92,15 @@ static void rv_notifyWaiters() {
 
 static void* rv_loop(void* args) {
 	int result = OK;
+
+	//printf("in loop\n");
 	RV_LogEntry(__func__, NULL);
 
 	RV_running = true;
 	while (RV_running) {
+		//printf("about to exchange with mega\n");
 		RV_exchangeWithMega();
+		//printf("Finiahsed exchange with mega\n");
 		rv_notifyWaiters();
 		usleep(1000 / rv_frequency);
 	}
