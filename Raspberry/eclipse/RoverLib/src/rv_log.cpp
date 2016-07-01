@@ -71,7 +71,7 @@ extern int RV_LogExit(const char* fname, int result, const char *fmt, ...) {
 		if (fmt != NULL) {
 			vfprintf(stderr, fmt, argp);
 		}
-		fprintf(stderr, ") = 0x%0x\n", result);
+		fprintf(stderr, ") = %d\n", result);
 	}
 }
 
