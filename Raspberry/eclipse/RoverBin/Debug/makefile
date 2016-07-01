@@ -62,7 +62,7 @@ all: RoverBin
 RoverBin: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-linux-gnueabihf-g++ -mcpu=cortex-a7 -march=armv7ve -mthumb -O2  -g -Xlinker --gc-sections -L"C:\Localdata\Work\Innovationteam\OOTIProject2016\Rover5\Raspberry\eclipse\RoverLib\Debug" -Wl,-Map,"RoverBin.map" -o "RoverBin" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-linux-gnueabihf-g++ -mcpu=cortex-a7 -march=armv7ve -mthumb -O2  -g -Xlinker --gc-sections -L"C:\Localdata\Work\Innovationteam\OOTIProject2016\Rover5\Raspberry\eclipse\RoverLib\Debug" -L../../RoverLib/Debug -Wl,-Map,"RoverBin.map" -o "RoverBin" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
