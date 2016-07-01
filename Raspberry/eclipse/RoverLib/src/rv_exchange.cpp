@@ -20,8 +20,15 @@
 #define SPICHANNEL (0)
 #define SPISPEED   (4000000000) // 4Mhz
 
+#define SAFE_INVOKE(f, r, c) \
+	if (r==OK) { \
+		r = f; \
+		if (r!= OK) \
+			r = c; \
+	}
+
 static int rv_exchangeSPI();
-static void rv_exchangeFillHeaderTrailer(REG_map* m);
+static int rv_exchangeFillHeaderTrailer(REG_map* m);
 static int rv_exchangeCheckHeaderTrailer(REG_map* m);
 
 
@@ -35,7 +42,7 @@ extern int RV_exchangeSetup()
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 	pinMode(ACKEXC, INPUT);
-	wiringPiSPISetup (SPICHANNEL, SPISPEED) ;
+	SAFE_INVOKE(wiringPiSPISetup (SPICHANNEL, SPISPEED), result, RV_EXCHANGE_SETUP_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
@@ -47,12 +54,12 @@ extern int RV_exchangeWithMega()
 	RV_LogEntry(__func__, NULL);
 
 	digitalWrite(REQEXC, HIGH);
-	while (digitalRead(ACKEXC)==LOW)
+	while ((result == OK ) and (digitalRead(ACKEXC)==LOW))
 		;// Busy wait
 
-	rv_exchangeSPI();
+	SAFE_INVOKE(rv_exchangeSPI(), result, RV_EXCHANGE_FAILED)
 
-	while (digitalRead(ACKEXC)==HIGH)
+	while ((result == OK) and (digitalRead(ACKEXC)==HIGH))
 		; // Busy wait
 	digitalWrite(REQEXC, LOW);
 
@@ -66,17 +73,16 @@ static int rv_exchangeSPI()
 	RV_LogEntry(__func__, NULL);
 
 	REG_readAll(&rv_exchangeBuffer);
-	rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer);
-	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
-	result = rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer);
-	if (result==0)
-		REG_writeAll(&rv_exchangeBuffer);
+	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
+	SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
+	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
+	SAFE_INVOKE(REG_writeAll(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }
 
-static void rv_exchangeFillHeaderTrailer(REG_map* m)
+static int rv_exchangeFillHeaderTrailer(REG_map* m)
 {
   uint8_t* header = (uint8_t*)(&m->HEADER);
   uint8_t* trailer= (uint8_t*)(&m->TRAILER);
@@ -90,6 +96,8 @@ static void rv_exchangeFillHeaderTrailer(REG_map* m)
   trailer[1] = 0xA5;
   trailer[2] = 0x00;
   trailer[3] = 0x5A;
+
+  return OK;
 }
 
 static int rv_exchangeCheckHeaderTrailer(REG_map* m)
@@ -97,14 +105,14 @@ static int rv_exchangeCheckHeaderTrailer(REG_map* m)
   uint8_t* header = (uint8_t*)(&m->HEADER);
   uint8_t* trailer= (uint8_t*)(&m->TRAILER);
 
-  if (header[0] != 0x00)  return -1;
-  if (header[0] != 0xA5)  return -2;
-  if (header[0] != 0xFF ) return -3;
-  if (header[0] != 0x5A)  return -4;
-  if (trailer[0] != 0xFF)  return -20;
-  if (trailer[0] != 0xA5)  return -30;
-  if (trailer[0] != 0x00)  return -40;
-  if (trailer[0] != 0x5A)  return -50;
-  return 0;
+  if (header[0] != 0x00)  return -1001;
+  if (header[0] != 0xA5)  return -1002;
+  if (header[0] != 0xFF ) return -1003;
+  if (header[0] != 0x5A)  return -1004;
+  if (trailer[0] != 0xFF)  return -1020;
+  if (trailer[0] != 0xA5)  return -1030;
+  if (trailer[0] != 0x00)  return -1040;
+  if (trailer[0] != 0x5A)  return -1050;
+  return OK;
 }
 

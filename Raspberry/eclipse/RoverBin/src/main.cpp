@@ -8,10 +8,10 @@ int main (int argc, char* argv[])
 {
     long l;
     long r;
-    RV_setFrequency(1);
     RV_loggingOn();
-    RV_start();
     RV_loopLoggingOn();
+    RV_setFrequency(1);
+    RV_start();
     
     while (1);
 

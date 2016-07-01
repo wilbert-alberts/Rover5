@@ -7,9 +7,17 @@
 #include "rv_log.h"
 #include "rv_exchange.h"
 
+#define SAFE_INVOKE(f, r, c) \
+	if (r==OK) { \
+		r = f; \
+		if (r!= OK) \
+			r = c; \
+	}
+
 static int rv_frequency = 2;
 
-static bool RV_running;
+static bool rv_running;
+static bool rv_looplogging = false;
 static pthread_t rv_loopTID;
 static sem_t rv_loopWaitSem;
 static sem_t rv_loopWaitProtectionSem;
@@ -21,12 +29,9 @@ extern int RV_startLoop() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	result = sem_init(&rv_loopWaitProtectionSem, 0, 1);
-	printf("Created loop wait protection semaphore: %d\n", result);
-	result = sem_init(&rv_loopWaitSem, 0, 0);
-	printf("Created loop wait semaphore: %d\n", result);
-	result = pthread_create(&rv_loopTID, NULL, rv_loop, NULL);
-	printf("Created thread: %d\n", result);
+	SAFE_INVOKE(sem_init(&rv_loopWaitProtectionSem, 0, 1), result, RV_SEM_INIT_FAILED)
+	SAFE_INVOKE(sem_init(&rv_loopWaitSem, 0, 0), result, RV_SEM_INIT_FAILED)
+	SAFE_INVOKE(pthread_create(&rv_loopTID, NULL, rv_loop, NULL), result, RV_THREAD_CREATE_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
@@ -36,19 +41,23 @@ extern int RV_stopLoop() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	RV_running = false;
+	rv_running = false;
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_loopLoggingOn() {
-	RV_SetLogging(rv_loopTID, true);
+	rv_looplogging = true;
+	if (rv_loopTID != 0)
+		RV_SetLogging(rv_loopTID, rv_looplogging);
 	return OK;
 }
 
 extern int  RV_loopLogginOff() {
-	RV_SetLogging(rv_loopTID, false);
+	rv_looplogging = false;
+	if (rv_loopTID != 0)
+		RV_SetLogging(rv_loopTID, rv_looplogging);
 	return OK;
 }
 
@@ -67,41 +76,45 @@ extern int RV_waitForNewData() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	sem_wait(&rv_loopWaitProtectionSem);
+	SAFE_INVOKE(sem_wait(&rv_loopWaitProtectionSem), result, RV_SEM_WAIT_FAILED)
 	rv_loopWaiterBlocked = true;
-	sem_post(&rv_loopWaitProtectionSem);
-	sem_wait(&rv_loopWaitSem);
+	SAFE_INVOKE(sem_post(&rv_loopWaitProtectionSem), result, RV_SEM_POST_FAILED)
+	SAFE_INVOKE(sem_wait(&rv_loopWaitSem), result, RV_SEM_WAIT_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }
 
-static void rv_notifyWaiters() {
+static int rv_notifyWaiters() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	sem_wait(&rv_loopWaitProtectionSem);
+	SAFE_INVOKE(sem_wait(&rv_loopWaitProtectionSem), result, RV_SEM_WAIT_FAILED)
 	if (rv_loopWaiterBlocked) {
 		rv_loopWaiterBlocked = false;
-		sem_post(&rv_loopWaitSem);
+		SAFE_INVOKE(sem_post(&rv_loopWaitSem), result, RV_SEM_POST_FAILED)
 	}
-	sem_post(&rv_loopWaitProtectionSem);
+	SAFE_INVOKE(sem_post(&rv_loopWaitProtectionSem), result, RV_SEM_POST_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
+	return result;
 }
 
 static void* rv_loop(void* args) {
 	int result = OK;
 
+	RV_SetLogging(rv_loopTID, rv_looplogging);
+
 	//printf("in loop\n");
 	RV_LogEntry(__func__, NULL);
 
-	RV_running = true;
-	while (RV_running) {
+	rv_running = true;
+	while ((rv_running) and (result == OK)) {
 		//printf("about to exchange with mega\n");
-		RV_exchangeWithMega();
-		//printf("Finiahsed exchange with mega\n");
-		rv_notifyWaiters();
+		SAFE_INVOKE(RV_exchangeWithMega(), result, RV_LOOP_ABORTED)
+		//printf("Finished exchange with mega\n");
+
+		SAFE_INVOKE(rv_notifyWaiters(), result, RV_LOOP_ABORTED)
 		usleep(1000 / rv_frequency);
 	}
 
