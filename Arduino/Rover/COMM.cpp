@@ -5,8 +5,12 @@
 #include "HSI.h"
 #include "MDC.h"
 
-static REG_map comm_SendBuffer;
-static REG_map comm_ReceiveBuffer;
+static REG_map  comm_ReceiveBuffer;
+static REG_map  comm_SendBuffer;
+static uint8_t  comm_NrBytesReceived;
+static uint8_t * comm_SendPtr;
+static uint8_t * comm_RecvPtr;
+static bool     comm_Ready = false;
 
 static void comm_doExchange();
 static void comm_FillSendBuffer();
@@ -17,15 +21,17 @@ static void comm_EndExchange();
 static void comm_FillHeaderTrailer(REG_map* m);
 static int comm_CheckHeaderTrailer(REG_map* m);
 
+
 extern void COMM_setup()
 {
   static const SPISettings comm_SPISettings(4000000, MSBFIRST, SPI_MODE3);  // TODO check spi mode
 
   pinMode(PIN_REQEXC, INPUT);
   pinMode(PIN_ACKEXC, OUTPUT);
+  pinMode(MISO, OUTPUT);
+  
+  SPCR |= _BV(SPE);
 
-  SPI.begin();
-  SPI.beginTransaction(comm_SPISettings);
 }
 
 extern void COMM_loop()
@@ -86,22 +92,32 @@ static int comm_CheckHeaderTrailer(REG_map* m)
 
 static void comm_AcknowledgeRequest()
 {
+  comm_Ready = false;
+  comm_NrBytesReceived = 0;
+  comm_SendPtr = (uint8_t*)(&comm_SendBuffer);
+  comm_RecvPtr = (uint8_t*)(&comm_ReceiveBuffer);
+  
+  SPDR = *comm_SendPtr;
+  
+  SPI.attachInterrupt();
+
   digitalWrite(PIN_ACKEXC, HIGH);
+}
+
+ISR (SPI_STC_vect)
+{
+    *comm_RecvPtr++ = SPDR;
+    SPDR = *comm_SendPtr++;
+    comm_NrBytesReceived++;
+    comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
 }
 
 static void comm_Exchange()
 {
-  unsigned int i=0;
-  byte* dst = (byte*) &comm_ReceiveBuffer;
-  byte* src = (byte*) &comm_SendBuffer;
-
-  while ((i<sizeof(comm_SendBuffer) && digitalRead(PIN_REQEXC) == HIGH)) {
-       *dst = SPI.transfer(*src);
-       dst++;
-       src++;
-
+  while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
        MDC_checkAlive();
   }
+  SPI.detachInterrupt();
 }
 
 static void comm_EmptyReceiveBuffer()
