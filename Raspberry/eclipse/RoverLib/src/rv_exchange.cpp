@@ -37,12 +37,15 @@ static REG_map rv_exchangeBuffer;
 extern int RV_exchangeSetup()
 {
 	int result = OK;
+	int fd = 0;
 	RV_LogEntry(__func__, NULL);
 
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 	pinMode(ACKEXC, INPUT);
-	SAFE_INVOKE(wiringPiSPISetup (SPICHANNEL, SPISPEED), result, RV_EXCHANGE_SETUP_FAILED)
+
+	fd = wiringPiSPISetup (SPICHANNEL, SPISPEED);
+	result = (fd==-1) ? OK : RV_EXCHANGE_SETUP_FAILED;
 
 	RV_LogExit(__func__, result, NULL);
 	return result;

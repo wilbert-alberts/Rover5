@@ -17,7 +17,7 @@
 static pthread_t rv_loggingThreads[MAX_NR_THREADS];
 
 extern int RV_SetLogging(pthread_t tid, bool on) {
-	printf("Setting logging for: %d\n", tid);
+	printf("Setting logging for: %lud\n", tid);
 	if (on) {
 		for (int i = 0; i < MAX_NR_THREADS; i++)
 			if (rv_loggingThreads[i] == 0) {
@@ -49,7 +49,7 @@ extern bool rv_isLogginOn(pthread_t tid) {
 	return false;
 }
 
-extern int RV_LogEntry(const char* fname, const char *fmt, ...) {
+extern void RV_LogEntry(const char* fname, const char *fmt, ...) {
 	if (rv_isLogginOn(pthread_self())) {
 		va_list argp;
 		va_start(argp, fmt);
@@ -62,7 +62,7 @@ extern int RV_LogEntry(const char* fname, const char *fmt, ...) {
 	}
 }
 
-extern int RV_LogExit(const char* fname, int result, const char *fmt, ...) {
+extern void RV_LogExit(const char* fname, int result, const char *fmt, ...) {
 	if (rv_isLogginOn(pthread_self())) {
 		va_list argp;
 		va_start(argp, fmt);
