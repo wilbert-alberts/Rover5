@@ -13,7 +13,7 @@ static REG_map reg_map;
 #define REG_LOGREGISTER(R) 					\
 	    Serial.print(reg_name[REG_ ## R]); 	\
 	    Serial.print(": ");					\
-	    Serial.println(reg_map.R); 			\
+	    Serial.println(src->R); 			\
 
 
 extern void REG_setup()
@@ -106,10 +106,10 @@ extern void REG_loop()
   REG_write32(REG_MICROS, micros());
   REG_write32(REG_MILLIS, millis());
 
-  REG_logAll();
+  REG_logAll(&reg_map);
 }
 
-extern void REG_logAll()
+extern void REG_logAll(REG_map* src)
 {
   Serial.println("reg_map: ");
   REG_LOGREGISTER(MICROS)

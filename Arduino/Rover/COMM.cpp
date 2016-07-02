@@ -30,8 +30,6 @@ extern void COMM_setup()
 
 extern void COMM_loop()
 {
-    Serial.print("PIN_REQEXC: ");
-    Serial.println(digitalRead(PIN_REQEXC));
   if (digitalRead(PIN_REQEXC)==HIGH) {
      comm_doExchange();
   }
@@ -114,6 +112,8 @@ static void comm_EmptyReceiveBuffer()
     REG_write8(REG_LEFTDC, comm_ReceiveBuffer.LEFTDC);
     REG_write8(REG_RIGHTDIR, comm_ReceiveBuffer.RIGHTDIR);
     REG_write8(REG_RIGHTDC, comm_ReceiveBuffer.RIGHTDC);
+  } else {
+    REG_logAll(&comm_ReceiveBuffer);
   }
 }
 

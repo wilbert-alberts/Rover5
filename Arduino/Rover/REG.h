@@ -114,5 +114,5 @@ extern void REG_read32(int id, int32_t* dst);
 extern void REG_readAll(REG_map* dst);
 extern void REG_writeAll(REG_map* src);
 
-extern void REG_logAll();
+extern void REG_logAll(REG_map* src);
 #endif

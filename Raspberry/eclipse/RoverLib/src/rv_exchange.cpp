@@ -79,6 +79,9 @@ static int rv_exchangeSPI()
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 	SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
 	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
+	if (result != OK) {
+
+	}
 	SAFE_INVOKE(REG_writeAll(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 
 	RV_LogExit(__func__, result, NULL);

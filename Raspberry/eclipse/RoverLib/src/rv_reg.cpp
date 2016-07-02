@@ -14,9 +14,16 @@
 			r = c; \
 	}
 
+#define REG_ADDREGISTER(R) 							\
+  reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; 	\
+  reg_name[REG_ ## R] = #R;
+
+
+
 static REG_map reg_map;
 static sem_t reg_sem;
 static uint8_t* reg_address[REG_MAX];
+static const char* reg_name[REG_MAX];
 
 extern int REG_setup() {
 	int result = OK;
@@ -26,41 +33,41 @@ extern int REG_setup() {
 	SAFE_INVOKE(sem_init(&reg_sem, 0, 1), result, RV_SEM_INIT_FAILED)
 
 	if (result == OK) {
-		reg_address[REG_MICROS] = (uint8_t*) &reg_map.MICROS;
-		reg_address[REG_MILLIS] = (uint8_t*) &reg_map.MILLIS;
-		reg_address[REG_LEFTDIR] = (uint8_t*) &reg_map.LEFTDIR;
-		reg_address[REG_LEFTDC] = (uint8_t*) &reg_map.LEFTDC;
-		reg_address[REG_RIGHTDIR] = (uint8_t*) &reg_map.RIGHTDIR;
-		reg_address[REG_RIGHTDC] = (uint8_t*) &reg_map.RIGHTDC;
-		reg_address[REG_COLLISION] = (uint8_t*) &reg_map.COLLISION;
-		reg_address[REG_LINE] = (uint8_t*) &reg_map.LINE;
-		reg_address[REG_LEFTPOS] = (uint8_t*) &reg_map.LEFTPOS;
-		reg_address[REG_RIGHTPOS] = (uint8_t*) &reg_map.RIGHTPOS;
-		reg_address[REG_AMBOFFSET] = (uint8_t*) &reg_map.AMBOFFSET;
-		reg_address[REG_AMB_COL_NE] = (uint8_t*) &reg_map.AMB_COL_NE;
-		reg_address[REG_AMB_COL_SE] = (uint8_t*) &reg_map.AMB_COL_SE;
-		reg_address[REG_AMB_COL_SW] = (uint8_t*) &reg_map.AMB_COL_SW;
-		reg_address[REG_AMB_COL_NW] = (uint8_t*) &reg_map.AMB_COL_NW;
-		reg_address[REG_AMB_LINE_NE] = (uint8_t*) &reg_map.AMB_LINE_NE;
-		reg_address[REG_AMB_LINE_EN] = (uint8_t*) &reg_map.AMB_LINE_EN;
-		reg_address[REG_AMB_LINE_ES] = (uint8_t*) &reg_map.AMB_LINE_ES;
-		reg_address[REG_AMB_LINE_SE] = (uint8_t*) &reg_map.AMB_LINE_SE;
-		reg_address[REG_AMB_LINE_SW] = (uint8_t*) &reg_map.AMB_LINE_SW;
-		reg_address[REG_AMB_LINE_WS] = (uint8_t*) &reg_map.AMB_LINE_WS;
-		reg_address[REG_AMB_LINE_WN] = (uint8_t*) &reg_map.AMB_LINE_WN;
-		reg_address[REG_AMB_LINE_NW] = (uint8_t*) &reg_map.AMB_LINE_NW;
-		reg_address[REG_IR_COL_NE] = (uint8_t*) &reg_map.IR_COL_NE;
-		reg_address[REG_IR_COL_SE] = (uint8_t*) &reg_map.IR_COL_SE;
-		reg_address[REG_IR_COL_SW] = (uint8_t*) &reg_map.IR_COL_SW;
-		reg_address[REG_IR_COL_NW] = (uint8_t*) &reg_map.IR_COL_NW;
-		reg_address[REG_IR_LINE_NE] = (uint8_t*) &reg_map.IR_LINE_NE;
-		reg_address[REG_IR_LINE_EN] = (uint8_t*) &reg_map.IR_LINE_EN;
-		reg_address[REG_IR_LINE_ES] = (uint8_t*) &reg_map.IR_LINE_ES;
-		reg_address[REG_IR_LINE_SE] = (uint8_t*) &reg_map.IR_LINE_SE;
-		reg_address[REG_IR_LINE_SW] = (uint8_t*) &reg_map.IR_LINE_SW;
-		reg_address[REG_IR_LINE_WS] = (uint8_t*) &reg_map.IR_LINE_WS;
-		reg_address[REG_IR_LINE_WN] = (uint8_t*) &reg_map.IR_LINE_WN;
-		reg_address[REG_IR_LINE_NW] = (uint8_t*) &reg_map.IR_LINE_NW;
+		REG_ADDREGISTER(MICROS)
+		REG_ADDREGISTER(MILLIS)
+		REG_ADDREGISTER(LEFTDIR)
+		REG_ADDREGISTER(LEFTDC)
+		REG_ADDREGISTER(RIGHTDIR)
+		REG_ADDREGISTER(RIGHTDC)
+		REG_ADDREGISTER(COLLISION)
+		REG_ADDREGISTER(LINE)
+		REG_ADDREGISTER(LEFTPOS)
+		REG_ADDREGISTER(RIGHTPOS)
+		REG_ADDREGISTER(AMBOFFSET)
+		REG_ADDREGISTER(AMB_COL_NE)
+		REG_ADDREGISTER(AMB_COL_SE)
+		REG_ADDREGISTER(AMB_COL_SW)
+		REG_ADDREGISTER(AMB_COL_NW)
+		REG_ADDREGISTER(AMB_LINE_NE)
+		REG_ADDREGISTER(AMB_LINE_EN)
+		REG_ADDREGISTER(AMB_LINE_ES)
+		REG_ADDREGISTER(AMB_LINE_SE)
+		REG_ADDREGISTER(AMB_LINE_SW)
+		REG_ADDREGISTER(AMB_LINE_WS)
+		REG_ADDREGISTER(AMB_LINE_WN)
+		REG_ADDREGISTER(AMB_LINE_NW)
+		REG_ADDREGISTER(IR_COL_NE)
+		REG_ADDREGISTER(IR_COL_SE)
+		REG_ADDREGISTER(IR_COL_SW)
+		REG_ADDREGISTER(IR_COL_NW)
+		REG_ADDREGISTER(IR_LINE_NE)
+		REG_ADDREGISTER(IR_LINE_EN)
+		REG_ADDREGISTER(IR_LINE_ES)
+		REG_ADDREGISTER(IR_LINE_SE)
+		REG_ADDREGISTER(IR_LINE_SW)
+		REG_ADDREGISTER(IR_LINE_WS)
+		REG_ADDREGISTER(IR_LINE_WN)
+		REG_ADDREGISTER(IR_LINE_NW)
 	}
 
 	RV_LogExit(__func__, result, NULL);
@@ -169,4 +176,45 @@ extern int REG_writeAll(REG_map* src) {
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }
+
+extern void REG_logAll(REG_map* src)
+{
+  printf("reg_map: \n");
+  printf("%s: %d\n", reg_name[REG_MICROS], src->MICROS);
+  printf("%s: %d\n", reg_name[REG_MILLIS], src->MILLIS);
+  printf("%s: %d\n", reg_name[REG_LEFTDIR], src->LEFTDIR);
+  printf("%s: %d\n", reg_name[REG_LEFTDC], src->LEFTDC);
+  printf("%s: %d\n", reg_name[REG_RIGHTDIR], src->RIGHTDIR);
+  printf("%s: %d\n", reg_name[REG_RIGHTDC], src->RIGHTDC);
+  printf("%s: %d\n", reg_name[REG_COLLISION], src->COLLISION);
+  printf("%s: %d\n", reg_name[REG_LINE], src->LINE);
+  printf("%s: %d\n", reg_name[REG_LEFTPOS], src->LEFTPOS);
+  printf("%s: %d\n", reg_name[REG_RIGHTPOS], src->RIGHTPOS);
+  printf("%s: %d\n", reg_name[REG_AMBOFFSET], src->AMBOFFSET);
+  printf("%s: %d\n", reg_name[REG_AMB_COL_NE], src->AMB_COL_NE);
+  printf("%s: %d\n", reg_name[REG_AMB_COL_SE], src->AMB_COL_SE);
+  printf("%s: %d\n", reg_name[REG_AMB_COL_SW], src->AMB_COL_SW);
+  printf("%s: %d\n", reg_name[REG_AMB_COL_NW], src->AMB_COL_NW);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_NE], src->AMB_LINE_NE);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_EN], src->AMB_LINE_EN);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_ES], src->AMB_LINE_ES);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_SE], src->AMB_LINE_SE);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_SW], src->AMB_LINE_SW);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_WS], src->AMB_LINE_WS);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_WN], src->AMB_LINE_WN);
+  printf("%s: %d\n", reg_name[REG_AMB_LINE_NW], src->AMB_LINE_NW);
+  printf("%s: %d\n", reg_name[REG_IR_COL_NE], src->IR_COL_NE);
+  printf("%s: %d\n", reg_name[REG_IR_COL_SE], src->IR_COL_SE);
+  printf("%s: %d\n", reg_name[REG_IR_COL_SW], src->IR_COL_SW);
+  printf("%s: %d\n", reg_name[REG_IR_COL_NW], src->IR_COL_NW);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_NE], src->IR_LINE_NE);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_EN], src->IR_LINE_EN);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_ES], src->IR_LINE_ES);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_SE], src->IR_LINE_SE);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_SW], src->IR_LINE_SW);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_WS], src->IR_LINE_WS);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_WN], src->IR_LINE_WN);
+  printf("%s: %d\n", reg_name[REG_IR_LINE_NW], src->IR_LINE_NW);
+}
+
 

@@ -101,17 +101,19 @@ typedef struct
 } REG_map;
 
 
-int REG_setup();
+extern int REG_setup();
 
-int REG_write8(int id, uint8_t val);
-int REG_write16(int id, uint8_t val);
-int REG_write32(int id, int32_t val);
+extern int REG_write8(int id, uint8_t val);
+extern int REG_write16(int id, uint8_t val);
+extern int REG_write32(int id, int32_t val);
 
-int REG_read8(int id, uint8_t* dst);
-int REG_read16(int id, uint8_t* dst);
-int REG_read32(int id, int32_t* dst);
+extern int REG_read8(int id, uint8_t* dst);
+extern int REG_read16(int id, uint8_t* dst);
+extern int REG_read32(int id, int32_t* dst);
 
-int REG_readAll(REG_map* dst);
-int REG_writeAll(REG_map* src);
+extern int REG_readAll(REG_map* dst);
+extern int REG_writeAll(REG_map* src);
+
+extern void REG_logAll(REG_map* src);
 
 #endif

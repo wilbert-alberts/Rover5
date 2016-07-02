@@ -25,18 +25,6 @@ endif
 ifneq ($(strip $(CXX_DEPS)),)
 -include $(CXX_DEPS)
 endif
-ifneq ($(strip $(ASM_DEPS)),)
--include $(ASM_DEPS)
-endif
-ifneq ($(strip $(INO_DEPS)),)
--include $(INO_DEPS)
-endif
-ifneq ($(strip $(PDE_DEPS)),)
--include $(PDE_DEPS)
-endif
-ifneq ($(strip $(S_UPPER_DEPS)),)
--include $(S_UPPER_DEPS)
-endif
 ifneq ($(strip $(C_DEPS)),)
 -include $(C_DEPS)
 endif
@@ -55,14 +43,14 @@ all: libRover.a
 # Tool invocations
 libRover.a: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: Cross ARM GNU Archiver'
+	@echo 'Invoking: Cross GCC Archiver'
 	arm-linux-gnueabihf-ar -r  "libRover.a" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(ARCHIVES)$(ASM_DEPS)$(INO_DEPS)$(PDE_DEPS)$(S_UPPER_DEPS)$(C_DEPS)$(CPP_DEPS) libRover.a
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(ARCHIVES)$(C_DEPS)$(CPP_DEPS) libRover.a
 	-@echo ' '
 
 .PHONY: all clean dependents
