@@ -18,6 +18,7 @@ static REG_map reg_map;
 
 extern void REG_setup()
 {
+  REG_ADDREGISTER(HEADER)
   REG_ADDREGISTER(MICROS)
   REG_ADDREGISTER(MILLIS)
   REG_ADDREGISTER(LEFTDIR)
@@ -53,6 +54,7 @@ extern void REG_setup()
   REG_ADDREGISTER(IR_LINE_WS)
   REG_ADDREGISTER(IR_LINE_WN)
   REG_ADDREGISTER(IR_LINE_NW)
+  REG_ADDREGISTER(TRAILER)
 }
 
 extern void REG_write8(int id, uint8_t val)
