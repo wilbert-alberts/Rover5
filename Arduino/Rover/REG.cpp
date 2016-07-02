@@ -142,7 +142,6 @@ extern void REG_logAll(REG_map* src)
 {
   Serial.println("reg_map: ");
   LOG_U32(REG_HEADER);
-  LOG_U32(REG_HEADER);
   LOG_U32(REG_MICROS);
   LOG_U32(REG_MILLIS);
   LOG_U8(REG_LEFTDIR);

@@ -14,7 +14,7 @@
 			r = c; \
 	}
 
-static int rv_frequency = 2;
+static int rv_frequency = 1;
 
 static bool rv_running;
 static bool rv_looplogging = false;
@@ -110,15 +110,16 @@ static void* rv_loop(void* args) {
 
 	rv_running = true;
 	while ((rv_running) and (result == OK)) {
-		//printf("about to exchange with mega\n");
+		printf(".\n");
 		SAFE_INVOKE(RV_exchangeWithMega(), result, RV_LOOP_ABORTED)
 		//printf("Finished exchange with mega\n");
 
 		SAFE_INVOKE(rv_notifyWaiters(), result, RV_LOOP_ABORTED)
-		usleep(1000 / rv_frequency);
+		//usleep(1000 / rv_frequency);
 	}
 
 	RV_LogExit(__func__, result, NULL);
+	printf("Loop ended: %d\n", result);
 	return NULL;
 }
 

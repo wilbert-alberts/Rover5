@@ -18,7 +18,7 @@
 #define ACKEXC (6)
 
 #define SPICHANNEL (0)
-#define SPISPEED   (100000UL) // 100Khz
+#define SPISPEED   (100UL) // 100hz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -79,14 +79,16 @@ static int rv_exchangeSPI()
 
 	REG_readAll(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
-	b = (uint8_t*)&rv_exchangeBuffer;
-	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
-		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
-	}
-	// SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
-	rv_exchangeLogBuffer(&rv_exchangeBuffer);
+	//b = (uint8_t*)&rv_exchangeBuffer;
+	//for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
+	//	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
+	//}
+	//SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
+	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
+	// rv_exchangeLogBuffer(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 	if (result != OK) {
+		rv_exchangeLogBuffer(&rv_exchangeBuffer);
 		REG_logAll(&rv_exchangeBuffer);
 	}
 	SAFE_INVOKE(REG_writeAll(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
@@ -107,7 +109,7 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m)
 
   // TODO: remove
   for (unsigned int i=4; i<sizeof(REG_map)-4; i++) {
-	  header[i] = i-4;
+	  header[i] = i;
   }
 
   trailer[0] = 0xFF;

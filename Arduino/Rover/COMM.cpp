@@ -7,10 +7,10 @@
 
 static REG_map  comm_ReceiveBuffer;
 static REG_map  comm_SendBuffer;
-static uint8_t  comm_NrBytesReceived;
-static uint8_t * comm_SendPtr;
-static uint8_t * comm_RecvPtr;
-static bool     comm_Ready = false;
+volatile static uint8_t  comm_NrBytesReceived;
+volatile static uint8_t * comm_SendPtr;
+volatile static uint8_t * comm_RecvPtr;
+volatile static bool     comm_Ready = false;
 
 static void comm_doExchange();
 static void comm_FillSendBuffer();
@@ -35,8 +35,11 @@ extern void COMM_setup()
 
 extern void COMM_loop()
 {
+  static int s = HIGH;
   if (digitalRead(PIN_REQEXC)==HIGH) {
      comm_doExchange();
+     digitalWrite(13, s);
+     s = s== HIGH ? LOW : HIGH;
   }
 }
 
@@ -68,7 +71,7 @@ static void comm_FillHeaderTrailer(REG_map* m)
   header[3] = 0x5A;
 
   for (unsigned int i=4; i<sizeof(REG_map) - 4; i++) {
-    header[i] = i-4;
+    header[i] = i;
   }
 
   trailer[0] = 0xFF;
@@ -99,7 +102,8 @@ static void comm_AcknowledgeRequest()
   comm_NrBytesReceived = 0;
   comm_SendPtr = (uint8_t*)(&comm_SendBuffer);
   comm_RecvPtr = (uint8_t*)(&comm_ReceiveBuffer);
-  
+
+  uint8_t d = SPSR; // clear any pending interrupt.
   SPDR = *comm_SendPtr;
   
   SPI.attachInterrupt();
@@ -118,11 +122,12 @@ ISR (SPI_STC_vect)
 static void comm_Exchange()
 {
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
+       delay(1);
        MDC_checkAlive();
   }
   SPI.detachInterrupt();
 
-  comm_LogBuffer(&comm_ReceiveBuffer);
+  // comm_LogBuffer(&comm_ReceiveBuffer);
 }
 
 static void comm_EmptyReceiveBuffer()
@@ -140,10 +145,11 @@ static void comm_EmptyReceiveBuffer()
 
 static void comm_EndExchange()
 {
-  while (digitalRead(PIN_REQEXC)==HIGH)
-       MDC_checkAlive();
-
   digitalWrite(PIN_ACKEXC, LOW);
+
+  while (digitalRead(PIN_REQEXC)==HIGH) {
+       MDC_checkAlive();
+  }
 }
 
 static void comm_LogBuffer(REG_map* m)
