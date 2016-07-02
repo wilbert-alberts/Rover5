@@ -40,7 +40,7 @@
 #define REG_IR_LINE_WS    (33)
 #define REG_IR_LINE_WN    (34)
 #define REG_IR_LINE_NW    (35)
-#define REG_IR_TRAILER    (35)
+#define REG_TRAILER       (35)
 #define REG_MAX           (36)
 
 // Mask for the LINE register

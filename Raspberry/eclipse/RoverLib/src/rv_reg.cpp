@@ -33,6 +33,7 @@ extern int REG_setup() {
 	SAFE_INVOKE(sem_init(&reg_sem, 0, 1), result, RV_SEM_INIT_FAILED)
 
 	if (result == OK) {
+		REG_ADDREGISTER(HEADER)
 		REG_ADDREGISTER(MICROS)
 		REG_ADDREGISTER(MILLIS)
 		REG_ADDREGISTER(LEFTDIR)
@@ -68,6 +69,7 @@ extern int REG_setup() {
 		REG_ADDREGISTER(IR_LINE_WS)
 		REG_ADDREGISTER(IR_LINE_WN)
 		REG_ADDREGISTER(IR_LINE_NW)
+		REG_ADDREGISTER(TRAILER)
 	}
 
 	RV_LogExit(__func__, result, NULL);
@@ -180,6 +182,7 @@ extern int REG_writeAll(REG_map* src) {
 extern void REG_logAll(REG_map* src)
 {
   printf("reg_map: \n");
+  printf("%s: %d\n", reg_name[REG_HEADER], src->HEADER);
   printf("%s: %d\n", reg_name[REG_MICROS], src->MICROS);
   printf("%s: %d\n", reg_name[REG_MILLIS], src->MILLIS);
   printf("%s: %d\n", reg_name[REG_LEFTDIR], src->LEFTDIR);
@@ -215,6 +218,7 @@ extern void REG_logAll(REG_map* src)
   printf("%s: %d\n", reg_name[REG_IR_LINE_WS], src->IR_LINE_WS);
   printf("%s: %d\n", reg_name[REG_IR_LINE_WN], src->IR_LINE_WN);
   printf("%s: %d\n", reg_name[REG_IR_LINE_NW], src->IR_LINE_NW);
+  printf("%s: %d\n", reg_name[REG_TRAILER], src->TRAILER);
 }
 
 

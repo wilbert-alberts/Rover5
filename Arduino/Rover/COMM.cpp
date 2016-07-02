@@ -19,7 +19,7 @@ static int comm_CheckHeaderTrailer(REG_map* m);
 
 extern void COMM_setup()
 {
-  static const SPISettings comm_SPISettings(16000000, MSBFIRST, SPI_MODE3);  // TODO check spi mode
+  static const SPISettings comm_SPISettings(4000000, MSBFIRST, SPI_MODE3);  // TODO check spi mode
 
   pinMode(PIN_REQEXC, INPUT);
   pinMode(PIN_ACKEXC, OUTPUT);
