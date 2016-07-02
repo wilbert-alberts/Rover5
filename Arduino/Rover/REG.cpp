@@ -114,6 +114,7 @@ extern void REG_loop()
 extern void REG_logAll(REG_map* src)
 {
   Serial.println("reg_map: ");
+  REG_LOGREGISTER(HEADER)
   REG_LOGREGISTER(MICROS)
   REG_LOGREGISTER(MILLIS)
   REG_LOGREGISTER(LEFTDIR)
@@ -149,7 +150,9 @@ extern void REG_logAll(REG_map* src)
   REG_LOGREGISTER(IR_LINE_WS)
   REG_LOGREGISTER(IR_LINE_WN)
   REG_LOGREGISTER(IR_LINE_NW)
+  REG_LOGREGISTER(HEADER)
 }
+
 
 
 

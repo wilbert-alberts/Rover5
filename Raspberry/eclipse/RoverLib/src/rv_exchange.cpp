@@ -18,7 +18,7 @@
 #define ACKEXC (6)
 
 #define SPICHANNEL (0)
-#define SPISPEED   (1000000UL) // 1Mhz
+#define SPISPEED   (100000UL) // 100Khz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -30,6 +30,7 @@
 static int rv_exchangeSPI();
 static int rv_exchangeFillHeaderTrailer(REG_map* m);
 static int rv_exchangeCheckHeaderTrailer(REG_map* m);
+static void rv_exchangeLogBuffer(REG_map* m);
 
 
 static REG_map rv_exchangeBuffer;
@@ -83,6 +84,7 @@ static int rv_exchangeSPI()
 		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
 	}
 	// SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
+	rv_exchangeLogBuffer(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 	if (result != OK) {
 		REG_logAll(&rv_exchangeBuffer);
@@ -103,6 +105,7 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m)
   header[2] = 0xFF;
   header[3] = 0x5A;
 
+  // TODO: remove
   for (unsigned int i=4; i<sizeof(REG_map)-4; i++) {
 	  header[i] = i-4;
   }
@@ -121,13 +124,20 @@ static int rv_exchangeCheckHeaderTrailer(REG_map* m)
   uint8_t* trailer= (uint8_t*)(&m->TRAILER);
 
   if (header[0] != 0x00)  return -1001;
-  if (header[0] != 0xA5)  return -1002;
-  if (header[0] != 0xFF ) return -1003;
-  if (header[0] != 0x5A)  return -1004;
+  if (header[1] != 0xA5)  return -1002;
+  if (header[2] != 0xFF ) return -1003;
+  if (header[3] != 0x5A)  return -1004;
   if (trailer[0] != 0xFF)  return -1020;
-  if (trailer[0] != 0xA5)  return -1030;
-  if (trailer[0] != 0x00)  return -1040;
-  if (trailer[0] != 0x5A)  return -1050;
+  if (trailer[1] != 0xA5)  return -1030;
+  if (trailer[2] != 0x00)  return -1040;
+  if (trailer[3] != 0x5A)  return -1050;
   return OK;
 }
 
+static void rv_exchangeLogBuffer(REG_map* m)
+{
+	uint8_t* p = (uint8_t*)m;
+	for (unsigned int i=0; i<sizeof(REG_map); i++) {
+		printf("%d: %d\n", i, p[i]);
+	}
+}

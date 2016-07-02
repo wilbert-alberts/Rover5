@@ -20,6 +20,7 @@ static void comm_EmptyReceiveBuffer();
 static void comm_EndExchange();
 static void comm_FillHeaderTrailer(REG_map* m);
 static int comm_CheckHeaderTrailer(REG_map* m);
+static void comm_LogBuffer(REG_map* m);
 
 
 extern void COMM_setup()
@@ -68,6 +69,10 @@ static void comm_FillHeaderTrailer(REG_map* m)
   header[2] = 0xFF;
   header[3] = 0x5A;
 
+  for (unsigned int i=4; i<sizeof(REG_map) - 4; i++) {
+    header[i] = i-4;
+  }
+
   trailer[0] = 0xFF;
   trailer[1] = 0xA5;
   trailer[2] = 0x00;
@@ -80,13 +85,13 @@ static int comm_CheckHeaderTrailer(REG_map* m)
   byte* trailer= (byte*)(&m->TRAILER);
   
   if (header[0] != 0x00)  return -1;  
-  if (header[0] != 0xA5)  return -2;  
-  if (header[0] !=0xFF )  return -3;  
-  if (header[0] != 0x5A)  return -4;  
+  if (header[1] != 0xA5)  return -2;  
+  if (header[2] !=0xFF )  return -3;  
+  if (header[3] != 0x5A)  return -4;  
   if (trailer[0] != 0xFF)  return -20;  
-  if (trailer[0] != 0xA5)  return -30;  
-  if (trailer[0] != 0x00)  return -40;  
-  if (trailer[0] != 0x5A)  return -50;  
+  if (trailer[1] != 0xA5)  return -30;  
+  if (trailer[2] != 0x00)  return -40;  
+  if (trailer[3] != 0x5A)  return -50;  
   return 0;
 }
 
@@ -99,25 +104,26 @@ static void comm_AcknowledgeRequest()
   
   SPDR = *comm_SendPtr;
   
-  //SPI.attachInterrupt();
-
+  SPI.attachInterrupt();
+  
   digitalWrite(PIN_ACKEXC, HIGH);
 }
 
-/*
 ISR (SPI_STC_vect)
 {
-    *comm_RecvPtr++ = SPDR;
-    SPDR = *comm_SendPtr++;
+    *comm_RecvPtr = SPDR;
+    SPDR = *comm_SendPtr;
+    comm_RecvPtr++;
+    comm_SendPtr++;
     comm_NrBytesReceived++;
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
 }
-*/
 
 static void comm_Exchange()
 {
+  /*
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-    while ((SPCR & _BV(SPIF)) ==0 )
+    while ((SPSR & _BV(SPIF)) ==0 )
        MDC_checkAlive();
     *comm_RecvPtr = SPDR;
     SPDR = *comm_SendPtr;
@@ -125,13 +131,15 @@ static void comm_Exchange()
     comm_SendPtr++;
     comm_NrBytesReceived++;
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);    
-  }  
-  /*
+  } 
+  */
+
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
        MDC_checkAlive();
   }
   SPI.detachInterrupt();
-  */
+
+  comm_LogBuffer(&comm_ReceiveBuffer);
 }
 
 static void comm_EmptyReceiveBuffer()
@@ -154,4 +162,17 @@ static void comm_EndExchange()
 
   digitalWrite(PIN_ACKEXC, LOW);
 }
+
+static void comm_LogBuffer(REG_map* m)
+{
+ uint8_t* p = (uint8_t*)m;
+  for (unsigned int i=0; i<sizeof(REG_map); i++) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(p[i]);
+  }
+}
+
+
+
 

@@ -22,8 +22,8 @@ void setup() {
 }
 
 void loop() {
-  Serial.print("loop: ");
-  Serial.println(millis());
+  //Serial.print("loop: ");
+  //Serial.println(millis());
   // put your main code here, to run repeatedly:
   COL_loop();
   LINE_loop();
