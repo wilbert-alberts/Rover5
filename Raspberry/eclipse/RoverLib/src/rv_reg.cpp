@@ -179,71 +179,70 @@ extern int REG_writeAll(REG_map* src) {
 	return result;
 }
 
-#define LOG_U32(R) \
+#define LOG_U32(S, R) \
 {\
-	uint32_t* src = (uint32_t*) (reg_address[R]);        \
-	printf("%s: 0x%0x\n", reg_name[R], *src); \
+	uint32_t* v = (uint32_t*) (&(S->R));        \
+	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
 }
 
-#define LOG_32(R) \
+#define LOG_32(S, R) \
 {\
-	int32_t* src = (int32_t*) (reg_address[R]);        \
-	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+	int32_t* v = (int32_t*) (&(S->R));       \
+	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
 }
 
-#define LOG_U16(R) \
+#define LOG_U16(S, R) \
 {\
-	uint16_t* src = (uint16_t*) (reg_address[R]);        \
-	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+	uint16_t* v = (uint16_t*) (&(S->R));        \
+	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
 }
 
-#define LOG_U8(R) \
+#define LOG_U8(S, R) \
 {\
-	uint8_t* src = (uint8_t*) (reg_address[R]);        \
-	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+	uint8_t* v = (uint8_t*) (&(S->R));       \
+	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
 }
 
 extern void REG_logAll(REG_map* src)
 {
   printf("reg_map: \n");
-  LOG_U32(REG_HEADER);
-  LOG_U32(REG_HEADER);
-  LOG_U32(REG_MICROS);
-  LOG_U32(REG_MILLIS);
-  LOG_U8(REG_LEFTDIR);
-  LOG_U8(REG_LEFTDC);
-  LOG_U8(REG_RIGHTDIR);
-  LOG_U8(REG_RIGHTDC);
-  LOG_U8(REG_COLLISION);
-  LOG_U8(REG_LINE);
-  LOG_32(REG_LEFTPOS);
-  LOG_32(REG_RIGHTPOS);
-  LOG_U16(REG_AMBOFFSET);
-  LOG_U16(REG_AMB_LINE_NE);
-  LOG_U16(REG_AMB_LINE_EN);
-  LOG_U16(REG_AMB_LINE_ES);
-  LOG_U16(REG_AMB_LINE_SE);
-  LOG_U16(REG_AMB_LINE_SW);
-  LOG_U16(REG_AMB_LINE_WS);
-  LOG_U16(REG_AMB_LINE_WN);
-  LOG_U16(REG_AMB_LINE_NW);
-  LOG_U16(REG_AMB_COL_NE);
-  LOG_U16(REG_AMB_COL_SE);
-  LOG_U16(REG_AMB_COL_SW);
-  LOG_U16(REG_AMB_COL_NW);
-  LOG_U16(REG_IR_LINE_NE);
-  LOG_U16(REG_IR_LINE_EN);
-  LOG_U16(REG_IR_LINE_ES);
-  LOG_U16(REG_IR_LINE_SE);
-  LOG_U16(REG_IR_LINE_SW);
-  LOG_U16(REG_IR_LINE_WS);
-  LOG_U16(REG_IR_LINE_WN);
-  LOG_U16(REG_IR_LINE_NW);
-  LOG_U16(REG_IR_COL_NE);
-  LOG_U16(REG_IR_COL_SE);
-  LOG_U16(REG_IR_COL_SW);
-  LOG_U16(REG_IR_COL_NW);
-  LOG_U32(REG_TRAILER);
+  LOG_U32(src, HEADER);
+  LOG_U32(src, MICROS);
+  LOG_U32(src, MILLIS);
+  LOG_U8(src, LEFTDIR);
+  LOG_U8(src, LEFTDC);
+  LOG_U8(src, RIGHTDIR);
+  LOG_U8(src, RIGHTDC);
+  LOG_U8(src, COLLISION);
+  LOG_U8(src, LINE);
+  LOG_32(src, LEFTPOS);
+  LOG_32(src, RIGHTPOS);
+  LOG_U16(src, AMBOFFSET);
+  LOG_U16(src, AMB_LINE_NE);
+  LOG_U16(src, AMB_LINE_EN);
+  LOG_U16(src, AMB_LINE_ES);
+  LOG_U16(src, AMB_LINE_SE);
+  LOG_U16(src, AMB_LINE_SW);
+  LOG_U16(src, AMB_LINE_WS);
+  LOG_U16(src, AMB_LINE_WN);
+  LOG_U16(src, AMB_LINE_NW);
+  LOG_U16(src, AMB_COL_NE);
+  LOG_U16(src, AMB_COL_SE);
+  LOG_U16(src, AMB_COL_SW);
+  LOG_U16(src, AMB_COL_NW);
+  LOG_U16(src, IR_LINE_NE);
+  LOG_U16(src, IR_LINE_EN);
+  LOG_U16(src, IR_LINE_ES);
+  LOG_U16(src, IR_LINE_SE);
+  LOG_U16(src, IR_LINE_SW);
+  LOG_U16(src, IR_LINE_WS);
+  LOG_U16(src, IR_LINE_WN);
+  LOG_U16(src, IR_LINE_NW);
+  LOG_U16(src, IR_COL_NE);
+  LOG_U16(src, IR_COL_SE);
+  LOG_U16(src, IR_COL_SW);
+  LOG_U16(src, IR_COL_NW);
+  LOG_U32(src, TRAILER);
 }
 
 
