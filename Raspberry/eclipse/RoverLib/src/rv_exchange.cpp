@@ -45,7 +45,7 @@ extern int RV_exchangeSetup()
 	pinMode(ACKEXC, INPUT);
 
 	fd = wiringPiSPISetup (SPICHANNEL, SPISPEED);
-	result = (fd==-1) ? OK : RV_EXCHANGE_SETUP_FAILED;
+	result = (fd==-1) ? RV_EXCHANGE_SETUP_FAILED : OK ;
 
 	RV_LogExit(__func__, result, NULL);
 	return result;

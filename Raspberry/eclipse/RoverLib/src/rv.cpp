@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <wiringPi.h>
 #include "rv_log.h"
 #include "rv_exchange.h"
 #include "rv_loop.h"
@@ -41,6 +42,7 @@ extern int RV_start() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
+	wiringPiSetup();
 	SAFE_INVOKE(RV_exchangeSetup(), result, RV_START_FAILED)
 	SAFE_INVOKE(RV_startLoop(), result, RV_START_FAILED)
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)

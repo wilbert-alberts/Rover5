@@ -30,7 +30,9 @@ extern void COMM_setup()
 
 extern void COMM_loop()
 {
-  if (PIN_REQEXC==HIGH) {
+    Serial.print("PIN_REQEXC: ");
+    Serial.println(digitalRead(PIN_REQEXC));
+  if (digitalRead(PIN_REQEXC)==HIGH) {
      comm_doExchange();
   }
 }
