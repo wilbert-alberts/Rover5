@@ -24,7 +24,7 @@ static int comm_CheckHeaderTrailer(REG_map* m);
 
 extern void COMM_setup()
 {
-  static const SPISettings comm_SPISettings(4000000, MSBFIRST, SPI_MODE3);  // TODO check spi mode
+//  static const SPISettings comm_SPISettings(4000000, MSBFIRST, SPI_MODE3);  // TODO check spi mode
 
   pinMode(PIN_REQEXC, INPUT);
   pinMode(PIN_ACKEXC, OUTPUT);
@@ -99,11 +99,12 @@ static void comm_AcknowledgeRequest()
   
   SPDR = *comm_SendPtr;
   
-  SPI.attachInterrupt();
+  //SPI.attachInterrupt();
 
   digitalWrite(PIN_ACKEXC, HIGH);
 }
 
+/*
 ISR (SPI_STC_vect)
 {
     *comm_RecvPtr++ = SPDR;
@@ -111,13 +112,26 @@ ISR (SPI_STC_vect)
     comm_NrBytesReceived++;
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
 }
+*/
 
 static void comm_Exchange()
 {
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
+    while ((SPCR & _BV(SPIF)) ==0 )
+       MDC_checkAlive();
+    *comm_RecvPtr = SPDR;
+    SPDR = *comm_SendPtr;
+    comm_RecvPtr++;
+    comm_SendPtr++;
+    comm_NrBytesReceived++;
+    comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);    
+  }  
+  /*
+  while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
        MDC_checkAlive();
   }
   SPI.detachInterrupt();
+  */
 }
 
 static void comm_EmptyReceiveBuffer()

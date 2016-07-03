@@ -18,7 +18,7 @@
 #define ACKEXC (6)
 
 #define SPICHANNEL (0)
-#define SPISPEED   (4000000UL) // 4Mhz
+#define SPISPEED   (1000000UL) // 1Mhz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -102,6 +102,10 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m)
   header[1] = 0xA5;
   header[2] = 0xFF;
   header[3] = 0x5A;
+
+  for (unsigned int i=4; i<sizeof(REG_map)-4; i++) {
+	  header[i] = i-4;
+  }
 
   trailer[0] = 0xFF;
   trailer[1] = 0xA5;
