@@ -179,46 +179,71 @@ extern int REG_writeAll(REG_map* src) {
 	return result;
 }
 
+#define LOG_U32(R) \
+{\
+	uint32_t* src = (uint32_t*) (reg_address[R]);        \
+	printf("%s: 0x%0x\n", reg_name[R], *src); \
+}
+
+#define LOG_32(R) \
+{\
+	int32_t* src = (int32_t*) (reg_address[R]);        \
+	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+}
+
+#define LOG_U16(R) \
+{\
+	uint16_t* src = (uint16_t*) (reg_address[R]);        \
+	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+}
+
+#define LOG_U8(R) \
+{\
+	uint8_t* src = (uint8_t*) (reg_address[R]);        \
+	printf("%s: 0x%0x\n", reg_name[REG_HEADER], *src); \
+}
+
 extern void REG_logAll(REG_map* src)
 {
   printf("reg_map: \n");
-  printf("%s: 0x%0x\n", reg_name[REG_HEADER], src->HEADER);
-  printf("%s: 0x%0x\n", reg_name[REG_MICROS], src->MICROS);
-  printf("%s: 0x%0x\n", reg_name[REG_MILLIS], src->MILLIS);
-  printf("%s: 0x%0x\n", reg_name[REG_LEFTDIR], src->LEFTDIR);
-  printf("%s: 0x%0x\n", reg_name[REG_LEFTDC], src->LEFTDC);
-  printf("%s: 0x%0x\n", reg_name[REG_RIGHTDIR], src->RIGHTDIR);
-  printf("%s: 0x%0x\n", reg_name[REG_RIGHTDC], src->RIGHTDC);
-  printf("%s: 0x%0x\n", reg_name[REG_COLLISION], src->COLLISION);
-  printf("%s: 0x%0x\n", reg_name[REG_LINE], src->LINE);
-  printf("%s: 0x%0x\n", reg_name[REG_LEFTPOS], src->LEFTPOS);
-  printf("%s: 0x%0x\n", reg_name[REG_RIGHTPOS], src->RIGHTPOS);
-  printf("%s: 0x%0x\n", reg_name[REG_AMBOFFSET], src->AMBOFFSET);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_COL_NE], src->AMB_COL_NE);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_COL_SE], src->AMB_COL_SE);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_COL_SW], src->AMB_COL_SW);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_COL_NW], src->AMB_COL_NW);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_NE], src->AMB_LINE_NE);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_EN], src->AMB_LINE_EN);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_ES], src->AMB_LINE_ES);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_SE], src->AMB_LINE_SE);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_SW], src->AMB_LINE_SW);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_WS], src->AMB_LINE_WS);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_WN], src->AMB_LINE_WN);
-  printf("%s: 0x%0x\n", reg_name[REG_AMB_LINE_NW], src->AMB_LINE_NW);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_COL_NE], src->IR_COL_NE);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_COL_SE], src->IR_COL_SE);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_COL_SW], src->IR_COL_SW);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_COL_NW], src->IR_COL_NW);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_NE], src->IR_LINE_NE);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_EN], src->IR_LINE_EN);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_ES], src->IR_LINE_ES);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_SE], src->IR_LINE_SE);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_SW], src->IR_LINE_SW);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_WS], src->IR_LINE_WS);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_WN], src->IR_LINE_WN);
-  printf("%s: 0x%0x\n", reg_name[REG_IR_LINE_NW], src->IR_LINE_NW);
-  printf("%s: 0x%0x\n", reg_name[REG_TRAILER], src->TRAILER);
+  LOG_U32(REG_HEADER);
+  LOG_U32(REG_HEADER);
+  LOG_U32(REG_MICROS);
+  LOG_U32(REG_MILLIS);
+  LOG_U8(REG_LEFTDIR);
+  LOG_U8(REG_LEFTDC);
+  LOG_U8(REG_RIGHTDIR);
+  LOG_U8(REG_RIGHTDC);
+  LOG_U8(REG_COLLISION);
+  LOG_U8(REG_LINE);
+  LOG_32(REG_LEFTPOS);
+  LOG_32(REG_RIGHTPOS);
+  LOG_U16(REG_AMBOFFSET);
+  LOG_U16(REG_AMB_LINE_NE);
+  LOG_U16(REG_AMB_LINE_EN);
+  LOG_U16(REG_AMB_LINE_ES);
+  LOG_U16(REG_AMB_LINE_SE);
+  LOG_U16(REG_AMB_LINE_SW);
+  LOG_U16(REG_AMB_LINE_WS);
+  LOG_U16(REG_AMB_LINE_WN);
+  LOG_U16(REG_AMB_LINE_NW);
+  LOG_U16(REG_AMB_COL_NE);
+  LOG_U16(REG_AMB_COL_SE);
+  LOG_U16(REG_AMB_COL_SW);
+  LOG_U16(REG_AMB_COL_NW);
+  LOG_U16(REG_IR_LINE_NE);
+  LOG_U16(REG_IR_LINE_EN);
+  LOG_U16(REG_IR_LINE_ES);
+  LOG_U16(REG_IR_LINE_SE);
+  LOG_U16(REG_IR_LINE_SW);
+  LOG_U16(REG_IR_LINE_WS);
+  LOG_U16(REG_IR_LINE_WN);
+  LOG_U16(REG_IR_LINE_NW);
+  LOG_U16(REG_IR_COL_NE);
+  LOG_U16(REG_IR_COL_SE);
+  LOG_U16(REG_IR_COL_SW);
+  LOG_U16(REG_IR_COL_NW);
+  LOG_U32(REG_TRAILER);
 }
 
 

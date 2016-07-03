@@ -10,10 +10,37 @@ static REG_map reg_map;
   reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; 	\
   reg_name[REG_ ## R] = #R;
 
-#define REG_LOGREGISTER(R) 					\
-	    Serial.print(reg_name[REG_ ## R]); 	\
-	    Serial.print(": ");					\
-	    Serial.println(src->R); 			\
+#define LOG_U32(R) \
+{\
+	uint32_t* src = (uint32_t*) (reg_address[R]);        \
+	Serial.print(reg_name[R]); \
+	Serial.print(": "); \
+	Serial.println(*src); \
+}
+
+#define LOG_32(R) \
+{\
+	int32_t* src = (int32_t*) (reg_address[R]);        \
+	Serial.print(reg_name[R]); \
+  Serial.print(": "); \
+	Serial.println(*src); \
+}
+
+#define LOG_U16(R) \
+{\
+	uint16_t* src = (uint16_t*) (reg_address[R]);        \
+	Serial.print(reg_name[R]); \
+  Serial.print(": "); \
+	Serial.println(*src); \
+}
+
+#define LOG_U8(R) \
+{\
+	uint8_t* src = (uint8_t*) (reg_address[R]);        \
+	Serial.print(reg_name[R]); \
+  Serial.print(": "); \
+	Serial.println(*src); \
+}
 
 
 extern void REG_setup()
@@ -114,43 +141,44 @@ extern void REG_loop()
 extern void REG_logAll(REG_map* src)
 {
   Serial.println("reg_map: ");
-  REG_LOGREGISTER(HEADER)
-  REG_LOGREGISTER(MICROS)
-  REG_LOGREGISTER(MILLIS)
-  REG_LOGREGISTER(LEFTDIR)
-  REG_LOGREGISTER(LEFTDC)
-  REG_LOGREGISTER(RIGHTDIR)
-  REG_LOGREGISTER(RIGHTDC)
-  REG_LOGREGISTER(COLLISION)
-  REG_LOGREGISTER(LINE)
-  REG_LOGREGISTER(LEFTPOS)
-  REG_LOGREGISTER(RIGHTPOS)
-  REG_LOGREGISTER(AMBOFFSET)
-  REG_LOGREGISTER(AMB_COL_NE)
-  REG_LOGREGISTER(AMB_COL_SE)
-  REG_LOGREGISTER(AMB_COL_SW)
-  REG_LOGREGISTER(AMB_COL_NW)
-  REG_LOGREGISTER(AMB_LINE_NE)
-  REG_LOGREGISTER(AMB_LINE_EN)
-  REG_LOGREGISTER(AMB_LINE_ES)
-  REG_LOGREGISTER(AMB_LINE_SE)
-  REG_LOGREGISTER(AMB_LINE_SW)
-  REG_LOGREGISTER(AMB_LINE_WS)
-  REG_LOGREGISTER(AMB_LINE_WN)
-  REG_LOGREGISTER(AMB_LINE_NW)
-  REG_LOGREGISTER(IR_COL_NE)
-  REG_LOGREGISTER(IR_COL_SE)
-  REG_LOGREGISTER(IR_COL_SW)
-  REG_LOGREGISTER(IR_COL_NW)
-  REG_LOGREGISTER(IR_LINE_NE)
-  REG_LOGREGISTER(IR_LINE_EN)
-  REG_LOGREGISTER(IR_LINE_ES)
-  REG_LOGREGISTER(IR_LINE_SE)
-  REG_LOGREGISTER(IR_LINE_SW)
-  REG_LOGREGISTER(IR_LINE_WS)
-  REG_LOGREGISTER(IR_LINE_WN)
-  REG_LOGREGISTER(IR_LINE_NW)
-  REG_LOGREGISTER(HEADER)
+  LOG_U32(REG_HEADER);
+  LOG_U32(REG_HEADER);
+  LOG_U32(REG_MICROS);
+  LOG_U32(REG_MILLIS);
+  LOG_U8(REG_LEFTDIR);
+  LOG_U8(REG_LEFTDC);
+  LOG_U8(REG_RIGHTDIR);
+  LOG_U8(REG_RIGHTDC);
+  LOG_U8(REG_COLLISION);
+  LOG_U8(REG_LINE);
+  LOG_32(REG_LEFTPOS);
+  LOG_32(REG_RIGHTPOS);
+  LOG_U16(REG_AMBOFFSET);
+  LOG_U16(REG_AMB_LINE_NE);
+  LOG_U16(REG_AMB_LINE_EN);
+  LOG_U16(REG_AMB_LINE_ES);
+  LOG_U16(REG_AMB_LINE_SE);
+  LOG_U16(REG_AMB_LINE_SW);
+  LOG_U16(REG_AMB_LINE_WS);
+  LOG_U16(REG_AMB_LINE_WN);
+  LOG_U16(REG_AMB_LINE_NW);
+  LOG_U16(REG_AMB_COL_NE);
+  LOG_U16(REG_AMB_COL_SE);
+  LOG_U16(REG_AMB_COL_SW);
+  LOG_U16(REG_AMB_COL_NW);
+  LOG_U16(REG_IR_LINE_NE);
+  LOG_U16(REG_IR_LINE_EN);
+  LOG_U16(REG_IR_LINE_ES);
+  LOG_U16(REG_IR_LINE_SE);
+  LOG_U16(REG_IR_LINE_SW);
+  LOG_U16(REG_IR_LINE_WS);
+  LOG_U16(REG_IR_LINE_WN);
+  LOG_U16(REG_IR_LINE_NW);
+  LOG_U16(REG_IR_COL_NE);
+  LOG_U16(REG_IR_COL_SE);
+  LOG_U16(REG_IR_COL_SW);
+  LOG_U16(REG_IR_COL_NW);
+  LOG_U32(REG_TRAILER);
 }
 
 
