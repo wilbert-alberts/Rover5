@@ -29,7 +29,6 @@ extern void COMM_setup()
   pinMode(PIN_ACKEXC, OUTPUT);
   pinMode(MISO, OUTPUT);
   pinMode(43, OUTPUT);
-  digitalWrite(43, HIGH);
   
   SPCR |= _BV(SPE);
 
@@ -115,12 +114,19 @@ static void comm_AcknowledgeRequest()
 
 ISR (SPI_STC_vect)
 {
-  digitalWrite(43, HIGH);
+  //digitalWrite(43, HIGH);
+    PORTL |=  _BV(PL6);
+  //digitalWrite(43, LOW); // 5.25us
     SPDR = *comm_SendPtr++;
+  //digitalWrite(43, LOW); // 6.25us
     *comm_RecvPtr++ = SPDR;    
+  //digitalWrite(43, LOW); // 7.0us
     comm_NrBytesReceived++;
+  //digitalWrite(43, LOW); // 7.25us
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
-  digitalWrite(43, LOW);
+    PORTL &= ~(_BV(PL6));
+
+  //digitalWrite(43, LOW); // 7.75us
 }
 
 static void comm_Exchange()
