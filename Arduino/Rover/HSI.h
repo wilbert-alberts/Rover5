@@ -40,8 +40,8 @@
 
 #define PIN_REQEXC    (48) // Input, high whenever PI requests transfer of frame
 #define PIN_ACKEXC    (47) // Output, high as soon as MEGA ready for frame transfer
-#define PIN_RTS       (45) // PI indicates that it is ready to send a byte.
-#define PIN_RECEIVING (46) // AVR indicates that is in receiving mode.
+//#define PIN_RTS       (45) // PI indicates that it is ready to send a byte.
+//#define PIN_RECEIVING (46) // AVR indicates that is in receiving mode.
 
 #endif
 

@@ -118,9 +118,9 @@ static void* rv_loop(void* args) {
 
 	rv_running = true;
 	while ((rv_running) and (result == OK)) {
-		printf(".\n");
-		SAFE_INVOKE(RV_exchangeWithMega(), result, RV_LOOP_ABORTED)
+		result = RV_exchangeWithMega();
 		result = OK;
+		printf("*\n");
 
 		SAFE_INVOKE(rv_notifyWaiters(), result, RV_LOOP_ABORTED)
 		usleep(1000000ul / rv_frequency);

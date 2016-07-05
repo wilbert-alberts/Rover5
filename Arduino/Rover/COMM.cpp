@@ -28,11 +28,16 @@ extern void COMM_setup()
   pinMode(PIN_REQEXC, INPUT);
   pinMode(PIN_ACKEXC, OUTPUT);
   pinMode(MISO, OUTPUT);
-  pinMode(PIN_RECEIVING, OUTPUT);
-  pinMode(PIN_RTS, INPUT);
+  pinMode(MOSI, INPUT);
+//  pinMode(PIN_RECEIVING, OUTPUT);
+//  pinMode(PIN_RTS, INPUT);
   
   pinMode(43, OUTPUT);
-  
+
+  digitalWrite(PIN_ACKEXC, LOW);
+  digitalWrite(MISO, LOW);
+//  digitalWrite(PIN_RECEIVING, LOW);
+
   SPCR |= _BV(SPE);
 
 }
@@ -74,9 +79,11 @@ static void comm_FillHeaderTrailer(REG_map* m)
   header[2] = 0xFF;
   header[3] = 0x5A;
 
+/*
   for (unsigned int i=4; i<sizeof(REG_map) - 4; i++) {
     header[i] = i;
   }
+*/
 
   trailer[0] = 0xFF;
   trailer[1] = 0xA5;
@@ -113,9 +120,10 @@ static void comm_AcknowledgeRequest()
   
   SPI.attachInterrupt();
   digitalWrite(PIN_ACKEXC, HIGH);
-  while(digitalRead(PIN_RTS)==LOW)
-    ; // Wait until PI indicates ready to send.
-  digitalWrite(PIN_RECEIVING, HIGH);
+  
+//  while(digitalRead(PIN_RTS)==LOW)
+//    ; // Wait until PI indicates ready to send.
+//  digitalWrite(PIN_RECEIVING, HIGH);
 }
 
 ISR (SPI_STC_vect)
@@ -125,7 +133,7 @@ ISR (SPI_STC_vect)
    *comm_RecvPtr++ = SPDR;  // 0.75us   
     comm_NrBytesReceived++; // 0.25us
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer); // 0.5us
-    digitalWrite(PIN_RECEIVING, LOW);
+//    digitalWrite(PIN_RECEIVING, LOW);
     PORTL &= ~(_BV(PL6));   // digitalWrite(43, HIGH);
 }
 
@@ -147,8 +155,9 @@ static void comm_Exchange()
 */
   
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-      if (digitalRead(PIN_RTS) == HIGH) 
-        digitalWrite(PIN_RECEIVING, HIGH);
+      //if (digitalRead(PIN_RTS) == HIGH) 
+      //  digitalWrite(PIN_RECEIVING, HIGH);
+      delay(1);
   }
   SPI.detachInterrupt();
   
@@ -171,11 +180,12 @@ static void comm_EmptyReceiveBuffer()
 
 static void comm_EndExchange()
 {
-  digitalWrite(PIN_ACKEXC, LOW);
+  //digitalWrite(PIN_RECEIVING, LOW);
 
   while (digitalRead(PIN_REQEXC)==HIGH) {
        MDC_checkAlive();
   }
+  digitalWrite(PIN_ACKEXC, LOW);
 }
 
 static void comm_LogBuffer(REG_map* m)

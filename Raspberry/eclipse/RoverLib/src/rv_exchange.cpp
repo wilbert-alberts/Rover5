@@ -18,11 +18,11 @@
 #define REQEXC (5)
 #define ACKEXC (6)
 #define SS     	(4)
-#define RTS 	(3)  
-#define RECEIVING	(26)
+//#define RTS 	(3)  
+//#define RECEIVING	(7)
 
 #define SPICHANNEL (0)
-#define SPISPEED   (4000000UL) // 1Mhz
+#define SPISPEED   (2000000UL) // 2Mhz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -36,6 +36,7 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m);
 static int rv_exchangeCheckHeaderTrailer(REG_map* m);
 static void rv_exchangeLogBuffer(REG_map* m);
 
+ int rv_spiByteDelay = 1;
 
 static REG_map rv_exchangeBuffer;
 
@@ -51,11 +52,11 @@ extern int RV_exchangeSetup()
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 	
-	pinMode(RTS, OUTPUT);
-	digitalWrite(RTS, LOW);
+//	pinMode(RTS, OUTPUT);
+//	digitalWrite(RTS, LOW);
 	
 	pinMode(ACKEXC, INPUT);
-	pinMode(RECEIVING, INPUT);
+//	pinMode(RECEIVING, INPUT);
 
 	fd = wiringPiSPISetup (SPICHANNEL, SPISPEED);
 	result = (fd==-1) ? RV_EXCHANGE_SETUP_FAILED : OK ;
@@ -69,27 +70,35 @@ extern int RV_exchangeWithMega()
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
-	digitalWrite(REQEXC, HIGH);
+	 digitalWrite(REQEXC, HIGH);
+	 while ((result == OK ) and (digitalRead(ACKEXC)==LOW))
+		 ;// Busy wait
+		 
+	 SAFE_INVOKE(rv_exchangeSPI(), result, RV_EXCHANGE_FAILED)
 
-	while ((result == OK ) and (digitalRead(ACKEXC)==LOW))
-		;// Busy wait
-
-	SAFE_INVOKE(rv_exchangeSPI(), result, RV_EXCHANGE_FAILED)
-
-	while ((result == OK) and (digitalRead(ACKEXC)==HIGH))
-		; // Busy wait
-	digitalWrite(REQEXC, LOW);
-
+         digitalWrite(REQEXC, LOW);
+	 while ((digitalRead(ACKEXC)==HIGH))
+		 ; // Busy wait
+	
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }
+
+#define rv_mySleep(BYTEDELAY) \
+{ \
+	volatile int d; \
+	for (volatile int i=0; i<1000ul; i++) \
+	{ \
+		d=i; \
+	} \
+} 
 
 static int rv_exchangeSPI()
 {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 	uint8_t* b;
-	const struct timespec delta = { 0, 10000 };
+	const struct timespec delta = { 0, 1 };
 
 	REG_readAll(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
@@ -99,21 +108,15 @@ static int rv_exchangeSPI()
 	b = (uint8_t*)&rv_exchangeBuffer;
 	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
 		
-		digitalWrite(RTS, HIGH);
-		while (digitalRead(RECEIVING) == LOW) {
-			; // Wait until receiver is ready to receive
-		}
 		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
-		digitalWrite(RTS, LOW);
-		while (digitalRead(RECEIVING) == HIGH) {
-			; // Wailt until receiver has processed byte
-		}		
-	}
 
+		//nanosleep(&delta, NULL);
+		//rv_mySleep(rv_spiByteDelay);
+		for (volatile int i=0; i<10; i++) ;
+	}
+	
 	digitalWrite(SS, HIGH);
 
-
-	// rv_exchangeLogBuffer(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 	if (result != OK) {
 		rv_exchangeLogBuffer(&rv_exchangeBuffer);
@@ -136,9 +139,9 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m)
   header[3] = 0x5A;
 
   // TODO: remove
-  for (unsigned int i=4; i<sizeof(REG_map)-4; i++) {
-	  header[i] = i;
-  }
+  //for (unsigned int i=4; i<sizeof(REG_map)-4; i++) {
+//	  header[i] = i;
+  //}
 
   trailer[0] = 0xFF;
   trailer[1] = 0xA5;
