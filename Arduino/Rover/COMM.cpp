@@ -29,6 +29,7 @@ extern void COMM_setup()
   pinMode(PIN_ACKEXC, OUTPUT);
   pinMode(MISO, OUTPUT);
   pinMode(43, OUTPUT);
+  digitalWrite(43, HIGH);
   
   SPCR |= _BV(SPE);
 
@@ -108,7 +109,7 @@ static void comm_AcknowledgeRequest()
   SPDR = *comm_SendPtr;
   comm_SendPtr++; 
   
-  //SPI.attachInterrupt();
+  SPI.attachInterrupt();
   digitalWrite(PIN_ACKEXC, HIGH);
 }
 
@@ -124,27 +125,28 @@ ISR (SPI_STC_vect)
 
 static void comm_Exchange()
 {
+  /*
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-    while ((SPCR & _BV(SPIF)) ==0 )
+    
+    while ((SPSR & _BV(SPIF)) ==0 )
        MDC_checkAlive();
-  digitalWrite(43, HIGH);
+
+    digitalWrite(43, HIGH);
     SPDR = *comm_SendPtr++;
     *comm_RecvPtr++ = SPDR;    
     comm_NrBytesReceived++;
     comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);    
-  digitalWrite(43, LOW);
+    digitalWrite(43, LOW);
   }  
-
-  /*
+*/
+  
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
        delay(1);
        MDC_checkAlive();
   }
   SPI.detachInterrupt();
-  */
-
-
   
+
   // comm_LogBuffer(&comm_ReceiveBuffer);
 }
 

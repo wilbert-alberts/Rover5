@@ -21,7 +21,7 @@
 
 
 #define SPICHANNEL (0)
-#define SPISPEED   (2000000UL) // 1Mhz
+#define SPISPEED   (4000000UL) // 1Mhz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -92,7 +92,7 @@ static int rv_exchangeSPI()
 	b = (uint8_t*)&rv_exchangeBuffer;
 	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
 		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
-		for (volatile long d=0; d<1000; d++) {
+		for (volatile long d=0; d<2000; d++) {
 			volatile long dd;
 			dd=d;
 		}

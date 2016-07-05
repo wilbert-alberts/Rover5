@@ -30,7 +30,6 @@ void loop() {
   POS_loop();
   MTR_loop();
   COMM_loop();
-
 }
 
 
