@@ -94,7 +94,7 @@ static int rv_exchangeSPI() {
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 	uint8_t* b;
-	const struct timespec delta = { 0, 1 };
+	// const struct timespec delta = { 0, 1 };
 
 	REG_readAll(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result,
@@ -107,6 +107,10 @@ static int rv_exchangeSPI() {
 
 		wiringPiSPIDataRW(SPICHANNEL, (unsigned char*) (b + i), 1);
 
+		/* We need to sleep here for a little while ~20us
+		   Linux's kernel usleep sleeps at least 75us
+		   therefore a busy wait.
+		   */
 		//nanosleep(&delta, NULL);
 		//rv_mySleep(rv_spiByteDelay);
 		for (volatile int i = 0; i < 10; i++)

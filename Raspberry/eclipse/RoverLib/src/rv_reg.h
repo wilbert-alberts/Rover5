@@ -104,11 +104,11 @@ typedef struct
 extern int REG_setup();
 
 extern int REG_write8(int id, uint8_t val);
-extern int REG_write16(int id, uint8_t val);
+extern int REG_write16(int id, uint16_t val);
 extern int REG_write32(int id, int32_t val);
 
 extern int REG_read8(int id, uint8_t* dst);
-extern int REG_read16(int id, uint8_t* dst);
+extern int REG_read16(int id, uint16_t* dst);
 extern int REG_read32(int id, int32_t* dst);
 
 extern int REG_readAll(REG_map* dst);

@@ -12,26 +12,28 @@
 #include <stdint.h>
 
 #define OK (0)
-#define RV_ILLEGALVALUE 				(-1)
-#define RV_SEM_INIT_FAILED			 	(-2)
-#define RV_THREAD_CREATE_FAILED 	 	(-3)
-#define RV_SEM_WAIT_FAILED			    (-4)
-#define RV_SEM_POST_FAILED			    (-5)
-#define RV_LOOP_ABORTED			    	(-6)
+#define RV_ILLEGALVALUE 		(-1)
+#define RV_SEM_INIT_FAILED		(-2)
+#define RV_THREAD_CREATE_FAILED 	(-3)
+#define RV_SEM_WAIT_FAILED		(-4)
+#define RV_SEM_POST_FAILED		(-5)
+#define RV_LOOP_ABORTED			(-6)
 #define RV_START_FAILED                 (-7)
 #define RV_STOP_FAILED                 	(-8)
 #define RV_LOGGING_ON_FAILED           	(-9)
 #define RV_LOGGING_OFF_FAILED           (-10)
 #define RV_GET_POSITION_FAILED          (-11)
-#define RV_MOVE_FAILED         			(-12)
-#define RV_GET_LINE_FAILED     			(-13)
+#define RV_MOVE_FAILED         		(-12)
+#define RV_GET_LINE_FAILED     		(-13)
 #define RV_GET_COLLISION_FAILED     	(-13)
 #define RV_EXCHANGE_SETUP_FAILED    	(-14)
-#define RV_EXCHANGE_FAILED      		(-15)
-#define RV_EXCHANGESPI_FAILED      		(-16)
+#define RV_EXCHANGE_FAILED      	(-15)
+#define RV_EXCHANGESPI_FAILED      	(-16)
 #define RV_SET_SCHED_POLICY_FAILED 	(-17)
 #define RV_SET_SCHED_PRIO_FAILED	(-18)
-
+#define RV_GET_AVRTIME_FAILED    	(-19)
+#define RV_GET_ANALOGLINE_FAILED    	(-20)
+#define RV_GET_ANALOGCOLLISION_FAILED  	(-21)
 
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)
@@ -74,5 +76,14 @@ extern int RV_move(int leftDirection, // FORWARD, BACKWARD
 extern int RV_getCollision(uint8_t* mask);
 
 extern int RV_getLine(uint8_t* mask);
+
+
+/* Expert usage */
+extern int RV_getAVRTime(long* millis, long* micros);
+
+extern int RV_getAnalogLine(int* ambient[], int active[]);
+
+extern int RV_getAnalogCollision(int ambient[] ,int active[]);
+
 
 #endif
