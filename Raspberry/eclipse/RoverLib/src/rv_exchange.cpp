@@ -82,7 +82,7 @@ static int rv_exchangeSPI()
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 	uint8_t* b;
-	const struct timespec delta = { 0, 20000 };
+	const struct timespec delta = { 0, 10000 };
 
 	REG_readAll(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
@@ -92,14 +92,18 @@ static int rv_exchangeSPI()
 	b = (uint8_t*)&rv_exchangeBuffer;
 	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
 		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
+
+		// Pauze between two bytes should be approx 10us.
+		clock_nanosleep(CLOCK_MONOTONIC, 0, &delta, NULL);
+
+		/* Poor men's nanosleep:
 		for (volatile long d=0; d<1000; d++) {
 			volatile long dd;
 			dd=d;
 		}
-		//nanosleep(&delta, NULL);
+		*/
 	}
 
-	//wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
 	digitalWrite(SS, HIGH);
 
 
