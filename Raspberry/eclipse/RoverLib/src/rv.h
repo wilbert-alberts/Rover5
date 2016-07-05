@@ -29,6 +29,9 @@
 #define RV_EXCHANGE_SETUP_FAILED    	(-14)
 #define RV_EXCHANGE_FAILED      		(-15)
 #define RV_EXCHANGESPI_FAILED      		(-16)
+#define RV_SET_SCHED_POLICY_FAILED 	(-17)
+#define RV_SET_SCHED_PRIO_FAILED	(-18)
+
 
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)
