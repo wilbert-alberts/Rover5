@@ -28,6 +28,9 @@ extern void COMM_setup()
   pinMode(PIN_REQEXC, INPUT);
   pinMode(PIN_ACKEXC, OUTPUT);
   pinMode(MISO, OUTPUT);
+  pinMode(PIN_RECEIVING, OUTPUT);
+  pinMode(PIN_RTS, INPUT);
+  
   pinMode(43, OUTPUT);
   
   SPCR |= _BV(SPE);
@@ -110,23 +113,20 @@ static void comm_AcknowledgeRequest()
   
   SPI.attachInterrupt();
   digitalWrite(PIN_ACKEXC, HIGH);
+  while(digitalRead(PIN_RTS)==LOW)
+    ; // Wait until PI indicates ready to send.
+  digitalWrite(PIN_RECEIVING, HIGH);
 }
 
 ISR (SPI_STC_vect)
 {
-  //digitalWrite(43, HIGH);
-    PORTL |=  _BV(PL6);
-  //digitalWrite(43, LOW); // 5.25us
-    SPDR = *comm_SendPtr++;
-  //digitalWrite(43, LOW); // 6.25us
-    *comm_RecvPtr++ = SPDR;    
-  //digitalWrite(43, LOW); // 7.0us
-    comm_NrBytesReceived++;
-  //digitalWrite(43, LOW); // 7.25us
-    comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
-    PORTL &= ~(_BV(PL6));
-
-  //digitalWrite(43, LOW); // 7.75us
+    PORTL |=  _BV(PL6);     // digitalWrite(43, HIGH);
+    SPDR = *comm_SendPtr++; // 1us
+   *comm_RecvPtr++ = SPDR;  // 0.75us   
+    comm_NrBytesReceived++; // 0.25us
+    comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer); // 0.5us
+    digitalWrite(PIN_RECEIVING, LOW);
+    PORTL &= ~(_BV(PL6));   // digitalWrite(43, HIGH);
 }
 
 static void comm_Exchange()
@@ -147,8 +147,8 @@ static void comm_Exchange()
 */
   
   while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-       delay(1);
-       MDC_checkAlive();
+      if (digitalRead(PIN_RTS) == HIGH) 
+        digitalWrite(PIN_RECEIVING, HIGH);
   }
   SPI.detachInterrupt();
   

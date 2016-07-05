@@ -38,8 +38,10 @@
 #define PIN_ENC_RIGHT_A  (2)
 #define PIN_ENC_RIGHT_B  (3)
 
-#define PIN_REQEXC  (48) // TODO: select pin for Request Exchange        // Input, high whenever PI requests data
-#define PIN_ACKEXC  (47) // TODO: select pin for Acknowledge Exchange    // Output, high as soon as MEGA ready to send data
+#define PIN_REQEXC    (48) // Input, high whenever PI requests transfer of frame
+#define PIN_ACKEXC    (47) // Output, high as soon as MEGA ready for frame transfer
+#define PIN_RTS       (45) // PI indicates that it is ready to send a byte.
+#define PIN_RECEIVING (46) // AVR indicates that is in receiving mode.
 
 #endif
 
