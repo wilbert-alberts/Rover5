@@ -10,7 +10,7 @@ int main (int argc, char* argv[])
     long r;
     RV_loggingOn();
     //RV_loopLoggingOn();
-    RV_setFrequency(10);
+    RV_setFrequency(5);
     RV_start();
     
     while (1);

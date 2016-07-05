@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include <time.h>
 
 #include "rv.h"
 #include "rv_log.h"
@@ -16,9 +17,11 @@
 
 #define REQEXC (5)
 #define ACKEXC (6)
+#define SS     (4)
+
 
 #define SPICHANNEL (0)
-#define SPISPEED   (100UL) // 100hz
+#define SPISPEED   (2000000UL) // 1Mhz
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -41,6 +44,8 @@ extern int RV_exchangeSetup()
 	int fd = 0;
 	RV_LogEntry(__func__, NULL);
 
+	pinMode(SS, OUTPUT);
+	digitalWrite(SS, HIGH);
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 	pinMode(ACKEXC, INPUT);
@@ -58,6 +63,7 @@ extern int RV_exchangeWithMega()
 	RV_LogEntry(__func__, NULL);
 
 	digitalWrite(REQEXC, HIGH);
+
 	while ((result == OK ) and (digitalRead(ACKEXC)==LOW))
 		;// Busy wait
 
@@ -76,15 +82,27 @@ static int rv_exchangeSPI()
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 	uint8_t* b;
+	const struct timespec delta = { 0, 20000 };
 
 	REG_readAll(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
-	//b = (uint8_t*)&rv_exchangeBuffer;
-	//for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
-	//	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
-	//}
-	//SAFE_INVOKE(wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer)), result, RV_EXCHANGESPI_FAILED)
-	wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
+
+        digitalWrite(SS, LOW);
+
+	b = (uint8_t*)&rv_exchangeBuffer;
+	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
+		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
+		for (volatile long d=0; d<1000; d++) {
+			volatile long dd;
+			dd=d;
+		}
+		//nanosleep(&delta, NULL);
+	}
+
+	//wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)&rv_exchangeBuffer, sizeof(rv_exchangeBuffer));
+	digitalWrite(SS, HIGH);
+
+
 	// rv_exchangeLogBuffer(&rv_exchangeBuffer);
 	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
 	if (result != OK) {

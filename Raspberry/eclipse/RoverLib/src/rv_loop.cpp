@@ -112,10 +112,10 @@ static void* rv_loop(void* args) {
 	while ((rv_running) and (result == OK)) {
 		printf(".\n");
 		SAFE_INVOKE(RV_exchangeWithMega(), result, RV_LOOP_ABORTED)
-		//printf("Finished exchange with mega\n");
+		result = OK;
 
 		SAFE_INVOKE(rv_notifyWaiters(), result, RV_LOOP_ABORTED)
-		//usleep(1000 / rv_frequency);
+		usleep(1000000ul / rv_frequency);
 	}
 
 	RV_LogExit(__func__, result, NULL);
