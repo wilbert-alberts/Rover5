@@ -10,8 +10,10 @@
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
 		r = f; \
-		if (r!= OK) \
+		if (r!= OK) { \
+		        printf("error: %d\n", r); \
 			r = c; \
+		} \
 	}
 
 #define RV_RT_PRIO (10)
@@ -29,15 +31,16 @@ static void* rv_loop(void* args);
 
 extern int RV_startLoop() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);3
+	RV_LogEntry(__func__, NULL);
 
-	ptread_attr_t  threadAttributes;
+	pthread_attr_t  threadAttributes;
+	
 	pthread_attr_init(&threadAttributes);
-	SAFE_INVOKE(pthread_attr_setschedpolicy(&threadAttributes, SCHED_RR), result, RV_SET_SCHED_POLICY_FAILED);
+	//result = pthread_attr_setschedpolicy(&threadAttributes, SCHED_RR); // , result, RV_SET_SCHED_POLICY_FAILED);
 	SAFE_INVOKE(sem_init(&rv_loopWaitProtectionSem, 0, 1), result, RV_SEM_INIT_FAILED)
 	SAFE_INVOKE(sem_init(&rv_loopWaitSem, 0, 0), result, RV_SEM_INIT_FAILED)
-	SAFE_INVOKE(pthread_create(&rv_loopTID, NULL, rv_loop, NULL), result, RV_THREAD_CREATE_FAILED)
-	SAFE_INVOKE(pthread_setschedprio(rv_loopTID, RV_RT_PRIO), result, RV_SET_SCHED_PRIO_FAILED);
+	SAFE_INVOKE(pthread_create(&rv_loopTID, &threadAttributes, rv_loop, NULL), result, RV_THREAD_CREATE_FAILED)
+	//result = pthread_setschedprio(rv_loopTID, RV_RT_PRIO); //, result, RV_SET_SCHED_PRIO_FAILED);
 	RV_LogExit(__func__, result, NULL);
 	return result;
 }

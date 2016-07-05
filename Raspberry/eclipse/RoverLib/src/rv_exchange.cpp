@@ -17,8 +17,9 @@
 
 #define REQEXC (5)
 #define ACKEXC (6)
-#define SS     (4)
-
+#define SS     	(4)
+#define RTS 	(3)  
+#define RECEIVING	(26)
 
 #define SPICHANNEL (0)
 #define SPISPEED   (4000000UL) // 1Mhz
@@ -46,9 +47,15 @@ extern int RV_exchangeSetup()
 
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, HIGH);
+	
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
+	
+	pinMode(RTS, OUTPUT);
+	digitalWrite(RTS, LOW);
+	
 	pinMode(ACKEXC, INPUT);
+	pinMode(RECEIVING, INPUT);
 
 	fd = wiringPiSPISetup (SPICHANNEL, SPISPEED);
 	result = (fd==-1) ? RV_EXCHANGE_SETUP_FAILED : OK ;
@@ -91,17 +98,16 @@ static int rv_exchangeSPI()
 
 	b = (uint8_t*)&rv_exchangeBuffer;
 	for (unsigned int i=0; i<sizeof(rv_exchangeBuffer); i++) {
-		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
-
-		// Pauze between two bytes should be approx 10us.
-		clock_nanosleep(CLOCK_MONOTONIC, 0, &delta, NULL);
-
-		/* Poor men's nanosleep:
-		for (volatile long d=0; d<1000; d++) {
-			volatile long dd;
-			dd=d;
+		
+		digitalWrite(RTS, HIGH);
+		while (digitalRead(RECEIVING) == LOW) {
+			; // Wait until receiver is ready to receive
 		}
-		*/
+		wiringPiSPIDataRW (SPICHANNEL, (unsigned char*)(b+i), 1);
+		digitalWrite(RTS, LOW);
+		while (digitalRead(RECEIVING) == HIGH) {
+			; // Wailt until receiver has processed byte
+		}		
 	}
 
 	digitalWrite(SS, HIGH);
