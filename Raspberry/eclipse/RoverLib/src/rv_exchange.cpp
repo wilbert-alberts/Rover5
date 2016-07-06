@@ -34,8 +34,9 @@ static int rv_exchangeSPI();
 static int rv_exchangeFillHeaderTrailer(REG_map* m);
 static int rv_exchangeCheckHeaderTrailer(REG_map* m);
 static void rv_exchangeLogBuffer(REG_map* m);
+static void rv_mysleep(int ndelay);
 
-int rv_spiByteDelay = 1;
+int rv_spiByteDelay = 7000; // in nanoseconds; e.g. 7 us
 
 static REG_map rv_exchangeBuffer;
 
@@ -50,11 +51,7 @@ extern int RV_exchangeSetup() {
 	pinMode(REQEXC, OUTPUT);
 	digitalWrite(REQEXC, LOW);
 
-//	pinMode(RTS, OUTPUT);
-//	digitalWrite(RTS, LOW);
-
 	pinMode(ACKEXC, INPUT);
-//	pinMode(RECEIVING, INPUT);
 
 	fd = wiringPiSPISetup(SPICHANNEL, SPISPEED);
 	result = (fd == -1) ? RV_EXCHANGE_SETUP_FAILED : OK;
@@ -81,14 +78,6 @@ extern int RV_exchangeWithMega() {
 	return result;
 }
 
-#define rv_mySleep(BYTEDELAY) \
-{ \
-	volatile int d; \
-	for (volatile int i=0; i<1000ul; i++) \
-	{ \
-		d=i; \
-	} \
-} 
 
 static int rv_exchangeSPI() {
 	int result = OK;
@@ -107,14 +96,8 @@ static int rv_exchangeSPI() {
 
 		wiringPiSPIDataRW(SPICHANNEL, (unsigned char*) (b + i), 1);
 
-		/* We need to sleep here for a little while ~20us
-		   Linux's kernel usleep sleeps at least 75us
-		   therefore a busy wait.
-		   */
-		//nanosleep(&delta, NULL);
-		//rv_mySleep(rv_spiByteDelay);
-		for (volatile int i = 0; i < 10; i++)
-			;
+		///We need to sleep here for a little while ~20us
+		rv_mysleep(rv_spiByteDelay);
 	}
 
 	digitalWrite(SS, HIGH);
@@ -181,4 +164,22 @@ static void rv_exchangeLogBuffer(REG_map* m) {
 	for (unsigned int i = 0; i < sizeof(REG_map); i++) {
 		printf("%d: %d\n", i, p[i]);
 	}
+}
+
+static void rv_mysleep(int ndelay)
+{
+	struct timespec now;
+	struct timespec end;
+
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	end.tv_nsec+=ndelay;
+	if (end.tv_nsec>1000000000L) {
+		end.tv_nsec -= 1000000000L;
+		end.tv_sec++;
+	}		
+	do {
+		clock_gettime(CLOCK_MONOTONIC, &now);
+	} while ((end.tv_sec > now.tv_sec) || 
+		 ((end.tv_sec == now.tv_sec) &&
+		  (end.tv_nsec > now.tv_nsec)));
 }
