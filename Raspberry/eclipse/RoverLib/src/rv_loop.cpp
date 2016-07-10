@@ -113,14 +113,13 @@ static void* rv_loop(void* args) {
 
 	RV_SetLogging(rv_loopTID, rv_looplogging);
 
-	//printf("in loop\n");
 	RV_LogEntry(__func__, NULL);
 
 	rv_running = true;
 	while ((rv_running) and (result == OK)) {
 		result = RV_exchangeWithMega();
 		result = OK;
-		printf("*\n");
+		//printf("*\n");
 
 		SAFE_INVOKE(rv_notifyWaiters(), result, RV_LOOP_ABORTED)
 		usleep(1000000ul / rv_frequency);

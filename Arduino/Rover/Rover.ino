@@ -25,6 +25,10 @@ void loop() {
   //Serial.print("loop: ");
   //Serial.println(millis());
   // put your main code here, to run repeatedly:
+
+  REG_write32(REG_MICROS, micros());
+  REG_write32(REG_MILLIS, millis());
+  
   COL_loop();
   LINE_loop();
   POS_loop();

@@ -6,21 +6,20 @@
 
 int main (int argc, char* argv[])
 {
-    long l;
-    long r;
+    long millis;
+    long micros;
     RV_loggingOn();
     //RV_loopLoggingOn();
-    RV_setFrequency(10);
+    RV_setFrequency(2);
     RV_start();
     
-    while (1);
-
 
     sleep(1);
     for (int i=0; i<4; i++) {
-      RV_getPosition(&l, &r);
-      printf("l: %ld, r: %ld\n", l,r);
-      sleep(1);
+      RV_getAVRTime(&millis, &micros);
+      printf("millis: %ld, micros: %ld\n", millis, micros);
+      //sleep(1);
+      RV_waitForNewData();
     }
     
     RV_stop();

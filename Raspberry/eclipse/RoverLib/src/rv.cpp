@@ -141,3 +141,96 @@ extern int RV_getCollision(uint8_t* r) {
 	RV_LogExit(__func__, result, "*r: 0x%0x", r);
 	return result;
 }
+
+
+extern int RV_getAVRTime(long* millis, long* micros)
+{
+	int result = OK;
+	RV_LogEntry(__func__, "millis: %p, micros: %p", millis, micros);
+
+	int32_t ml;
+	int32_t ms;
+
+	SAFE_INVOKE(REG_read32(REG_MILLIS, &ml), result, RV_GET_AVRTIME_FAILED)
+	SAFE_INVOKE(REG_read32(REG_MICROS, &ms), result, RV_GET_AVRTIME_FAILED)
+	
+	if (result == OK) {
+		*millis = ml;
+		*micros = ms;
+	}
+	
+	RV_LogExit(__func__, result, "*millis: %d, *micros: %d", *millis, *micros);
+	return result;
+}
+
+extern int RV_getAnalogLine(int ambient[], int active[])
+{
+	int result = OK;
+	uint16_t v;
+	
+	static const int ambientRegisters[]  =  {
+    REG_AMB_LINE_NE,
+    REG_AMB_LINE_EN,
+    REG_AMB_LINE_ES,
+    REG_AMB_LINE_SE,
+    REG_AMB_LINE_SW,
+    REG_AMB_LINE_WS,
+    REG_AMB_LINE_WN,
+    REG_AMB_LINE_NW	
+	};
+	static const int activeRegisters[]  =  {
+    REG_IR_LINE_NE,
+    REG_IR_LINE_EN,
+    REG_IR_LINE_ES,
+    REG_IR_LINE_SE,
+    REG_IR_LINE_SW,
+    REG_IR_LINE_WS,
+    REG_IR_LINE_WN,
+    REG_IR_LINE_NW	
+	};
+	RV_LogEntry(__func__, "NOT IMPLEMENTED");
+
+	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
+		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
+		if (result == OK) {
+			ambient[i] = v;
+		}
+	}
+
+	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
+		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
+		if (result == OK) {
+			ambient[i] = v;
+		}
+	}
+
+	RV_LogExit(__func__, result, "NO RESULT");
+	return result;
+}
+
+extern int RV_getAnalogCollision(int ambient[] ,int active[])
+{
+	int result = OK;
+	uint16_t v;
+
+	static const int ambientRegisters[]  =  { REG_AMB_COL_NE, REG_AMB_COL_SE, REG_AMB_COL_SW, REG_AMB_COL_NW };
+	static const int activeRegisters[]  = { REG_IR_COL_NE, REG_IR_COL_SE, REG_IR_COL_SW, REG_IR_COL_NW };
+	RV_LogEntry(__func__, "NOT IMPLEMENTED");
+
+	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
+		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
+		if (result == OK) {
+			ambient[i] = v;
+		}
+	}
+
+	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
+		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
+		if (result == OK) {
+			ambient[i] = v;
+		}
+	}
+
+	RV_LogExit(__func__, result, "NO RESULT");
+	return result;
+}
