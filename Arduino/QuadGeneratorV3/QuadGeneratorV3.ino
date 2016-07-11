@@ -12,6 +12,9 @@ void startTimer();
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  
 }
 
 void loop() {
@@ -19,23 +22,26 @@ void loop() {
   long     nrCycles;
 
   getConfiguration(&period, &nrCycles);
-  ///runConfiguration(period, nrCycles);
-  delay(5000);
+  runConfiguration(period, nrCycles);
 }
 
 void getConfiguration(uint16_t* periodInUs , long* nrCycles)
 {
-  int p = 0;
+  long p = 0;
   int c = 0;
   char r = 'n';
-  
+  String n;
+
   Serial.setTimeout(10000);
   while (r != 'y') {
     p = 0;
-    c= 0;
+    c = 0;
     Serial.println("Enter length of period:");
-    while (p == 0)
-      p = Serial.parseInt();
+    while (p == 0) {
+      n = Serial.readStringUntil('\n');
+      p = n.toInt();
+    }
+
     Serial.println("Enter nr cycles:");
     while (c == 0)
       c = Serial.parseInt();
@@ -44,30 +50,34 @@ void getConfiguration(uint16_t* periodInUs , long* nrCycles)
     r = 0;
     do {
       r = Serial.read();
-    } while ((r != 'y') and (r!= 'n'));
+    } while ((r != 'y') and (r != 'n'));
   }
   Serial.println("Starting:");
   Serial.print("   Period: ");
   Serial.println(p);
   Serial.print("   Nr. Cycles: ");
   Serial.println(c);
-  
+
 
   *periodInUs = p;
   *nrCycles = c;
 }
-void runConfiguration(uint16_t periodInUs , long nrCycles)
+void runConfiguration(uint16_t p , long n)
 {
-  setPeriodAndCompare(periodInUs, nrCycles);
+  setPeriodAndCompare(p, n);
   startTimer();
-  while (!finished)
+  while (!finished) {
     delay(1);
+    //Serial.println(nrCycles);
+  }
 }
 
 
 void setPeriodAndCompare(uint16_t periodInUs , long nrCycles)
 {
   // Prescaler is set to 8
+  Serial.println(periodInUs);
+  Serial.println(nrCycles);
 
   // One tick 0.5 us; one period is 2*periodInUs ticks
   uint16_t period = 2 * periodInUs;
@@ -81,6 +91,8 @@ void setPeriodAndCompare(uint16_t periodInUs , long nrCycles)
   TCCR4A |= (_BV(COM4A0) | _BV(COM4B0));
 
   // Waveform generator: Clear on Timer Compare (CTC)
+  TCCR4A &= ~(_BV(WGM41) | _BV(WGM40));
+  TCCR4B &= ~(_BV(WGM42) | _BV(WGM43));
   TCCR4B |= _BV(WGM42);
 
   // Enable interrupt when period elapsed
@@ -99,7 +111,10 @@ void startTimer()
 
   // Set prescaler to 8, effectively starts timer.
   TCCR4B &= ~(_BV(CS42) | _BV(CS41) | _BV(CS40));
-  TCCR4B |=  _BV(CS41);
+  //TCCR4B |=  _BV(CS40); //Prescaler 1
+  //TCCR4B |=  _BV(CS41); //Prescaler 8
+  TCCR4B |=  (_BV(CS42) | _BV(CS40)); // Prescaler 1024
+  
 
 }
 
