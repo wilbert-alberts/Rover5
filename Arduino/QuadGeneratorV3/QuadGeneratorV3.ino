@@ -19,17 +19,20 @@ void loop() {
   long     nrCycles;
 
   getConfiguration(&period, &nrCycles);
-  runConfiguration(period, nrCycles);
+  ///runConfiguration(period, nrCycles);
+  delay(5000);
 }
 
 void getConfiguration(uint16_t* periodInUs , long* nrCycles)
 {
   int p = 0;
   int c = 0;
-  String r;
+  char r = 'n';
   
   Serial.setTimeout(10000);
-  while (!r.equalsIgnoreCase("y")) {
+  while (r != 'y') {
+    p = 0;
+    c= 0;
     Serial.println("Enter length of period:");
     while (p == 0)
       p = Serial.parseInt();
@@ -38,8 +41,17 @@ void getConfiguration(uint16_t* periodInUs , long* nrCycles)
       c = Serial.parseInt();
 
     Serial.println("Ready to go (y/n)?");
-    r = Serial.readString();
+    r = 0;
+    do {
+      r = Serial.read();
+    } while ((r != 'y') and (r!= 'n'));
   }
+  Serial.println("Starting:");
+  Serial.print("   Period: ");
+  Serial.println(p);
+  Serial.print("   Nr. Cycles: ");
+  Serial.println(c);
+  
 
   *periodInUs = p;
   *nrCycles = c;
