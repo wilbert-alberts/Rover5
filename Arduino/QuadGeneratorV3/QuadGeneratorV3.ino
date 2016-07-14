@@ -17,6 +17,7 @@ const char* rightSide = "right";
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  Serial.setTimeout(10000);
 }
 
 void loop() {
@@ -40,25 +41,21 @@ void getConfiguration(uint16_t* periodInUs , long* nrCycles, const char* side)
   char r = 'n';
   String n;
 
-  Serial.setTimeout(10000);
-  while (r != 'y') {
-    p = 0;
-    c = 0;
-    Serial.println("Enter length of ");
-    Serial.print(side);
-    Serial.println(" period:");
-    while (p == 0) {
-      n = Serial.readStringUntil('\n');
-      p = n.toInt();
-    }
-
-    Serial.println("Enter nr of ");
-    Serial.print(side);
-    Serial.println(" cycles:");
-    while (c == 0)
-      c = Serial.parseInt();
+  p = 0;
+  c = 0;
+  Serial.print("Enter length of ");
+  Serial.print(side);
+  Serial.println(" period:");
+  while (p == 0) {
+    n = Serial.readStringUntil('\n');
+    p = n.toInt();
   }
 
+  Serial.print("Enter nr of ");
+  Serial.print(side);
+  Serial.println(" cycles:");
+  while (c == 0)
+    c = Serial.parseInt();
 
   *periodInUs = p;
   *nrCycles = c;
@@ -96,8 +93,9 @@ void runConfiguration(uint16_t lp , long ln, uint16_t rp, long rn)
 
   startTimers();
   while ((leftCyclecounter < leftNrCycles) || (rightCyclecounter < rightNrCycles)) {
-    delay(1);
+    delay(100);
   }
+  
 }
 
 
@@ -106,14 +104,7 @@ void setTimer4(uint16_t periodInUs)
   // Set pins to output
   DDRH |= _BV(DDH3);
   DDRH |= _BV(DDH4);
-  
-  // Prescaler is set to 8
-  // One tick 0.5 us; one period is 2*periodInUs ticks
-  uint16_t period = 2 * periodInUs;
 
-  // Set compare values to toggle pin
-  OCR4A = period;
-  OCR4B = period / 2;
 
   // Toggle output pin on match
   TCCR4A &= ~(_BV(COM4A1) | _BV(COM4B1));
@@ -126,6 +117,15 @@ void setTimer4(uint16_t periodInUs)
 
   // Enable interrupt when period elapsed
   TIMSK4 |= _BV(OCIE4A);
+
+  // Prescaler is set to 8
+  // One tick 0.5 us; one period is 2*periodInUs ticks
+  uint16_t period = 2 * periodInUs;
+
+  // Set compare values to toggle pin
+  OCR4A = period;
+  OCR4B = period / 2;
+
 }
 
 void setTimer5(uint16_t periodInUs)
@@ -133,14 +133,6 @@ void setTimer5(uint16_t periodInUs)
   // Set pins to output
   DDRL |= _BV(DDL3);
   DDRL |= _BV(DDL4);
-
-  // Prescaler is set to 8
-  // One tick 0.5 us; one period is 2*periodInUs ticks
-  uint16_t period = 2 * periodInUs;
-
-  // Set compare values to toggle pin
-  OCR5A = period;
-  OCR5B = period / 2;
 
   // Toggle output pin on match
   TCCR5A &= ~(_BV(COM5A1) | _BV(COM5B1));
@@ -153,17 +145,34 @@ void setTimer5(uint16_t periodInUs)
 
   // Enable interrupt when period elapsed
   TIMSK5 |= _BV(OCIE5A);
+
+  // Prescaler is set to 8
+  // One tick 0.5 us; one period is 2*periodInUs ticks
+  uint16_t period = 2 * periodInUs;
+
+  // Set compare values to toggle pin
+  OCR5A = period;
+  OCR5B = period / 2;
 }
 
 void startTimers()
 {
   // Initialize timer to zero
   TCNT4 = 0;
+  TCNT5 = 0;
   // Set prescaler to 8, effectively starts timer.
   TCCR4B &= ~(_BV(CS42) | _BV(CS41) | _BV(CS40));
+  TCCR5B &= ~(_BV(CS52) | _BV(CS51) | _BV(CS50));
+  
   //TCCR4B |=  _BV(CS40); //Prescaler 1
   //TCCR4B |=  _BV(CS41); //Prescaler 8
-  TCCR4B |=  (_BV(CS42) | _BV(CS40)); // Prescaler 1024
+  TCCR4B |=  (_BV(CS41) | _BV(CS40)); //Prescaler 64
+  //TCCR4B |=  (_BV(CS42) | _BV(CS40)); // Prescaler 1024
+
+  //TCCR5B |=  _BV(CS50); //Prescaler 1
+  //TCCR5B |=  _BV(CS51); //Prescaler 8
+  TCCR5B |=  (_BV(CS51) | _BV(CS50)); //Prescaler 64
+  //TCCR5B |=  (_BV(CS52) | _BV(CS50)); // Prescaler 1024
 }
 
 
@@ -180,8 +189,8 @@ ISR(TIMER4_COMPA_vect)
 
 ISR(TIMER5_COMPA_vect)
 {
-  leftCyclecounter++;
-  if (leftCyclecounter == leftNrCycles) {
+  rightCyclecounter++;
+  if (rightCyclecounter == rightNrCycles) {
     // Stop timer 5
     TCCR5B &= ~(_BV(CS52) | _BV(CS51) | _BV(CS50));
     TIMSK5 &= ~_BV(OCIE5A);
