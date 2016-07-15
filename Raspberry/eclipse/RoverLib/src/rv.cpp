@@ -4,7 +4,10 @@
 #include "rv_exchange.h"
 #include "rv_loop.h"
 #include "rv_reg.h"
+#include "rv_trace.h"
 #include "rv.h"
+
+#define TRACEBUFFERSIZE (1000)
 
 #define rv_IntToDirection(d,i,r)\
 { 								\
@@ -44,6 +47,7 @@ extern int RV_start() {
 
 	wiringPiSetup();
 	SAFE_INVOKE(RV_exchangeSetup(), result, RV_START_FAILED)
+	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
 	SAFE_INVOKE(RV_startLoop(), result, RV_START_FAILED)
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
 

@@ -34,6 +34,9 @@
 #define RV_GET_AVRTIME_FAILED    	(-19)
 #define RV_GET_ANALOGLINE_FAILED    	(-20)
 #define RV_GET_ANALOGCOLLISION_FAILED  	(-21)
+#define RV_UNABLE_TO_OPEN_FILE 			(-22)
+#define RV_UNABLE_TO_MALLOC 			(-23)
+
 
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)
@@ -84,6 +87,8 @@ extern int RV_getAVRTime(long* millis, long* micros);
 extern int RV_getAnalogLine(int* ambient[], int active[]);
 
 extern int RV_getAnalogCollision(int ambient[] ,int active[]);
+
+extern int RV_dumpBuffersToFile(const char* name);
 
 
 #endif

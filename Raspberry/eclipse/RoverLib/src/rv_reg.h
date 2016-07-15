@@ -111,9 +111,13 @@ extern int REG_read8(int id, uint8_t* dst);
 extern int REG_read16(int id, uint16_t* dst);
 extern int REG_read32(int id, int32_t* dst);
 
+// Warning: expensive
+extern int REG_readLong(REG_map* src, int id, long* val);
+
 extern int REG_readAll(REG_map* dst);
 extern int REG_writeAll(REG_map* src);
 
 extern void REG_logAll(REG_map* src);
+extern const char* REG_getRegistername(int idx);
 
 #endif

@@ -22,5 +22,7 @@ int main (int argc, char* argv[])
       RV_waitForNewData();
     }
     
+    RV_dumpBuffersToFile("RV_trace.txt");
+
     RV_stop();
 }

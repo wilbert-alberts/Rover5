@@ -18,8 +18,6 @@
   reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; 	\
   reg_name[REG_ ## R] = #R;
 
-
-
 static REG_map reg_map;
 static sem_t reg_sem;
 static uint8_t* reg_address[REG_MAX];
@@ -78,7 +76,7 @@ extern int REG_setup() {
 
 extern int REG_write8(int id, uint8_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %d", val);
+	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
 
 	uint8_t* dst = (uint8_t*) (reg_address[id]);
 
@@ -92,7 +90,7 @@ extern int REG_write8(int id, uint8_t val) {
 
 extern int REG_write16(int id, uint16_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %d", val);
+	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
 
 	uint16_t* dst = (uint16_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
@@ -105,7 +103,7 @@ extern int REG_write16(int id, uint16_t val) {
 
 extern int REG_write32(int id, int32_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %d", val);
+	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
 
 	int32_t* dst = (int32_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
@@ -118,7 +116,7 @@ extern int REG_write32(int id, int32_t val) {
 
 extern int REG_read8(int id, uint8_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %p", val);
+	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
 
 	uint8_t* src = (uint8_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
@@ -131,7 +129,7 @@ extern int REG_read8(int id, uint8_t* val) {
 
 extern int REG_read16(int id, uint16_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %p", val);
+	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
 
 	uint16_t* src = (uint16_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
@@ -144,7 +142,7 @@ extern int REG_read16(int id, uint16_t* val) {
 
 extern int REG_read32(int id, int32_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "val: %p", val);
+	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
 
 	int32_t* src = (int32_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
@@ -153,6 +151,79 @@ extern int REG_read32(int id, int32_t* val) {
 
 	RV_LogExit(__func__, result, "*val: %d", *val);
 	return result;
+}
+
+extern int REG_readLong(REG_map* src, int id, long* val) {
+	int result = OK;
+	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
+
+	int32_t* v32;
+	uint16_t* v16;
+	uint8_t* v8;
+	uint8_t* s = (uint8_t*)src;
+	int offset;
+
+	switch (id) {
+	case REG_HEADER:
+	case REG_MICROS:
+	case REG_MILLIS:
+	case REG_TRAILER:
+	case REG_LEFTPOS:
+	case REG_RIGHTPOS:
+		// 32 bit
+		offset = reg_address[id] -  ((uint8_t*)&reg_map);
+		v32 = (int32_t*) &s[offset];
+		*val = (long) *v32;
+		break;
+
+	case REG_AMBOFFSET:
+	case REG_AMB_LINE_NE:
+	case REG_AMB_LINE_EN:
+	case REG_AMB_LINE_ES:
+	case REG_AMB_LINE_SE:
+	case REG_AMB_LINE_SW:
+	case REG_AMB_LINE_WS:
+	case REG_AMB_LINE_WN:
+	case REG_AMB_LINE_NW:
+	case REG_AMB_COL_NE:
+	case REG_AMB_COL_SE:
+	case REG_AMB_COL_SW:
+	case REG_AMB_COL_NW:
+	case REG_IR_LINE_NE:
+	case REG_IR_LINE_EN:
+	case REG_IR_LINE_ES:
+	case REG_IR_LINE_SE:
+	case REG_IR_LINE_SW:
+	case REG_IR_LINE_WS:
+	case REG_IR_LINE_WN:
+	case REG_IR_LINE_NW:
+	case REG_IR_COL_NE:
+	case REG_IR_COL_SE:
+	case REG_IR_COL_SW:
+	case REG_IR_COL_NW:
+		// 16bit
+		offset = reg_address[id] -  ((uint8_t*)&reg_map);
+		v16 = (uint16_t*) &s[offset];
+		*val = (long) *v16;
+		break;
+
+	case REG_LEFTDIR:
+	case REG_LEFTDC:
+	case REG_RIGHTDIR:
+	case REG_RIGHTDC:
+	case REG_COLLISION:
+	case REG_LINE:
+		offset = reg_address[id] -  ((uint8_t*)&reg_map);
+		v8 = (uint8_t*)&s[offset];
+		*val = (long) *v8;
+		break;
+	default:
+		break;
+	}
+
+	RV_LogExit(__func__, result, "*val: %d", *val);
+	return result;
+
 }
 
 extern int REG_readAll(REG_map* dst) {
@@ -179,6 +250,13 @@ extern int REG_writeAll(REG_map* src) {
 	return result;
 }
 
+extern const char* REG_getRegistername(int idx) {
+	if ((idx >= 0) && (idx < REG_MAX)) {
+		return reg_name[idx];
+	}
+	return NULL;
+}
+
 #define LOG_U32(S, R) \
 {\
 	uint32_t* v = (uint32_t*) (&(S->R));        \
@@ -203,46 +281,44 @@ extern int REG_writeAll(REG_map* src) {
 	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
 }
 
-extern void REG_logAll(REG_map* src)
-{
-  printf("reg_map: \n");
-  LOG_U32(src, HEADER);
-  LOG_U32(src, MICROS);
-  LOG_U32(src, MILLIS);
-  LOG_U8(src, LEFTDIR);
-  LOG_U8(src, LEFTDC);
-  LOG_U8(src, RIGHTDIR);
-  LOG_U8(src, RIGHTDC);
-  LOG_U8(src, COLLISION);
-  LOG_U8(src, LINE);
-  LOG_32(src, LEFTPOS);
-  LOG_32(src, RIGHTPOS);
-  LOG_U16(src, AMBOFFSET);
-  LOG_U16(src, AMB_LINE_NE);
-  LOG_U16(src, AMB_LINE_EN);
-  LOG_U16(src, AMB_LINE_ES);
-  LOG_U16(src, AMB_LINE_SE);
-  LOG_U16(src, AMB_LINE_SW);
-  LOG_U16(src, AMB_LINE_WS);
-  LOG_U16(src, AMB_LINE_WN);
-  LOG_U16(src, AMB_LINE_NW);
-  LOG_U16(src, AMB_COL_NE);
-  LOG_U16(src, AMB_COL_SE);
-  LOG_U16(src, AMB_COL_SW);
-  LOG_U16(src, AMB_COL_NW);
-  LOG_U16(src, IR_LINE_NE);
-  LOG_U16(src, IR_LINE_EN);
-  LOG_U16(src, IR_LINE_ES);
-  LOG_U16(src, IR_LINE_SE);
-  LOG_U16(src, IR_LINE_SW);
-  LOG_U16(src, IR_LINE_WS);
-  LOG_U16(src, IR_LINE_WN);
-  LOG_U16(src, IR_LINE_NW);
-  LOG_U16(src, IR_COL_NE);
-  LOG_U16(src, IR_COL_SE);
-  LOG_U16(src, IR_COL_SW);
-  LOG_U16(src, IR_COL_NW);
-  LOG_U32(src, TRAILER);
+extern void REG_logAll(REG_map* src) {
+	printf("reg_map: \n");
+	LOG_U32(src, HEADER);
+	LOG_U32(src, MICROS);
+	LOG_U32(src, MILLIS);
+	LOG_U8(src, LEFTDIR);
+	LOG_U8(src, LEFTDC);
+	LOG_U8(src, RIGHTDIR);
+	LOG_U8(src, RIGHTDC);
+	LOG_U8(src, COLLISION);
+	LOG_U8(src, LINE);
+	LOG_32(src, LEFTPOS);
+	LOG_32(src, RIGHTPOS);
+	LOG_U16(src, AMBOFFSET);
+	LOG_U16(src, AMB_LINE_NE);
+	LOG_U16(src, AMB_LINE_EN);
+	LOG_U16(src, AMB_LINE_ES);
+	LOG_U16(src, AMB_LINE_SE);
+	LOG_U16(src, AMB_LINE_SW);
+	LOG_U16(src, AMB_LINE_WS);
+	LOG_U16(src, AMB_LINE_WN);
+	LOG_U16(src, AMB_LINE_NW);
+	LOG_U16(src, AMB_COL_NE);
+	LOG_U16(src, AMB_COL_SE);
+	LOG_U16(src, AMB_COL_SW);
+	LOG_U16(src, AMB_COL_NW);
+	LOG_U16(src, IR_LINE_NE);
+	LOG_U16(src, IR_LINE_EN);
+	LOG_U16(src, IR_LINE_ES);
+	LOG_U16(src, IR_LINE_SE);
+	LOG_U16(src, IR_LINE_SW);
+	LOG_U16(src, IR_LINE_WS);
+	LOG_U16(src, IR_LINE_WN);
+	LOG_U16(src, IR_LINE_NW);
+	LOG_U16(src, IR_COL_NE);
+	LOG_U16(src, IR_COL_SE);
+	LOG_U16(src, IR_COL_SW);
+	LOG_U16(src, IR_COL_NW);
+	LOG_U32(src, TRAILER);
 }
-
 
