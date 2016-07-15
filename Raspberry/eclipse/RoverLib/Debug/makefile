@@ -44,7 +44,7 @@ all: libRover.a
 libRover.a: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Archiver'
-	ar -r  "libRover.a" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-linux-gnueabihf-ar -r  "libRover.a" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
