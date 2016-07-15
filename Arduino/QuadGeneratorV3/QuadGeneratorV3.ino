@@ -1,8 +1,23 @@
+#include <EEPROM.h>
+
+typedef struct
+{
+  long leftNrCycles;
+  long rightNrCycles;
+  uint16_t leftPeriod;
+  uint16_t rightPeriod;
+} ConfigStruct;
+
+
 
 volatile long leftCyclecounter = 0;
 volatile long leftNrCycles = 0;
 volatile long rightCyclecounter = 0;
 volatile long rightNrCycles = 0;
+
+bool refreshConfiguration();
+void storeConfiguration(ConfigStruct* cfg);
+void restoreConfiguration(ConfigStruct* cfg);
 
 void runConfiguration(uint16_t lp , long ln, uint16_t rp, long rn);
 void getConfiguration(uint16_t* periodInUs , long* nrCycles, const char* side);
@@ -17,21 +32,53 @@ const char* rightSide = "right";
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Serial.setTimeout(10000);
 }
 
 void loop() {
+  ConfigStruct config;
   uint16_t leftPeriod;
   long     leftNrCycles;
   uint16_t rightPeriod;
   long     rightNrCycles;
   bool     readyToRun;
 
-  getConfiguration(&leftPeriod, &leftNrCycles, leftSide);
-  getConfiguration(&rightPeriod, &rightNrCycles, rightSide);
-  readyToRun = waitUntilReadyToRun();
-  if (readyToRun)
-    runConfiguration(leftPeriod, leftNrCycles, rightPeriod, rightNrCycles);
+  if (refreshConfiguration()) {
+    do {
+      getConfiguration(&config.leftPeriod, &config.leftNrCycles, leftSide);
+      getConfiguration(&config.rightPeriod, &config.rightNrCycles, rightSide);
+      storeConfiguration(&config);
+      readyToRun = waitUntilReadyToRun();
+    } while (!readyToRun);
+  }
+  else {
+    restoreConfiguration(&config);
+  }
+
+  runConfiguration(config.leftPeriod, config.leftNrCycles, config.rightPeriod, config.rightNrCycles);
+}
+
+bool refreshConfiguration()
+{
+  String msg;
+  Serial.println("Enter something to update config within 2 seconds");
+  Serial.setTimeout(2000);
+  msg = Serial.readStringUntil('\n');
+  Serial.println(msg.length());
+  if (msg.length() > 0) {
+    Serial.setTimeout(10000);
+    return true;
+  }
+  return false;
+}
+
+void storeConfiguration(ConfigStruct* cfg)
+{
+
+}
+
+void restoreConfiguration(ConfigStruct* cfg)
+{
+
 }
 
 void getConfiguration(uint16_t* periodInUs , long* nrCycles, const char* side)
@@ -72,6 +119,7 @@ bool waitUntilReadyToRun()
   } while ((r != 'y') and (r != 'n'));
   return r == 'y';
 }
+
 void runConfiguration(uint16_t lp , long ln, uint16_t rp, long rn)
 {
   leftCyclecounter = 0;
@@ -95,7 +143,7 @@ void runConfiguration(uint16_t lp , long ln, uint16_t rp, long rn)
   while ((leftCyclecounter < leftNrCycles) || (rightCyclecounter < rightNrCycles)) {
     delay(100);
   }
-  
+
 }
 
 
@@ -120,7 +168,9 @@ void setTimer4(uint16_t periodInUs)
 
   // Prescaler is set to 8
   // One tick 0.5 us; one period is 2*periodInUs ticks
-  uint16_t period = 2 * periodInUs;
+  // One period of the timer is half the dutycycle
+  //uint16_t period = 2 * periodInUs;
+  uint16_t period = periodInUs;
 
   // Set compare values to toggle pin
   OCR4A = period;
@@ -148,8 +198,10 @@ void setTimer5(uint16_t periodInUs)
 
   // Prescaler is set to 8
   // One tick 0.5 us; one period is 2*periodInUs ticks
-  uint16_t period = 2 * periodInUs;
-
+  // One period of the timer is half the dutycycle
+  //uint16_t period = 2 * periodInUs;
+   uint16_t period = periodInUs;
+   
   // Set compare values to toggle pin
   OCR5A = period;
   OCR5B = period / 2;
@@ -163,7 +215,7 @@ void startTimers()
   // Set prescaler to 8, effectively starts timer.
   TCCR4B &= ~(_BV(CS42) | _BV(CS41) | _BV(CS40));
   TCCR5B &= ~(_BV(CS52) | _BV(CS51) | _BV(CS50));
-  
+
   //TCCR4B |=  _BV(CS40); //Prescaler 1
   //TCCR4B |=  _BV(CS41); //Prescaler 8
   TCCR4B |=  (_BV(CS41) | _BV(CS40)); //Prescaler 64
