@@ -39,6 +39,38 @@ extern void COL_loop()
    col_writeRegisters();
 }
 
+extern void COL_test() 
+{
+  uint16_t buffer[4];
+  Serial.println("Testing collision sensors");
+  Serial.println("1: Turning all collision lights on");
+  col_setLights(HIGH);
+  delay(1000);
+  Serial.println("2: Reading all corner sensors (with lights on)");
+  col_readSensors(buffer);
+  Serial.print("NE: ");
+  Serial.println(buffer[0]);
+  Serial.print("NW: ");
+  Serial.println(buffer[1]);
+  Serial.print("SE: ");
+  Serial.println(buffer[2]);
+  Serial.print("SW: ");
+  Serial.println(buffer[3]);
+  Serial.println("3: Turning all collision lights off");
+  col_setLights(LOW);
+  delay(1000);  
+  Serial.println("4: Reading all corner sensors (with lights off)");
+  col_readSensors(buffer);
+  Serial.print("NE: ");
+  Serial.println(buffer[0]);
+  Serial.print("NW: ");
+  Serial.println(buffer[1]);
+  Serial.print("SE: ");
+  Serial.println(buffer[2]);
+  Serial.print("SW: ");
+  Serial.println(buffer[3]);
+  delay(1000);  
+}
 
 static void col_setLights(int value)
 {
@@ -52,6 +84,12 @@ static void col_setLights(int value)
 static void col_readSensors(uint16_t* dst)
 {
   static const int pins[] = { PIN_COL_NE, PIN_COL_SE, PIN_COL_SW, PIN_COL_NW }; 
+/*
+  static const int pins[] = { PIN_COL_NE, 
+                              PIN_COL_NE, 
+                              PIN_COL_NE, 
+                              PIN_COL_NE }; 
+                              */
   int v;
   
   for (int i=0; i<COL_NR_SENSORS; i++) {
@@ -59,7 +97,6 @@ static void col_readSensors(uint16_t* dst)
     *dst = v;
     dst++;
   }
-  
 }
 
 static void col_digitalize()

@@ -4,6 +4,6 @@
 
 void MTR_setup();
 void MTR_loop();
-
+extern void MTR_test();
 #endif
 

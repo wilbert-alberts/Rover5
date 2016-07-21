@@ -13,8 +13,8 @@
 
 #define PIN_ENC_LEFT_A   (18) 
 #define PIN_ENC_LEFT_B   (19)
-#define PIN_ENC_RIGHT_A  (16)
-#define PIN_ENC_RIGHT_B  (17)
+#define PIN_ENC_RIGHT_A  (2)
+#define PIN_ENC_RIGHT_B  (3)
 
 #define PIN_LINE_NE (A8)
 #define PIN_LINE_EN (A9)

@@ -41,6 +41,16 @@ extern void LINE_loop()
 }
 
 
+extern void LINE_test() 
+{
+  Serial.println("Testing line sensors");
+  Serial.println("1: Turning all line lights on");
+  line_setLights(HIGH);
+  delay(3000);
+  Serial.println("2: Turning all line lights off");
+  line_setLights(LOW);
+  delay(3000);  
+}
 static void line_setLights(int value)
 {
   digitalWrite(PIN_LINE_LIGHT, value);

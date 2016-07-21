@@ -37,4 +37,32 @@ extern void MTR_loop()
   }
 }
 
+extern void MTR_test()
+{
+  Serial.println("Testing motor");
+  Serial.println("1: one second positive left");
+  digitalWrite(PIN_DIR_LEFT, HIGH);
+  analogWrite(PIN_PWM_LEFT, 100);
+  delay(1000);
+  analogWrite(PIN_PWM_LEFT, 0);
+
+  Serial.println("2: one second negative left");
+  digitalWrite(PIN_DIR_LEFT, LOW);
+  analogWrite(PIN_PWM_LEFT, 100);
+  delay(1000);
+  analogWrite(PIN_PWM_LEFT, 0);
+
+  Serial.println("3: one second positive left");
+  digitalWrite(PIN_DIR_RIGHT, HIGH);
+  analogWrite(PIN_PWM_RIGHT, 100);
+  delay(1000);
+  analogWrite(PIN_PWM_RIGHT, 0);
+  
+  Serial.println("4: one second negative left");
+  digitalWrite(PIN_DIR_RIGHT, LOW);
+  analogWrite(PIN_PWM_RIGHT, 100);
+  delay(1000);
+  analogWrite(PIN_PWM_RIGHT, 0);
+
+}
 

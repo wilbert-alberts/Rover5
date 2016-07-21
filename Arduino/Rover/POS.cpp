@@ -35,6 +35,24 @@ extern void POS_setup()
   attachInterrupt(digitalPinToInterrupt(PIN_ENC_RIGHT_B), pos_isrRightBDown, FALLING);
 }
 
+extern void POS_test()
+{
+  Serial.print("Positiont Left: ");
+  Serial.println(pos_Left);
+  Serial.print("Positiont Right: ");
+  Serial.println(pos_Right);
+}
+
+extern long POS_getLeft()
+{
+  return pos_Left;
+}
+
+extern long POS_getRight()
+{
+  return pos_Right;  
+}
+
 extern void POS_loop()
 {
   REG_write32(REG_LEFTPOS, pos_Left);

@@ -2,8 +2,10 @@
 #define POS_H
 
 
-void POS_setup();
-void POS_loop();
-
+extern void POS_setup();
+extern void POS_loop();
+extern void POS_test();
+extern long POS_getLeft();
+extern long POS_getRight();
 #endif
 

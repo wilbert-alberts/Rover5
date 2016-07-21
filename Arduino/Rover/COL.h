@@ -3,7 +3,8 @@
 
 
 extern void COL_setup();
-void COL_loop();
+extern void COL_loop();
 
+extern void COL_test();
 #endif
 
