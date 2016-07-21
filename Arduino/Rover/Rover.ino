@@ -15,7 +15,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Setup started.");
 
-  tst_col();
+  //tst_col();
   //tst_line();
   //tst_pos();
   //tst_mtr();
@@ -66,7 +66,7 @@ void tst_movement()
   MTR_setup();
   POS_setup();
 
-  while (1) {
+  //while () {
     Serial.println("Testing movement");
     Serial.print("Position (left, right): ");
     Serial.print(POS_getLeft());
@@ -76,8 +76,8 @@ void tst_movement()
 
     digitalWrite(PIN_DIR_LEFT, HIGH);
     digitalWrite(PIN_DIR_RIGHT, HIGH);
-    analogWrite(PIN_PWM_LEFT, 100);
-    analogWrite(PIN_PWM_RIGHT, 100);
+    analogWrite(PIN_PWM_LEFT, 50);
+    analogWrite(PIN_PWM_RIGHT, 50);
     delay(1000);
     analogWrite(PIN_PWM_LEFT, 0);
     analogWrite(PIN_PWM_RIGHT, 0);
@@ -90,8 +90,8 @@ void tst_movement()
 
     digitalWrite(PIN_DIR_LEFT, LOW);
     digitalWrite(PIN_DIR_RIGHT, LOW);
-    analogWrite(PIN_PWM_LEFT, 100);
-    analogWrite(PIN_PWM_RIGHT, 100);
+    analogWrite(PIN_PWM_LEFT, 50);
+    analogWrite(PIN_PWM_RIGHT, 50);
     delay(1000);
     analogWrite(PIN_PWM_LEFT, 0);
     analogWrite(PIN_PWM_RIGHT, 0);
@@ -101,7 +101,7 @@ void tst_movement()
     Serial.print(" ");
     Serial.println(POS_getRight());
     delay(1000);
-}
+//}
 }
 
 void loop() {

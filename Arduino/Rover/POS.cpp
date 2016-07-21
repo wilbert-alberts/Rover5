@@ -119,7 +119,7 @@ static void pos_isrRightADown()
 static void pos_isrRightBUp()
 {
   // TODO: check signs
-  if (digitalRead(PIN_ENC_RIGHT_A) ==  LOW)
+  if (digitalRead(PIN_ENC_RIGHT_A) ==  HIGH)
     pos_Right++;
   else
     pos_Right--;
@@ -128,7 +128,7 @@ static void pos_isrRightBUp()
 static void pos_isrRightBDown()
 {
   // TODO: check signs
-  if (digitalRead(PIN_ENC_RIGHT_A) ==  LOW)
+  if (digitalRead(PIN_ENC_RIGHT_A) ==  HIGH)
     pos_Right--;
   else
     pos_Right++;

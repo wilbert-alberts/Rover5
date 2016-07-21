@@ -173,24 +173,16 @@ extern int RV_getAnalogLine(int ambient[], int active[])
 	uint16_t v;
 	
 	static const int ambientRegisters[]  =  {
-    REG_AMB_LINE_NE,
-    REG_AMB_LINE_EN,
-    REG_AMB_LINE_ES,
-    REG_AMB_LINE_SE,
-    REG_AMB_LINE_SW,
-    REG_AMB_LINE_WS,
-    REG_AMB_LINE_WN,
-    REG_AMB_LINE_NW	
+    REG_AMB_LINE_N,
+    REG_AMB_LINE_E,
+    REG_AMB_LINE_S,
+    REG_AMB_LINE_W,
 	};
 	static const int activeRegisters[]  =  {
-    REG_IR_LINE_NE,
-    REG_IR_LINE_EN,
-    REG_IR_LINE_ES,
-    REG_IR_LINE_SE,
-    REG_IR_LINE_SW,
-    REG_IR_LINE_WS,
-    REG_IR_LINE_WN,
-    REG_IR_LINE_NW	
+    REG_IR_LINE_N,
+    REG_IR_LINE_E,
+    REG_IR_LINE_S,
+    REG_IR_LINE_W,
 	};
 	RV_LogEntry(__func__, "NOT IMPLEMENTED");
 
@@ -238,3 +230,4 @@ extern int RV_getAnalogCollision(int ambient[] ,int active[])
 	RV_LogExit(__func__, result, "NO RESULT");
 	return result;
 }
+

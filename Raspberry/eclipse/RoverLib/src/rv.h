@@ -42,14 +42,10 @@
 #define RV_BACKWARD  (1)
 
 // Mask for the LINE register
-#define REG_LINE_NE (1<<0)
-#define REG_LINE_EN (1<<1)
-#define REG_LINE_ES (1<<2)
-#define REG_LINE_SE (1<<3)
-#define REG_LINE_SW (1<<4)
-#define REG_LINE_WS (1<<5)
-#define REG_LINE_WN (1<<6)
-#define REG_LINE_NW (1<<7)
+#define REG_LINE_N (1<<0)
+#define REG_LINE_E (1<<1)
+#define REG_LINE_S (1<<2)
+#define REG_LINE_W (1<<3)
 
 // Mask for the COLLISION register
 #define REG_COL_NE (1<<0)
@@ -71,7 +67,7 @@ extern int RV_waitForNewData();
 
 extern int RV_getPosition(long* leftPos, long* rightPos);
 
-extern int RV_move(int leftDirection, // FORWARD, BACKWARD
+extern int RV_move(int leftDirection, // RV_FORWARD, RV_BACKWARD
 				   int rightDirection,
 				   int leftDC,        // from 0 to 255
 				   int rightDC);
@@ -84,7 +80,7 @@ extern int RV_getLine(uint8_t* mask);
 /* Expert usage */
 extern int RV_getAVRTime(long* millis, long* micros);
 
-extern int RV_getAnalogLine(int* ambient[], int active[]);
+extern int RV_getAnalogLine(int ambient[], int active[]);
 
 extern int RV_getAnalogCollision(int ambient[] ,int active[]);
 
