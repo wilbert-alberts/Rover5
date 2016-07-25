@@ -146,6 +146,28 @@ extern int RV_getCollision(uint8_t* r) {
 	return result;
 }
 
+extern int RV_getAmbOffset(int* r) {
+	int result = OK;
+	RV_LogEntry(__func__, "r: %p", r);
+
+	SAFE_INVOKE(REG_read16(REG_AMBOFFSET, r), result, RV_GET_AMBOFFSET_FAILED)
+
+	RV_LogExit(__func__, result, "*r: %d", r);
+	return result;
+}
+
+extern int RV_setAmbOffset(int r) {
+	int result = OK;
+	uint16_t offset = (uint16_t r);
+
+	RV_LogEntry(__func__, "r: %d", r);
+
+	SAFE_INVOKE(REG_write16(REG_AMBOFFSET, offset), result, RV_SET_AMBOFFSET_FAILED)
+
+	RV_LogExit(__func__, result, NULL);
+	return result;
+}
+
 
 extern int RV_getAVRTime(long* millis, long* micros)
 {

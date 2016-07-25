@@ -36,6 +36,8 @@
 #define RV_GET_ANALOGCOLLISION_FAILED  	(-21)
 #define RV_UNABLE_TO_OPEN_FILE 			(-22)
 #define RV_UNABLE_TO_MALLOC 			(-23)
+#define RV_SET_AMBOFFSET_FAILED			(-24)
+#define RV_GET_AMBOFFSET_FAILED			(-25)
 
 
 #define RV_FORWARD   (0)
@@ -75,6 +77,9 @@ extern int RV_move(int leftDirection, // RV_FORWARD, RV_BACKWARD
 extern int RV_getCollision(uint8_t* mask);
 
 extern int RV_getLine(uint8_t* mask);
+
+extern int RV_setAmbOffset(int offset);
+extern int RV_getAmbOffset(int* offset);
 
 
 /* Expert usage */
