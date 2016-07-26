@@ -7,6 +7,7 @@
 //============================================================================
 #include "rv.h"
 #include "PID.h"
+#include "POS.h"
 #include <math.h>
 #include <ReflexxesAPI.h>
 
@@ -14,12 +15,17 @@
 
 
 
-static long posOffsetL;
-static long posOffsetR;
 static ReflexxesAPI *RML = NULL;
 static RMLPositionInputParameters *IP = NULL;
 static RMLPositionOutputParameters *OP = NULL;
 static RMLPositionFlags Flags;
+
+static void SPG_setup();
+static void SPG_calculate(double* left, double* right);
+static void SPG_progress();
+static void setTorque(double l, double r);
+
+
 
 int main(int argc, char* argv[])
 {

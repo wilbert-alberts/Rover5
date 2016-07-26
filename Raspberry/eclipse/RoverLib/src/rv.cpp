@@ -150,15 +150,19 @@ extern int RV_getColAmbOffset(int* r) {
 	int result = OK;
 	RV_LogEntry(__func__, "r: %p", r);
 
-	SAFE_INVOKE(REG_read16(REG_AMB_COL_OFFSET, r), result, RV_GET_AMB_COL_OFFSET_FAILED)
+	uint16_t o;
 
+	SAFE_INVOKE(REG_read16(REG_AMB_COL_OFFSET, &o), result, RV_GET_AMB_COL_OFFSET_FAILED)
+	if (result == OK) {
+		*r = o;
+	}
 	RV_LogExit(__func__, result, "*r: %d", r);
 	return result;
 }
 
 extern int RV_setColAmbOffset(int r) {
 	int result = OK;
-	uint16_t offset = (uint16_t r);
+	uint16_t offset = (uint16_t)(r);
 
 	RV_LogEntry(__func__, "r: %d", r);
 
@@ -168,19 +172,24 @@ extern int RV_setColAmbOffset(int r) {
 	return result;
 }
 
-extern int RV_getLineAmbOffset(int* r) {
+extern int RV_getLineAmbOffset(uint16_t* r) {
 	int result = OK;
+	uint16_t o;
 	RV_LogEntry(__func__, "r: %p", r);
 
-	SAFE_INVOKE(REG_read16(REG_AMB_LINE_OFFSET, r), result, RV_GET_AMB_LINE_OFFSET_FAILED)
+	SAFE_INVOKE(REG_read16(REG_AMB_LINE_OFFSET, &o), result, RV_GET_AMB_LINE_OFFSET_FAILED)
+
+	if (result == OK) {
+		*r = o;
+	}
 
 	RV_LogExit(__func__, result, "*r: %d", r);
 	return result;
 }
 
-extern int RV_setLineAmbOffset(int r) {
+extern int RV_setLineAmbOffset(uint16_t r) {
 	int result = OK;
-	uint16_t offset = (uint16_t r);
+	uint16_t offset = (uint16_t)(r);
 
 	RV_LogEntry(__func__, "r: %d", r);
 

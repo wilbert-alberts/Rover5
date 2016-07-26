@@ -51,7 +51,7 @@ extern int TR_dumpBuffers(FILE* of) {
 	RV_LogEntry(__func__, "of: %p", of);
 
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
-		fprintf(of, "%s\t", REG_getRegistername(idx));
+		fprintf(of, "%s\t", REG_getRegistername(i));
 	}
 	fprintf(of,"\n");
 
