@@ -50,6 +50,11 @@ extern int TR_dumpBuffers(FILE* of) {
 	int result = OK;
 	RV_LogEntry(__func__, "of: %p", of);
 
+	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
+		fprintf(of, "%s\t", REG_getRegistername(idx));
+	}
+	fprintf(of,"\n");
+
 	int idx = (tracebufferIndex + 1) % tracebufferSize;
 	do
 	{
@@ -70,8 +75,9 @@ static int TR_dumpBuffer(FILE* of, int idx) {
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
 		result = REG_readLong(src, idx, &v);
 		if (result == OK)
-			fprintf(of, "%s\t%ld\n", REG_getRegistername(idx), v);
+			fprintf(of, "%ld",  v);
 	}
+	fprintf(of,"\n");
 
 	RV_LogExit(__func__, result, NULL);
 	return result;

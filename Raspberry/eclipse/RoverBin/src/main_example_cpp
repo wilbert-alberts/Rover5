@@ -1,0 +1,16 @@
+#include "rv.h"
+
+int main (int argc, char* argv[])
+{
+	bool ready = false;
+
+    RV_setFrequency(100);
+    RV_start();
+    while (not ready)
+      RV_waitForNewData();
+      // Retrieve new data
+      // Process data
+      // Send new commands
+    }
+    RV_stop();
+}
