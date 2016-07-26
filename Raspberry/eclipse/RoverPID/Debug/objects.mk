@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS :=
+LIBS := -lRover -lReflexxesTypeII -lwiringPi -lpthread
 
