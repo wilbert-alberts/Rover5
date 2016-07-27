@@ -16,6 +16,7 @@
 
 #include "rv.h"
 #include "rv_reg.h"
+#include "rv_log.h"
 
 #define ROVER_PORT (34343)
 
@@ -34,7 +35,7 @@ static bool  sv_connected;
 static pthread_t SV_TID;
 
 static int sv_reconnect();
-static void sv_accept();
+static void* sv_accept(void*);
 static int sv_sendMap();
 
 int SV_start()
@@ -46,7 +47,7 @@ int SV_start()
 
 	sv_socketFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (sv_socketFD < 0)
-		result = SV_UNABLE_TO_GET_SOCKET;
+		result = RV_UNABLE_TO_GET_SOCKET;
 
 	if (result == OK)
 	{
@@ -55,6 +56,8 @@ int SV_start()
 		serv_addr.sin_port = htons(ROVER_PORT);
 
 		result = bind(sv_socketFD, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+		if (result != OK) 
+			result = RV_UNABLE_TO_BIND;
 	}
 
 	if (result == OK)
@@ -94,7 +97,7 @@ int sv_reconnect()
 	return result;
 }
 
-void sv_accept()
+void* sv_accept(void* )
 {
 	RV_LogEntry(__func__, NULL);
 
@@ -110,6 +113,7 @@ void sv_accept()
 		sv_connected = true;
 
 	RV_LogExit(__func__, OK, NULL);
+	return NULL;
 }
 
 int SV_send()
@@ -123,7 +127,7 @@ int SV_send()
 		if (error)
 		{
 			close(sv_connectionFD);
-			SV_reconnect();
+			sv_reconnect();
 		}
 	}
 	RV_LogExit(__func__, OK, NULL);

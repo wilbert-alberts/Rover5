@@ -51,7 +51,7 @@ extern int RV_start() {
 	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
 	SAFE_INVOKE(RV_startLoop(), result, RV_START_FAILED)
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
-	SAFE_INVOKE(SV_start, result, RV_START_FAILED)
+	SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
 
 	RV_LogExit(__func__, result, NULL);
 	return result;

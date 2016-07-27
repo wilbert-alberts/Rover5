@@ -9,6 +9,7 @@ CPP_SRCS += \
 ../src/rv_log.cpp \
 ../src/rv_loop.cpp \
 ../src/rv_reg.cpp \
+../src/rv_server.cpp \
 ../src/rv_trace.cpp 
 
 OBJS += \
@@ -17,6 +18,7 @@ OBJS += \
 ./src/rv_log.o \
 ./src/rv_loop.o \
 ./src/rv_reg.o \
+./src/rv_server.o \
 ./src/rv_trace.o 
 
 CPP_DEPS += \
@@ -25,6 +27,7 @@ CPP_DEPS += \
 ./src/rv_log.d \
 ./src/rv_loop.d \
 ./src/rv_reg.d \
+./src/rv_server.d \
 ./src/rv_trace.d 
 
 
