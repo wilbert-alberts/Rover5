@@ -7,6 +7,7 @@
 #include "rv_log.h"
 #include "rv_exchange.h"
 #include "rv_trace.h"
+#include "rv_server.h"
 
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
@@ -120,6 +121,7 @@ static void* rv_loop(void* args) {
 	while ((rv_running) and (result == OK)) {
 		result = RV_exchangeWithMega();
 		result = TR_traceRegmap();
+		result = SV_send();
 		result = OK;
 		//printf("*\n");
 
