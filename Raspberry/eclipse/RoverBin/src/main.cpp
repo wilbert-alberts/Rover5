@@ -24,13 +24,14 @@ int main (int argc, char* argv[])
     RV_loopLoggingOff();
     RV_setFrequency(100);
     RV_start();
+    RV_setColAmbOffset(300);
     while(21);
     // RV_move(RV_BACKWARD, RV_BACKWARD, 70,70);
     for (int i=0; i<10000; i++) {
-      RV_getPosition(&left, &right);
+      //RV_getPosition(&left, &right);
       //printf("left: %ld, right: %ld\n", left, right);
       
-      RV_getAnalogCollision(sig, amb);
+      //RV_getAnalogCollision(sig, amb);
       //printf("left: %ld, right: %ld, NE: %d, SE: %d, SW: %d, NW: %d\n", 
       // 	     left, right, sig[0], sig[1], sig[2], sig[3]);
       
@@ -40,6 +41,8 @@ int main (int argc, char* argv[])
       //}      
 
       RV_getAnalogLine(sig, amb);
+      printf("left: %ld, right: %ld, N: %d, E: %d, S: %d, W: %d\n", 
+      	     left, right, amb[0], amb[1], amb[2], amb[3]);
       printf("left: %ld, right: %ld, N: %d, E: %d, S: %d, W: %d\n", 
       	     left, right, sig[0], sig[1], sig[2], sig[3]);
       

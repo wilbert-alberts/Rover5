@@ -104,7 +104,6 @@ static void col_digitalize()
   uint16_t offset;
   
   REG_read16(REG_AMB_COL_OFFSET, &offset);
-
   for (int i=0; i<COL_NR_SENSORS; i++) {
     col_digitalized[i] = col_ambient[i] + offset < col_active[i];   
   }
