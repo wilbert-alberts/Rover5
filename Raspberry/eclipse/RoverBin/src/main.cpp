@@ -24,8 +24,8 @@ int main (int argc, char* argv[])
     RV_loopLoggingOff();
     RV_setFrequency(100);
     RV_start();
-    sleep(1);
-    RV_move(RV_BACKWARD, RV_BACKWARD, 70,70);
+    while(21);
+    // RV_move(RV_BACKWARD, RV_BACKWARD, 70,70);
     for (int i=0; i<10000; i++) {
       RV_getPosition(&left, &right);
       //printf("left: %ld, right: %ld\n", left, right);

@@ -15,6 +15,8 @@
 
 #include "rv_reg.h"
 
+extern void CL_getInSync(int fd);
+extern void CL_startReading(int fd);
 static int cl_readMap(int fd, REG_map* map);
 
 void error(const char *msg)
@@ -25,11 +27,13 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-	int sockfd, portno, n;
+	int sockfd;
+	int portno;
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
-	char buffer[256];
+	REG_setup();
+
 	if (argc < 3)
 	{
 		fprintf(stderr, "usage %s hostname port\n", argv[0]);

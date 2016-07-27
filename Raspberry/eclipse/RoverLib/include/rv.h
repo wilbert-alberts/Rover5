@@ -42,7 +42,7 @@
 #define RV_GET_AMB_LINE_OFFSET_FAILED			(-27)
 #define RV_UNABLE_TO_GET_SOCKET			(-28)
 #define RV_UNABLE_TO_BIND			(-29)
-
+#define RV_UNABLE_INSTALL_SIGHANDLER	(-30)
 
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)

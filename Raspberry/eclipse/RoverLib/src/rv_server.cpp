@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "rv.h"
 #include "rv_reg.h"
@@ -33,10 +34,12 @@ static int   sv_socketFD;
 static int   sv_connectionFD;
 static bool  sv_connected;
 static pthread_t SV_TID;
+static sighandler_t sv_PrevHandler;
 
 static int sv_reconnect();
 static void* sv_accept(void*);
 static int sv_sendMap();
+static void sv_handleSigpipe(int r);
 
 int SV_start()
 {
@@ -60,6 +63,11 @@ int SV_start()
 			result = RV_UNABLE_TO_BIND;
 	}
 
+	if (result == OK) {
+		sv_PrevHandler = signal(SIGPIPE, sv_handleSigpipe);
+		result = (prevHandler == SIG_ERR) ?  RV_UNABLE_INSTALL_SIGHANDLER: OK;
+	}
+
 	if (result == OK)
 		result = sv_reconnect();
 
@@ -72,6 +80,7 @@ int SV_stop()
 	int result = OK;
 	RV_LogEntry(__func__, NULL);
 
+	signal(SIGPIPE, sv_PrevHandler);
 	sv_connected = false;
 
 	if (sv_connectionFD > 0)
@@ -89,7 +98,13 @@ int sv_reconnect()
 	RV_LogEntry(__func__, NULL);
 
 	pthread_attr_t threadAttributes;
-
+	
+	if (sv_connectionFD > 0) {
+		close(sv_connectionFD);
+		sv_connectionFD = 0;
+		sv_connected = false;
+	}
+	
 	pthread_attr_init(&threadAttributes);
 	result = pthread_create(&SV_TID, &threadAttributes, sv_accept, NULL);
 
@@ -123,12 +138,7 @@ int SV_send()
 	RV_LogEntry(__func__, NULL);
 	if (sv_connected)
 	{
-		int error = sv_sendMap();
-		if (error)
-		{
-			close(sv_connectionFD);
-			sv_reconnect();
-		}
+		sv_sendMap();
 	}
 	RV_LogExit(__func__, OK, NULL);
 	return result;
@@ -144,4 +154,9 @@ int sv_sendMap()
 	result = write(sv_connectionFD, &m, sizeof(m));
 
 	return result == sizeof(m) ? 0 : -1;
+}
+
+void sv_handleSigpipe(int r)
+{
+	sv_reconnect();
 }

@@ -175,7 +175,7 @@ extern int REG_readLong(REG_map* src, int id, long* val) {
 
 }
 
-extern int REG_fillHeaderTrailer(REG_map* map)
+extern int REG_fillHeaderTrailer(REG_map* m)
 {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
 	uint8_t* trailer = (uint8_t*) (&m->TRAILER);
@@ -193,7 +193,7 @@ extern int REG_fillHeaderTrailer(REG_map* map)
 	return 0;
 }
 
-extern int REG_checkHeaderTrailer(REG_map* map)
+extern int REG_checkHeaderTrailer(REG_map* m)
 {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
 	uint8_t* trailer = (uint8_t*) (&m->TRAILER);
@@ -243,25 +243,25 @@ extern const char* REG_getRegistername(int idx) {
 #define LOG_U32(S, R) \
 {\
 	uint32_t* v = (uint32_t*) (&(S->R));        \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+	printf("%s: %d\n", reg_name[REG_ ## R], *v); \
 }
 
 #define LOG_32(S, R) \
 {\
 	int32_t* v = (int32_t*) (&(S->R));       \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+	printf("%s: %d\n", reg_name[REG_ ## R], *v); \
 }
 
 #define LOG_U16(S, R) \
 {\
 	uint16_t* v = (uint16_t*) (&(S->R));        \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+	printf("%s: %d\n", reg_name[REG_ ## R], *v); \
 }
 
 #define LOG_U8(S, R) \
 {\
 	uint8_t* v = (uint8_t*) (&(S->R));       \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+	printf("%s: %d\n", reg_name[REG_ ## R], *v); \
 }
 
 extern void REG_logAll(REG_map* src) {
