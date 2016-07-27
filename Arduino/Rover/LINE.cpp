@@ -74,7 +74,7 @@ static void line_digitalize()
 {
   uint16_t offset;
   
-  REG_read16(REG_AMBOFFSET, &offset);
+  REG_read16(REG_AMB_LINE_OFFSET, &offset);
 
   for (int i=0; i<LINE_NR_SENSORS; i++) {
     line_digitalized[i] = line_ambient[i] + offset < line_active[i];   

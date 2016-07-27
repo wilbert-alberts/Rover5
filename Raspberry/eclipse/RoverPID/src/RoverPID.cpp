@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
 
 	SPG_setup();
 
-	PID* pidR= new PID(1.0, 0.1, 0.0, 1.0/FREQUENCY);
-	PID* pidL= new PID(1.0, 0.1, 0.0, 1.0/FREQUENCY);
+	PID* pidR= new PID(0.0100, 0.01, 0.001, 1.0/FREQUENCY);
+	PID* pidL= new PID(0.0100, 0.01, 0.001, 1.0/FREQUENCY);
 	POS* pos = new POS();
 
 	while (ResultValue != ReflexxesAPI::RML_FINAL_STATE_REACHED)
@@ -53,13 +53,17 @@ int main(int argc, char* argv[])
 
 		// Retrieve new data
 		pos->getPosition(&posL, &posR);
-
+		
 		// Update SPG
 		SPG_calculate(&spgL, &spgR);
+
+//		printf("left: %f (%f), right: %f (%f)", posL, spgL, posR, spgR);
 
 		// Update PID
 		pidL->calculate(spgL-posL, &torqueL);
 		pidR->calculate(spgR-posR, &torqueR);
+
+//		printf(", torque (l,r): %f, %f\n", torqueL, torqueR);
 
 		// Send new commands
 		setTorque(torqueL, torqueR);
@@ -80,11 +84,11 @@ void SPG_setup()
 	IP->CurrentVelocityVector->VecData[0] = 0.0;
 	IP->CurrentAccelerationVector->VecData[0] = 0.0;
 
-	IP->MaxVelocityVector->VecData[0] = 0.5;
-	IP->MaxAccelerationVector->VecData[0] = 1.0;
-	IP->MaxJerkVector->VecData[0] = 10.0;
+	IP->MaxVelocityVector->VecData[0] = 5555500;
+	IP->MaxAccelerationVector->VecData[0] = 500.0;
+	IP->MaxJerkVector->VecData[0] = 1000.0;
 
-	IP->TargetPositionVector->VecData[0] = 1.0;
+	IP->TargetPositionVector->VecData[0] = 1000.0;
 	IP->TargetVelocityVector->VecData[0] = 0.0;
 	IP->SelectionVector->VecData[0] = true;
 
@@ -92,11 +96,11 @@ void SPG_setup()
 	IP->CurrentVelocityVector->VecData[1] = 0.0;
 	IP->CurrentAccelerationVector->VecData[1] = 0.0;
 
-	IP->MaxVelocityVector->VecData[1] = 0.5;
+	IP->MaxVelocityVector->VecData[1] = 10;
 	IP->MaxAccelerationVector->VecData[1] = 1.0;
-	IP->MaxJerkVector->VecData[1] = 10.0;
+	IP->MaxJerkVector->VecData[1] = 1000.0;
 
-	IP->TargetPositionVector->VecData[1] = 1.0;
+	IP->TargetPositionVector->VecData[1] = 1000.0;
 	IP->TargetVelocityVector->VecData[1] = 0.0;
 	IP->SelectionVector->VecData[1] = true;
 
@@ -127,6 +131,6 @@ void setTorque(double l, double r)
 	l = l>1.0 ? 1.0 : l;
 	r = r>1.0 ? 1.0 : r;
 
-	RV_move(lDir, rDir, (uint8_t)(l*255), (uint8_t)(r*255)) ;
+	RV_move(lDir, rDir, (uint8_t)(l*200), (uint8_t)(r*200)) ;
 
 }

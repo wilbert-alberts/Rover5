@@ -63,7 +63,7 @@ extern int RV_loopLoggingOn() {
 	return OK;
 }
 
-extern int  RV_loopLogginOff() {
+extern int  RV_loopLoggingOff() {
 	rv_looplogging = false;
 	if (rv_loopTID != 0)
 		RV_SetLogging(rv_loopTID, rv_looplogging);
