@@ -30,20 +30,20 @@
 			r = c; \
 	}
 
-static int rv_exchangeSPI();
-static int rv_exchangeFillHeaderTrailer(REG_map* m);
-static int rv_exchangeCheckHeaderTrailer(REG_map* m);
-static void rv_exchangeLogBuffer(REG_map* m);
-static void rv_mysleep(int ndelay);
+static int ex_communicateSPI();
+static int ex_fillHeaderTrailer(REG_map* m);
+static int ex_checkHeaderTrailer(REG_map* m);
+static void ex_logBuffer(REG_map* m);
+static void ex_mysleep(int ndelay);
 
-int rv_spiByteDelay = 7000; // in nanoseconds; e.g. 7 us
+int ex_spiByteDelay = 7000; // in nanoseconds; e.g. 7 us
 
-static REG_map rv_exchangeBuffer;
+static REG_map ex_buffer;
 
-extern int RV_exchangeSetup() {
+extern int EX_setup() {
 	int result = OK;
 	int fd = 0;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, HIGH);
@@ -56,65 +56,65 @@ extern int RV_exchangeSetup() {
 	fd = wiringPiSPISetup(SPICHANNEL, SPISPEED);
 	result = (fd == -1) ? RV_EXCHANGE_SETUP_FAILED : OK;
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
-extern int RV_exchangeWithMega() {
+extern int EX_communicate() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	digitalWrite(REQEXC, HIGH);
 	while ((result == OK) and (digitalRead(ACKEXC) == LOW))
 		; // Busy wait
 
-	SAFE_INVOKE(rv_exchangeSPI(), result, RV_EXCHANGE_FAILED)
+	SAFE_INVOKE(ex_communicateSPI(), result, RV_EXCHANGE_FAILED)
 
 	digitalWrite(REQEXC, LOW);
 	while ((digitalRead(ACKEXC) == HIGH))
 		; // Busy wait
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 
-static int rv_exchangeSPI() {
+static int ex_communicateSPI() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 	uint8_t* b;
 	// const struct timespec delta = { 0, 1 };
 
-	REG_readAll(&rv_exchangeBuffer);
-	SAFE_INVOKE(rv_exchangeFillHeaderTrailer(&rv_exchangeBuffer), result,
+	REG_readAll(&ex_buffer);
+	SAFE_INVOKE(ex_fillHeaderTrailer(&ex_buffer), result,
 			RV_EXCHANGESPI_FAILED)
 
 	digitalWrite(SS, LOW);
 
-	b = (uint8_t*) &rv_exchangeBuffer;
-	for (unsigned int i = 0; i < sizeof(rv_exchangeBuffer); i++) {
+	b = (uint8_t*) &ex_buffer;
+	for (unsigned int i = 0; i < sizeof(ex_buffer); i++) {
 
 		wiringPiSPIDataRW(SPICHANNEL, (unsigned char*) (b + i), 1);
 
 		///We need to sleep here for a little while ~20us
-		rv_mysleep(rv_spiByteDelay);
+		ex_mysleep(ex_spiByteDelay);
 	}
 
 	digitalWrite(SS, HIGH);
 
-	SAFE_INVOKE(rv_exchangeCheckHeaderTrailer(&rv_exchangeBuffer), result,
+	SAFE_INVOKE(ex_checkHeaderTrailer(&ex_buffer), result,
 			RV_EXCHANGESPI_FAILED)
 	if (result != OK) {
-		rv_exchangeLogBuffer(&rv_exchangeBuffer);
-		REG_logAll(&rv_exchangeBuffer);
+		ex_logBuffer(&ex_buffer);
+		REG_logAll(&ex_buffer);
 	}
-	SAFE_INVOKE(REG_writeAll(&rv_exchangeBuffer), result, RV_EXCHANGESPI_FAILED)
+	SAFE_INVOKE(REG_writeAll(&ex_buffer), result, RV_EXCHANGESPI_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
-static int rv_exchangeFillHeaderTrailer(REG_map* m) {
+static int ex_fillHeaderTrailer(REG_map* m) {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
 	uint8_t* trailer = (uint8_t*) (&m->TRAILER);
 
@@ -136,7 +136,7 @@ static int rv_exchangeFillHeaderTrailer(REG_map* m) {
 	return OK;
 }
 
-static int rv_exchangeCheckHeaderTrailer(REG_map* m) {
+static int ex_checkHeaderTrailer(REG_map* m) {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
 	uint8_t* trailer = (uint8_t*) (&m->TRAILER);
 
@@ -159,14 +159,14 @@ static int rv_exchangeCheckHeaderTrailer(REG_map* m) {
 	return OK;
 }
 
-static void rv_exchangeLogBuffer(REG_map* m) {
+static void ex_logBuffer(REG_map* m) {
 	uint8_t* p = (uint8_t*) m;
 	for (unsigned int i = 0; i < sizeof(REG_map); i++) {
 		printf("%d: %d\n", i, p[i]);
 	}
 }
 
-static void rv_mysleep(int ndelay)
+static void ex_mysleep(int ndelay)
 {
 	struct timespec now;
 	struct timespec end;

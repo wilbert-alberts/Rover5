@@ -46,7 +46,7 @@ int SV_start()
 	int result = OK;
 	struct sockaddr_in serv_addr = { 0 };
 
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	sv_socketFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (sv_socketFD < 0)
@@ -65,20 +65,20 @@ int SV_start()
 
 	if (result == OK) {
 		sv_PrevHandler = signal(SIGPIPE, sv_handleSigpipe);
-		result = (prevHandler == SIG_ERR) ?  RV_UNABLE_INSTALL_SIGHANDLER: OK;
+		result = (sv_PrevHandler == SIG_ERR) ?  RV_UNABLE_INSTALL_SIGHANDLER: OK;
 	}
 
 	if (result == OK)
 		result = sv_reconnect();
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 int SV_stop()
 {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	signal(SIGPIPE, sv_PrevHandler);
 	sv_connected = false;
@@ -88,14 +88,14 @@ int SV_stop()
 	if (sv_socketFD > 0)
 		close(sv_socketFD);
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 int sv_reconnect()
 {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	pthread_attr_t threadAttributes;
 	
@@ -108,13 +108,13 @@ int sv_reconnect()
 	pthread_attr_init(&threadAttributes);
 	result = pthread_create(&SV_TID, &threadAttributes, sv_accept, NULL);
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 void* sv_accept(void* )
 {
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	struct sockaddr_in cli_addr;
 	socklen_t clilen;
@@ -127,7 +127,7 @@ void* sv_accept(void* )
 	if (sv_connectionFD > 0)
 		sv_connected = true;
 
-	RV_LogExit(__func__, OK, NULL);
+	LG_logExit(__func__, OK, NULL);
 	return NULL;
 }
 
@@ -135,12 +135,12 @@ int SV_send()
 {
 	int result = OK;
 
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 	if (sv_connected)
 	{
 		sv_sendMap();
 	}
-	RV_LogExit(__func__, OK, NULL);
+	LG_logExit(__func__, OK, NULL);
 	return result;
 }
 

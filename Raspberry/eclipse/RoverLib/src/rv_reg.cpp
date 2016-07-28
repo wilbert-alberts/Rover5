@@ -25,7 +25,7 @@ static const char* reg_name[REG_MAX];
 
 extern int REG_setup() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	bzero(&reg_map, sizeof(reg_map));
 	SAFE_INVOKE(sem_init(&reg_sem, 0, 1), result, RV_SEM_INIT_FAILED)
@@ -63,13 +63,13 @@ extern int REG_setup() {
 		REG_ADDREGISTER(TRAILER)
 	}
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int REG_write8(int id, uint8_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
+	LG_logEntry(__func__, "id: %d, val: %d", id, val);
 
 	uint8_t* dst = (uint8_t*) (reg_address[id]);
 
@@ -77,78 +77,78 @@ extern int REG_write8(int id, uint8_t val) {
 	*dst = val;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int REG_write16(int id, uint16_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
+	LG_logEntry(__func__, "id: %d, val: %d", id, val);
 
 	uint16_t* dst = (uint16_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*dst = val;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int REG_write32(int id, int32_t val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %d", id, val);
+	LG_logEntry(__func__, "id: %d, val: %d", id, val);
 
 	int32_t* dst = (int32_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*dst = val;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int REG_read8(int id, uint8_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
+	LG_logEntry(__func__, "id: %d, val: %p", id, val);
 
 	uint8_t* src = (uint8_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*val = *src;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, "*val: %d", *val);
+	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 }
 
 extern int REG_read16(int id, uint16_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
+	LG_logEntry(__func__, "id: %d, val: %p", id, val);
 
 	uint16_t* src = (uint16_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*val = *src;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, "*val: %d", *val);
+	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 }
 
 extern int REG_read32(int id, int32_t* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
+	LG_logEntry(__func__, "id: %d, val: %p", id, val);
 
 	int32_t* src = (int32_t*) (reg_address[id]);
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*val = *src;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, "*val: %d", *val);
+	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 }
 
 extern int REG_readLong(REG_map* src, int id, long* val) {
 	int result = OK;
-	RV_LogEntry(__func__, "id: %d, val: %p", id, val);
+	LG_logEntry(__func__, "id: %d, val: %p", id, val);
 
 	int32_t* v32;
 	uint16_t* v16;
@@ -207,32 +207,32 @@ extern int REG_readLong(REG_map* src, int id, long* val) {
 		break;
 	}
 
-	RV_LogExit(__func__, result, "*val: %d", *val);
+	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 
 }
 
 extern int REG_readAll(REG_map* dst) {
 	int result = OK;
-	RV_LogEntry(__func__, "dst: %p", dst);
+	LG_logEntry(__func__, "dst: %p", dst);
 
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	*dst = reg_map;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int REG_writeAll(REG_map* src) {
 	int result = OK;
-	RV_LogEntry(__func__, "src: %p", src);
+	LG_logEntry(__func__, "src: %p", src);
 
 	SAFE_INVOKE(sem_wait(&reg_sem), result, RV_SEM_WAIT_FAILED)
 	reg_map = *src;
 	SAFE_INVOKE(sem_post(&reg_sem), result, RV_SEM_POST_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 

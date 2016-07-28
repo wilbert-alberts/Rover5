@@ -9,9 +9,7 @@
 #define RV_TRACE_H_
 
 extern int TR_setup(int size) ;
-
 extern int TR_traceRegmap();
-
 extern int TR_dumpBuffers(FILE* of);
 
 

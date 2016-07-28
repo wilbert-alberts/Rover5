@@ -44,42 +44,42 @@
 
 extern int RV_start() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
 	wiringPiSetup();
-	SAFE_INVOKE(RV_exchangeSetup(), result, RV_START_FAILED)
-	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
-	SAFE_INVOKE(RV_startLoop(), result, RV_START_FAILED)
+	SAFE_INVOKE(EX_setup(), result, RV_START_FAILED)
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
+	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
 	SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
+	SAFE_INVOKE(LP_start(), result, RV_START_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_stop() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
-	SAFE_INVOKE(RV_stopLoop(), result, RV_STOP_FAILED)
+	SAFE_INVOKE(LP_stop(), result, RV_STOP_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_loggingOn() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
-	SAFE_INVOKE(RV_SetLogging(pthread_self(), true), result, RV_LOGGING_ON_FAILED)
-	RV_LogExit(__func__, result, NULL);
+	LG_logEntry(__func__, NULL);
+	SAFE_INVOKE(LG_setLogging(pthread_self(), true), result, RV_LOGGING_ON_FAILED)
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_loggingOff() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
-	SAFE_INVOKE(RV_SetLogging(pthread_self(), false), result, RV_LOGGING_OFF_FAILED)
-	RV_LogExit(__func__, result, NULL);
+	LG_logEntry(__func__, NULL);
+	SAFE_INVOKE(LG_setLogging(pthread_self(), false), result, RV_LOGGING_OFF_FAILED)
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
@@ -88,7 +88,7 @@ extern int RV_getPosition(long* left, long* right) {
 	int32_t rgt = 0;
 
 	int result = OK;
-	RV_LogEntry(__func__, "left: %p, right: %p", left, right);
+	LG_logEntry(__func__, "left: %p, right: %p", left, right);
 
 	SAFE_INVOKE(REG_read32(REG_LEFTPOS, &lft), result, RV_GET_POSITION_FAILED)
 	SAFE_INVOKE(REG_read32(REG_RIGHTPOS, &rgt), result, RV_GET_POSITION_FAILED)
@@ -98,7 +98,7 @@ extern int RV_getPosition(long* left, long* right) {
 		*right = (long) rgt;
 	}
 
-	RV_LogExit(__func__, result, "*left: %d, *right: %d", *left, *right);
+	LG_logExit(__func__, result, "*left: %d, *right: %d", *left, *right);
 	return result;
 }
 
@@ -110,7 +110,7 @@ extern int RV_move(int leftDirection, int rightDirection, int leftDC,
 	uint8_t rdc;
 
 	int result = OK;
-	RV_LogEntry(__func__,
+	LG_logEntry(__func__,
 			"leftDirection: %d, rightDirection: %d, leftDC: %d, rightDC: %d",
 			leftDirection, rightDirection, leftDC, rightDC);
 
@@ -124,33 +124,33 @@ extern int RV_move(int leftDirection, int rightDirection, int leftDC,
 	SAFE_INVOKE(REG_write8(REG_RIGHTDIR, rd), result, RV_MOVE_FAILED)
 	SAFE_INVOKE(REG_write8(REG_RIGHTDC, rdc), result, RV_MOVE_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_getLine(uint8_t* r) {
 	int result = OK;
-	RV_LogEntry(__func__, "r: %p", r);
+	LG_logEntry(__func__, "r: %p", r);
 
 	SAFE_INVOKE(REG_read8(REG_LINE, r), result, RV_GET_LINE_FAILED)
 
-	RV_LogExit(__func__, result, "*r: 0x%0x", r);
+	LG_logExit(__func__, result, "*r: 0x%0x", r);
 	return result;
 }
 
 extern int RV_getCollision(uint8_t* r) {
 	int result = OK;
-	RV_LogEntry(__func__, "r: %p", r);
+	LG_logEntry(__func__, "r: %p", r);
 
 	SAFE_INVOKE(REG_read8(REG_COLLISION, r), result, RV_GET_COLLISION_FAILED)
 
-	RV_LogExit(__func__, result, "*r: 0x%0x", r);
+	LG_logExit(__func__, result, "*r: 0x%0x", r);
 	return result;
 }
 
 extern int RV_getColAmbOffset(int* r) {
 	int result = OK;
-	RV_LogEntry(__func__, "r: %p", r);
+	LG_logEntry(__func__, "r: %p", r);
 
 	uint16_t o;
 
@@ -158,7 +158,7 @@ extern int RV_getColAmbOffset(int* r) {
 	if (result == OK) {
 		*r = o;
 	}
-	RV_LogExit(__func__, result, "*r: %d", r);
+	LG_logExit(__func__, result, "*r: %d", r);
 	return result;
 }
 
@@ -166,18 +166,18 @@ extern int RV_setColAmbOffset(int r) {
 	int result = OK;
 	uint16_t offset = (uint16_t)(r);
 
-	RV_LogEntry(__func__, "r: %d", r);
+	LG_logEntry(__func__, "r: %d", r);
 
 	SAFE_INVOKE(REG_write16(REG_AMB_COL_OFFSET, offset), result, RV_SET_AMB_COL_OFFSET_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_getLineAmbOffset(uint16_t* r) {
 	int result = OK;
 	uint16_t o;
-	RV_LogEntry(__func__, "r: %p", r);
+	LG_logEntry(__func__, "r: %p", r);
 
 	SAFE_INVOKE(REG_read16(REG_AMB_LINE_OFFSET, &o), result, RV_GET_AMB_LINE_OFFSET_FAILED)
 
@@ -185,7 +185,7 @@ extern int RV_getLineAmbOffset(uint16_t* r) {
 		*r = o;
 	}
 
-	RV_LogExit(__func__, result, "*r: %d", r);
+	LG_logExit(__func__, result, "*r: %d", r);
 	return result;
 }
 
@@ -193,11 +193,11 @@ extern int RV_setLineAmbOffset(uint16_t r) {
 	int result = OK;
 	uint16_t offset = (uint16_t)(r);
 
-	RV_LogEntry(__func__, "r: %d", r);
+	LG_logEntry(__func__, "r: %d", r);
 
 	SAFE_INVOKE(REG_write16(REG_AMB_LINE_OFFSET, offset), result, RV_SET_AMB_LINE_OFFSET_FAILED)
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
@@ -205,7 +205,7 @@ extern int RV_setLineAmbOffset(uint16_t r) {
 extern int RV_getAVRTime(long* millis, long* micros)
 {
 	int result = OK;
-	RV_LogEntry(__func__, "millis: %p, micros: %p", millis, micros);
+	LG_logEntry(__func__, "millis: %p, micros: %p", millis, micros);
 
 	int32_t ml;
 	int32_t ms;
@@ -218,7 +218,7 @@ extern int RV_getAVRTime(long* millis, long* micros)
 		*micros = ms;
 	}
 	
-	RV_LogExit(__func__, result, "*millis: %d, *micros: %d", *millis, *micros);
+	LG_logExit(__func__, result, "*millis: %d, *micros: %d", *millis, *micros);
 	return result;
 }
 
@@ -239,7 +239,7 @@ extern int RV_getAnalogLine(int ambient[], int active[])
     REG_IR_LINE_S,
     REG_IR_LINE_W,
 	};
-	RV_LogEntry(__func__, "NOT IMPLEMENTED");
+	LG_logEntry(__func__, "NOT IMPLEMENTED");
 
 	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
 		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
@@ -255,7 +255,7 @@ extern int RV_getAnalogLine(int ambient[], int active[])
 		}
 	}
 
-	RV_LogExit(__func__, result, "NO RESULT");
+	LG_logExit(__func__, result, "NO RESULT");
 	return result;
 }
 
@@ -266,7 +266,7 @@ extern int RV_getAnalogCollision(int ambient[] ,int active[])
 
 	static const int ambientRegisters[]  =  { REG_AMB_COL_NE, REG_AMB_COL_SE, REG_AMB_COL_SW, REG_AMB_COL_NW };
 	static const int activeRegisters[]  = { REG_IR_COL_NE, REG_IR_COL_SE, REG_IR_COL_SW, REG_IR_COL_NW };
-	RV_LogEntry(__func__, "NOT IMPLEMENTED");
+	LG_logEntry(__func__, "NOT IMPLEMENTED");
 
 	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
 		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
@@ -282,7 +282,49 @@ extern int RV_getAnalogCollision(int ambient[] ,int active[])
 		}
 	}
 
-	RV_LogExit(__func__, result, "NO RESULT");
+	LG_logExit(__func__, result, "NO RESULT");
 	return result;
 }
 
+extern int RV_waitForNewData()
+{
+	int result = OK;
+	LG_logEntry(__func__, NULL);
+
+	result = LP_waitForNewData();
+
+	LG_logExit(__func__, result, NULL);
+	return result;
+}
+
+extern int RV_setFrequency(int herz)
+{
+	int result = OK;
+	LG_logEntry(__func__, NULL);
+
+	result = LP_setFrequency(herz);
+
+	LG_logExit(__func__, result, NULL);
+	return result;
+}
+
+extern int RV_loopLoggingOn()
+{
+	int result = OK;
+	LG_logEntry(__func__, NULL);
+
+	result = LP_loggingOn();
+
+	LG_logExit(__func__, result, NULL);
+	return result;
+}
+extern int RV_loopLoggingOff()
+{
+	int result = OK;
+	LG_logEntry(__func__, NULL);
+
+	result = LP_loggingOff();
+
+	LG_logExit(__func__, result, NULL);
+	return result;
+}

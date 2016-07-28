@@ -10,10 +10,10 @@
 
 #include <pthread.h>
 
-extern void RV_LogEntry(const char* fname, const char *fmt, ...);
-extern void RV_LogExit(const char* fname, int result, const char *fmt, ...);
+extern void LG_logEntry(const char* fname, const char *fmt, ...);
+extern void LG_logExit(const char* fname, int result, const char *fmt, ...);
 
-extern int RV_SetLogging(pthread_t tid, bool on);
+extern int LG_setLogging(pthread_t tid, bool on);
 
 
 #endif /* RV_LOG_H_ */

@@ -10,7 +10,7 @@
 
 #include "rv_reg.h"
 
-extern int RV_exchangeSetup();
-extern int RV_exchangeWithMega();
+extern int EX_setup();
+extern int EX_communicate();
 
 #endif /* RV_EXCHANGE_H_ */

@@ -13,57 +13,57 @@
 #include "rv_reg.h"
 #include "rv_log.h"
 
-static REG_map* tracebuffer;
-static int tracebufferIndex;
-static int tracebufferSize;
+static REG_map* tr_buffer;
+static int tr_bufferIndex;
+static int tr_bufferSize;
 
 static int TR_dumpBuffer(FILE* of, int idx);
 
 extern int TR_setup(int size) {
 	int result = OK;
-	RV_LogEntry(__func__, "size: %d", size);
+	LG_logEntry(__func__, "size: %d", size);
 
-	tracebufferIndex = 0;
-	tracebufferSize = size;
+	tr_bufferIndex = 0;
+	tr_bufferSize = size;
 
-	tracebuffer = (REG_map*)calloc(size, sizeof(REG_map));
-	if (tracebuffer == NULL) {
+	tr_buffer = (REG_map*)calloc(size, sizeof(REG_map));
+	if (tr_buffer == NULL) {
 		result = RV_UNABLE_TO_MALLOC;
 	}
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int TR_traceRegmap() {
 	int result = OK;
-	RV_LogEntry(__func__, NULL);
+	LG_logEntry(__func__, NULL);
 
-	REG_readAll(tracebuffer + tracebufferIndex);
-	tracebufferIndex = (1 + tracebufferIndex) % tracebufferSize;
+	REG_readAll(tr_buffer + tr_bufferIndex);
+	tr_bufferIndex = (1 + tr_bufferIndex) % tr_bufferSize;
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int TR_dumpBuffers(FILE* of) {
 	int result = OK;
-	RV_LogEntry(__func__, "of: %p", of);
+	LG_logEntry(__func__, "of: %p", of);
 
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
 		fprintf(of, "%s\t", REG_getRegistername(i));
 	}
 	fprintf(of,"\n");
 
-	int idx = (tracebufferIndex + 1) % tracebufferSize;
+	int idx = (tr_bufferIndex + 1) % tr_bufferSize;
 	do
 	{
 		result = TR_dumpBuffer(of, idx);
 
-		idx = (idx + 1) % tracebufferSize;
-	} while ((result == OK) && (idx != tracebufferIndex));
+		idx = (idx + 1) % tr_bufferSize;
+	} while ((result == OK) && (idx != tr_bufferIndex));
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
@@ -71,7 +71,7 @@ static int TR_dumpBuffer(FILE* of, int idx) {
 	int result = OK;
 
 	long v;
-	REG_map* src = tracebuffer + idx;
+	REG_map* src = tr_buffer + idx;
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
 		result = REG_readLong(src, idx, &v);
 		if (result == OK)
@@ -79,13 +79,13 @@ static int TR_dumpBuffer(FILE* of, int idx) {
 	}
 	fprintf(of,"\n");
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
 
 extern int RV_dumpBuffersToFile(const char* name) {
 	int result = OK;
-	RV_LogEntry(__func__, "name: %s", name);
+	LG_logEntry(__func__, "name: %s", name);
 	FILE* of;
 
 	of = fopen(name, "a+");
@@ -96,6 +96,6 @@ extern int RV_dumpBuffersToFile(const char* name) {
 		result = RV_UNABLE_TO_OPEN_FILE;
 	}
 
-	RV_LogExit(__func__, result, NULL);
+	LG_logExit(__func__, result, NULL);
 	return result;
 }
