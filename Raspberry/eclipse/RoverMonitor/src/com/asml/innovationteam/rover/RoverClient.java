@@ -171,7 +171,7 @@ public class RoverClient {
 		public void run() {
 			RegisterMap m = new RegisterMap();
 			try {
-				rr = new RoverReaderSim(address, port);
+				rr = new RoverReader(address, port);
 				connected = true;
 				rr.getInSync();
 				while (connected) {
