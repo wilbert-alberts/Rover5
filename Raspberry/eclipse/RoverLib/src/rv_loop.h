@@ -7,4 +7,5 @@ extern int LP_loggingOn();
 extern int LP_loggingOff();
 extern int LP_setFrequency(int herz);
 extern int LP_waitForNewData();
+
 #endif
