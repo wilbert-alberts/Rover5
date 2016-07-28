@@ -58,5 +58,9 @@ public class RegisterMap {
 	static public final int REG_MAX=30;
 	
 	private int registers[];
+
+	public void cloneInto(RegisterMap map) {
+		map.registers = this.registers;
+	}
 	
 }

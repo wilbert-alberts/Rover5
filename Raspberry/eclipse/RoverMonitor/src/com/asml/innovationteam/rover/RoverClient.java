@@ -45,13 +45,13 @@ public class RoverClient {
 	}
 
 	public void disconnect() {
-		if (thr!= null) {
+		if (thr != null) {
 			thr.disconnect();
 			try {
 				thr.join();
 				thr = null;
 			} catch (InterruptedException e) {
-				// Silently ignore				
+				// Silently ignore
 			}
 		}
 	}
@@ -156,32 +156,33 @@ public class RoverClient {
 
 	class ClientThread extends Thread {
 		IRoverReader rr;
-		boolean connected =  false;
+		boolean connected = false;
+
 		public ClientThread() {
 
 		}
-		
-		public void disconnect() 
-		{
+
+		public void disconnect() {
 			rr.disconnect();
 			connected = false;
 		}
 
 		@Override
 		public void run() {
+			RegisterMap m = new RegisterMap();
 			try {
 				rr = new RoverReaderSim(address, port);
 				connected = true;
 				rr.getInSync();
 				while (connected) {
 					// Read from server
+					rr.readRover(m);
 					synchronized (lock) {
-						rr.readRover(map);
+						m.cloneInto(map);
 					}
 					for (IRoverChanged l : listeners) {
 						l.changed();
 					}
-					System.err.println("ClientThread Ticks");
 				}
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
