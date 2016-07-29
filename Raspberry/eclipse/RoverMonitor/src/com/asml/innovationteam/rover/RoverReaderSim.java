@@ -57,7 +57,7 @@ public class RoverReaderSim implements IRoverReader {
 		setRegisterU32(map, RegisterMap.REG_TRAILER);
 
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(333);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
