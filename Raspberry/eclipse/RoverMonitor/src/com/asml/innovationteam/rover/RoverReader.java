@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class RoverReader implements IRoverReader {
 	private Socket socket;
@@ -60,24 +61,24 @@ public class RoverReader implements IRoverReader {
 		setRegister8(is, map, RegisterMap.REG_LINE);
 		setRegister32(is, map, RegisterMap.REG_LEFTPOS);
 		setRegister32(is, map, RegisterMap.REG_RIGHTPOS);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_OFFSET);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_NE);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_SE);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_SW);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_NW);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_OFFSET);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_N);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_E);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_S);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_W);
-		setRegister16(is, map, RegisterMap.REG_IR_COL_NE);
-		setRegister16(is, map, RegisterMap.REG_IR_COL_SE);
-		setRegister16(is, map, RegisterMap.REG_IR_COL_SW);
-		setRegister16(is, map, RegisterMap.REG_IR_COL_NW);
+		setRegister16(is, map, RegisterMap.REG_AMB_COL_OFFSET);
+		setRegister16(is, map, RegisterMap.REG_AMB_COL_NE);
+		setRegister16(is, map, RegisterMap.REG_AMB_COL_SE);
+		setRegister16(is, map, RegisterMap.REG_AMB_COL_SW);
+		setRegister16(is, map, RegisterMap.REG_AMB_COL_NW);
 		setRegister16(is, map, RegisterMap.REG_IR_LINE_N);
 		setRegister16(is, map, RegisterMap.REG_IR_LINE_E);
 		setRegister16(is, map, RegisterMap.REG_IR_LINE_S);
 		setRegister16(is, map, RegisterMap.REG_IR_LINE_W);
+		setRegister16(is, map, RegisterMap.REG_IR_COL_NE);
+		setRegister16(is, map, RegisterMap.REG_IR_COL_SE);
+		setRegister16(is, map, RegisterMap.REG_IR_COL_SW);
+		setRegister16(is, map, RegisterMap.REG_IR_COL_NW);
 		setRegisterU32(is, map, RegisterMap.REG_TRAILER);
 	}
 	
@@ -92,7 +93,9 @@ public class RoverReader implements IRoverReader {
 	{
 		byte[] arr = new byte[2];
 		is.read(arr, 0, arr.length);
-		map.setRegister(reg, arr);
+		ByteBuffer bb = ByteBuffer.wrap(arr);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
+		map.setRegister(reg, bb.getShort());
 	}
 	
 	private void setRegisterU32(InputStream is, RegisterMap map, int reg) throws IOException
@@ -107,6 +110,7 @@ public class RoverReader implements IRoverReader {
 		byte[] arr = new byte[4];
 		is.read(arr, 0, 4);
 		ByteBuffer bb = ByteBuffer.wrap(arr);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
 		map.setRegister(reg, bb.getInt());
 	}
 

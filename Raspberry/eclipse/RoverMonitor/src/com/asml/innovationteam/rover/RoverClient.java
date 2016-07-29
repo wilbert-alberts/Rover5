@@ -13,6 +13,18 @@ import javax.swing.SwingUtilities;
 public class RoverClient {
 	private RegisterMap map;
 	private String address;
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	private int port;
 	private ClientThread thr;
 	private Object lock = new Object();
@@ -98,6 +110,24 @@ public class RoverClient {
 		}
 	}
 
+	public int getCollisionAmbient(CollisionDirection cd) {
+		synchronized (lock) {
+			switch (cd) {
+			case NE:
+				return map.getRegister(RegisterMap.REG_AMB_COL_NE);
+			case SE:
+				return map.getRegister(RegisterMap.REG_AMB_COL_SE);
+			case SW:
+				return map.getRegister(RegisterMap.REG_AMB_COL_SW);
+			case NW:
+				return map.getRegister(RegisterMap.REG_AMB_COL_NW);
+
+			default:
+				return -1;
+			}
+		}
+	}
+
 	public int getLine(LineSensorID ls) {
 		synchronized (lock) {
 			switch (ls) {
@@ -109,6 +139,23 @@ public class RoverClient {
 				return map.getRegister(RegisterMap.REG_IR_LINE_S);
 			case W:
 				return map.getRegister(RegisterMap.REG_IR_LINE_W);
+			default:
+				return -1;
+			}
+		}
+	}
+
+	public int getLineAmbient(LineSensorID ls) {
+		synchronized (lock) {
+			switch (ls) {
+			case N:
+				return map.getRegister(RegisterMap.REG_AMB_LINE_N);
+			case E:
+				return map.getRegister(RegisterMap.REG_AMB_LINE_E);
+			case S:
+				return map.getRegister(RegisterMap.REG_AMB_LINE_S);
+			case W:
+				return map.getRegister(RegisterMap.REG_AMB_LINE_W);
 			default:
 				return -1;
 			}
@@ -171,7 +218,7 @@ public class RoverClient {
 		public void run() {
 			RegisterMap m = new RegisterMap();
 			try {
-				rr = new RoverReader(address, port);
+				rr = new RoverReaderSim(address, port);
 				connected = true;
 				rr.getInSync();
 				while (connected) {
