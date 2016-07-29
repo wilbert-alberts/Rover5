@@ -25,64 +25,50 @@ public class RoverReaderSim implements IRoverReader {
 	
 	public void readRover(RegisterMap map) throws IOException
 	{
-		setRegisterU32(map, RegisterMap.REG_HEADER );
-		setRegister32(map, RegisterMap.REG_MICROS);
-		setRegister32(map, RegisterMap.REG_MILLIS);
-		setRegister8(map, RegisterMap.REG_LEFTDIR);
-		setRegister8(map, RegisterMap.REG_LEFTDC);
-		setRegister8(map, RegisterMap.REG_RIGHTDIR);
-		setRegister8(map, RegisterMap.REG_RIGHTDC);
-		setRegister8(map, RegisterMap.REG_COLLISION);
-		setRegister8(map, RegisterMap.REG_LINE);
-		setRegister32(map, RegisterMap.REG_LEFTPOS);
-		setRegister32(map, RegisterMap.REG_RIGHTPOS);
-		setRegister16(map, RegisterMap.REG_AMB_COL_OFFSET);
-		setRegister16(map, RegisterMap.REG_AMB_COL_NE);
-		setRegister16(map, RegisterMap.REG_AMB_COL_SE);
-		setRegister16(map, RegisterMap.REG_AMB_COL_SW);
-		setRegister16(map, RegisterMap.REG_AMB_COL_NW);
-		setRegister16(map, RegisterMap.REG_AMB_LINE_OFFSET);
-		setRegister16(map, RegisterMap.REG_AMB_LINE_N);
-		setRegister16(map, RegisterMap.REG_AMB_LINE_E);
-		setRegister16(map, RegisterMap.REG_AMB_LINE_S);
-		setRegister16(map, RegisterMap.REG_AMB_LINE_W);
-		setRegister16(map, RegisterMap.REG_IR_COL_NE);
-		setRegister16(map, RegisterMap.REG_IR_COL_SE);
-		setRegister16(map, RegisterMap.REG_IR_COL_SW);
-		setRegister16(map, RegisterMap.REG_IR_COL_NW);
-		setRegister16(map, RegisterMap.REG_IR_LINE_N);
-		setRegister16(map, RegisterMap.REG_IR_LINE_E);
-		setRegister16(map, RegisterMap.REG_IR_LINE_S);
-		setRegister16(map, RegisterMap.REG_IR_LINE_W);
-		setRegisterU32(map, RegisterMap.REG_TRAILER);
+		setRegister(map, RegisterMap.REG_HEADER, 1<<32 );
+		setRegister(map, RegisterMap.REG_MICROS, 1<<32 );
+		setRegister(map, RegisterMap.REG_MILLIS, 1<<32 );
+		setRegister(map, RegisterMap.REG_LEFTDIR, 1 );
+		setRegister(map, RegisterMap.REG_LEFTDC, 1<<8);
+		setRegister(map, RegisterMap.REG_RIGHTDIR, 1);
+		setRegister(map, RegisterMap.REG_RIGHTDC, 1<<8);
+		setRegister(map, RegisterMap.REG_COLLISION, 1<<8);
+		setRegister(map, RegisterMap.REG_LINE, 1<<8 );
+		setRegister(map, RegisterMap.REG_LEFTPOS, 1<<10);
+		setRegister(map, RegisterMap.REG_RIGHTPOS, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_COL_OFFSET, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_COL_NE, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_COL_SE, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_COL_SW, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_COL_NW, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_LINE_OFFSET, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_LINE_N, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_LINE_E, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_LINE_S, 1<<10);
+		setRegister(map, RegisterMap.REG_AMB_LINE_W, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_COL_NE, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_COL_SE, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_COL_SW, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_COL_NW, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_LINE_N, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_LINE_E, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_LINE_S, 1<<10);
+		setRegister(map, RegisterMap.REG_IR_LINE_W, 1<<10);
+		setRegister(map, RegisterMap.REG_TRAILER, 1<<32);
 
 		try {
-			Thread.sleep(333);
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private void setRegister8(RegisterMap map, int reg) throws IOException
+	private void setRegister(RegisterMap map, int reg, int max) throws IOException
 	{
 		
-		map.setRegister(reg, (int)(rnd.nextDouble()*256));
-	}
-	
-	private void setRegister16(RegisterMap map, int reg) throws IOException
-	{
-		map.setRegister(reg, (int)(rnd.nextDouble()*65536));
-	}
-	
-	private void setRegisterU32(RegisterMap map, int reg) throws IOException
-	{
-		map.setRegister(reg, rnd.nextInt());
-	}
-	
-	private void setRegister32(RegisterMap map, int reg) throws IOException
-	{
-		setRegisterU32(map,reg);
+		map.setRegister(reg, (int)Math.round(rnd.nextDouble()*max));
+		//map.setRegister(reg, 33);
 	}
 
 }

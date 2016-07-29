@@ -25,6 +25,10 @@ import javax.swing.SwingUtilities;
 
 import com.asml.innovationteam.rover.RoverClient.CollisionDirection;
 import com.asml.innovationteam.rover.RoverClient.LineSensorID;
+
+import eu.hansolo.steelseries.extras.Radar;
+import eu.hansolo.steelseries.gauges.Radial;
+
 import java.awt.Component;
 import javax.swing.Box;
 
@@ -33,7 +37,6 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private JFrame frame;
 	private JTextField txtAddress;
 	private RoverClient rover;
-	private JLabel lblPosLeft;
 	private JLabel lblPosRight;
 	private JLabel lblColNW;
 	private JLabel lblColNE;
@@ -68,27 +71,23 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private MinMaxSlider minmaxLine;
 	private JPanel panel_4;
 	private JPanel panel_5;
+	private Radial radLeft;
+	private Radial radRight;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		String servername = null;
-		int port = 0;
 
 		loadDefaults();
 		
-		if (args.length == 0) {
-			servername = "localhost";
-			port = 34343;
-		}
 		if (args.length == 1) {
-			servername = args[0];
-			port = 34343;
+			RoverProperties.setProperty("address", args[0]);
+			RoverProperties.setProperty("port", "34343");
 		}
 		if (args.length == 2) {
-			servername = args[0];
-			port = Integer.parseInt(args[1]);
+			RoverProperties.setProperty("address", args[0]);
+			RoverProperties.setProperty("port", Integer.toString(Integer.parseInt(args[1])));
 		}
 
 		RoverClient rover = new RoverClient();
@@ -160,7 +159,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 489, 474);
+		frame.setBounds(100, 100, 761, 474);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -206,6 +205,28 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		SpringLayout sl_centerPanel = new SpringLayout();
 		centerPanel.setLayout(sl_centerPanel);
 
+		radLeft = new Radial();
+		radLeft.setLedVisible(false);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, radLeft, 200, SpringLayout.WEST, centerPanel);
+		radLeft.setMinValue(-1);
+		radLeft.setMaxValue(1);
+		radLeft.setValue(0.0);
+		sl_centerPanel.putConstraint(SpringLayout.NORTH, radLeft, 50, SpringLayout.NORTH, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.SOUTH, radLeft, -50, SpringLayout.SOUTH, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.WEST, radLeft, 0, SpringLayout.WEST, centerPanel);
+		centerPanel.add(radLeft);
+
+		radRight = new Radial();
+		radRight.setLedVisible(false);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, radRight, 0, SpringLayout.EAST, centerPanel);
+		radRight.setMinValue(-1);
+		radRight.setMaxValue(1);
+		radRight.setValue(0.0);
+		sl_centerPanel.putConstraint(SpringLayout.NORTH, radRight, 50, SpringLayout.NORTH, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.SOUTH, radRight, -50, SpringLayout.SOUTH, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.WEST, radRight, -200, SpringLayout.EAST, centerPanel);
+		centerPanel.add(radRight);
+
 		lblColNW = new JLabel("New label");
 		sl_centerPanel.putConstraint(SpringLayout.NORTH, lblColNW, 0, SpringLayout.NORTH, centerPanel);
 		sl_centerPanel.putConstraint(SpringLayout.WEST, lblColNW, 0, SpringLayout.WEST, centerPanel);
@@ -215,19 +236,11 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lblColNW.setOpaque(true);
 		centerPanel.add(lblColNW);
 
-		lblPosLeft = new JLabel("New label");
-		sl_centerPanel.putConstraint(SpringLayout.NORTH, lblPosLeft, 0, SpringLayout.SOUTH, lblColNW);
-		sl_centerPanel.putConstraint(SpringLayout.WEST, lblPosLeft, 0, SpringLayout.WEST, centerPanel);
-		sl_centerPanel.putConstraint(SpringLayout.SOUTH, lblPosLeft, 350, SpringLayout.NORTH, centerPanel);
-		lblPosLeft.setHorizontalAlignment(SwingConstants.CENTER);
-		centerPanel.add(lblPosLeft);
-
 		JPanel panel_2 = new JPanel();
-		sl_centerPanel.putConstraint(SpringLayout.EAST, lblPosLeft, 0, SpringLayout.WEST, panel_2);
 		sl_centerPanel.putConstraint(SpringLayout.NORTH, panel_2, 50, SpringLayout.NORTH, centerPanel);
-		sl_centerPanel.putConstraint(SpringLayout.WEST, panel_2, 100, SpringLayout.WEST, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.WEST, panel_2, 200, SpringLayout.WEST, centerPanel);
 		sl_centerPanel.putConstraint(SpringLayout.SOUTH, panel_2, -50, SpringLayout.SOUTH, centerPanel);
-		sl_centerPanel.putConstraint(SpringLayout.EAST, panel_2, -100, SpringLayout.EAST, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, panel_2, -200, SpringLayout.EAST, centerPanel);
 		centerPanel.add(panel_2);
 		panel_2.setLayout(new CardLayout(0, 0));
 
@@ -449,9 +462,11 @@ public class MainWindow implements RoverClient.IRoverChanged {
 
 			@Override
 			public void run() {
-				lblPosLeft.setText(Integer.toString(rover.getLeftPosition()));
-				lblPosRight.setText(Integer.toString(rover.getRightPosition()));
-
+				radLeft.setValue(rover.getLeftTorque());
+				radLeft.setLcdValue(rover.getLeftPosition());
+				radRight.setValue(rover.getRightTorque());
+				radRight.setLcdValue(rover.getRightPosition());
+				
 				lblColNE.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.NE)));
 				lblColSE.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.SE)));
 				lblColSW.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.SW)));
@@ -461,7 +476,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 				lblColSE.setText(Integer.toString(rover.getCollision(CollisionDirection.SE)));
 				lblColSW.setText(Integer.toString(rover.getCollision(CollisionDirection.SW)));
 				lblColNW.setText(Integer.toString(rover.getCollision(CollisionDirection.NW)));
-
+				
 				for (SensorAndUIBind sui : lineSensors) {
 					int v = rover.getLine(sui.sensor);
 					setLineColor(sui.fld, sui.minmax, v);

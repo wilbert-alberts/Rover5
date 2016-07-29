@@ -218,9 +218,9 @@ public class MinMaxSlider extends JPanel {
 		fldMax.setColumns(10);
 
 		minModel = sldrMin.getModel();
-		minModel.setRangeProperties(lbound, 0, lbound, ubound, false);
+		minModel.setRangeProperties(min, 0, lbound, ubound, false);
 		maxModel = sldrMax.getModel();
-		maxModel.setRangeProperties(ubound, 0, lbound, ubound, false);
+		maxModel.setRangeProperties(max, 0, lbound, ubound, false);
 
 	}
 

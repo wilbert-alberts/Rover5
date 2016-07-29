@@ -94,6 +94,22 @@ public class RoverClient {
 		}
 	}
 
+	public double getLeftTorque() {
+		double dc;
+		synchronized (lock) {
+			dc = map.getRegister(RegisterMap.REG_LEFTDC) / 256.0;
+			return (map.getRegister(RegisterMap.REG_LEFTDIR) == 0) ? dc : -1.0 * dc; 
+		}		
+	}
+	
+	public double getRightTorque() {
+		double dc;
+		synchronized (lock) {
+			dc = map.getRegister(RegisterMap.REG_RIGHTDC) / 256.0;
+			return (map.getRegister(RegisterMap.REG_RIGHTDIR) == 0) ? dc : -1.0 * dc; 
+		}		
+	}
+	
 	public int getCollision(CollisionDirection cd) {
 		synchronized (lock) {
 			switch (cd) {
