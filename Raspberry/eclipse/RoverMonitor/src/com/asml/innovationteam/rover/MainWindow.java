@@ -1,13 +1,14 @@
 package com.asml.innovationteam.rover;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -15,20 +16,15 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import com.asml.innovationteam.rover.RoverClient.CollisionDirection;
 import com.asml.innovationteam.rover.RoverClient.LineSensorID;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import javax.swing.SpringLayout;
 import java.awt.Component;
 import javax.swing.Box;
 
@@ -48,8 +44,8 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private Color lblLineWBG;
 	private Color lblLineNBG;
 	private Color grays[];
-	private JPanel panel_1;
-	private JPanel panel_3;
+	private JPanel tabIlluminated;
+	private JPanel tabAmbient;
 	private JLabel lblLineN;
 	private JLabel lblLineW;
 	private JLabel lblLineE;
@@ -60,16 +56,18 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private JLabel lblLineAmbE;
 	private ArrayList<SensorAndUIBind> lineSensors = null;
 	private ArrayList<SensorAndUIBind> lineAmbientSensors = null;
-	private JLabel lblNewLabel;
-	private JLabel lblNewLabel_1;
-	private JLabel lblNewLabel_2;
-	private JLabel lblNewLabel_3;
+	private JLabel lblNameN;
+	private JLabel lblNameW;
+	private JLabel lblNameE;
+	private JLabel lblNameS;
 	private JLabel lblN;
 	private JLabel lblE;
 	private JLabel lblS;
 	private JLabel lblW;
 	private MinMaxSlider minmaxAmbient;
 	private MinMaxSlider minmaxLine;
+	private JPanel panel_4;
+	private JPanel panel_5;
 
 	/**
 	 * Launch the application.
@@ -149,7 +147,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 586, 476);
+		frame.setBounds(100, 100, 489, 474);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -224,158 +222,90 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		panel_2.add(tabbedPane, "name_1216252609521");
 		// tabbedPane.setSelectedIndex(0);
 
-		panel_1 = new JPanel();
-		tabbedPane.addTab("Illuminated", null, panel_1, null);
+		tabIlluminated = new JPanel();
+		tabbedPane.addTab("Illuminated", null, tabIlluminated, null);
 		tabbedPane.setEnabledAt(0, true);
-		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
-		gbl_panel_1.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-		panel_1.setLayout(gbl_panel_1);
-
-		lblLineN = new JLabel("New label");
-		lblLineN.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineN = new GridBagConstraints();
-		gbc_lblLineN.fill = GridBagConstraints.BOTH;
-		gbc_lblLineN.weighty = 1.0;
-		gbc_lblLineN.weightx = 1.0;
-		gbc_lblLineN.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineN.gridx = 2;
-		gbc_lblLineN.gridy = 0;
-		panel_1.add(lblLineN, gbc_lblLineN);
+		tabIlluminated.setLayout(new BorderLayout(0, 0));
+		
+				minmaxLine = new MinMaxSlider(0, 1023);
+				tabIlluminated.add(minmaxLine, BorderLayout.SOUTH);
+		
+		panel_5 = new JPanel();
+		tabIlluminated.add(panel_5);
+		SpringLayout sl_panel_5 = new SpringLayout();
+		panel_5.setLayout(sl_panel_5);
 
 		lblN = new JLabel("N");
-		GridBagConstraints gbc_lblN = new GridBagConstraints();
-		gbc_lblN.insets = new Insets(0, 0, 5, 5);
-		gbc_lblN.gridx = 2;
-		gbc_lblN.gridy = 1;
-		panel_1.add(lblN, gbc_lblN);
+		lblN.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_5.add(lblN);
+		
+				lblE = new JLabel("E");
+				lblE.setHorizontalAlignment(SwingConstants.CENTER);
+				panel_5.add(lblE);
+		
+				lblS = new JLabel("S");
+				lblS.setHorizontalAlignment(SwingConstants.CENTER);
+				panel_5.add(lblS);
+		
+				lblW = new JLabel("W");
+				lblW.setHorizontalAlignment(SwingConstants.CENTER);
+				panel_5.add(lblW);
+		
+				lblLineN = new JLabel("x-N");
+				sl_panel_5.putConstraint(SpringLayout.NORTH, lblN, 0, SpringLayout.SOUTH, lblLineN);
+				sl_panel_5.putConstraint(SpringLayout.WEST, lblN, 0, SpringLayout.WEST, lblLineN);
+				sl_panel_5.putConstraint(SpringLayout.EAST, lblN, 0, SpringLayout.EAST, lblLineN);
+				sl_panel_5.putConstraint(SpringLayout.NORTH, lblLineN, 0, SpringLayout.NORTH, panel_5);
+				sl_panel_5.putConstraint(SpringLayout.HORIZONTAL_CENTER, lblLineN, 0, SpringLayout.HORIZONTAL_CENTER, panel_5);
+				lblLineN.setPreferredSize(new Dimension(100, 50));
+				lblLineN.setMinimumSize(new Dimension(100, 50));
+				lblLineN.setMaximumSize(new Dimension(100, 50));
+				panel_5.add(lblLineN);
+				lblLineN.setHorizontalAlignment(SwingConstants.CENTER);
+				lblLineN.setOpaque(true);
+		
+				lblLineE = new JLabel("x-E");
+				sl_panel_5.putConstraint(SpringLayout.NORTH, lblE, 0, SpringLayout.NORTH, lblLineE);
+				sl_panel_5.putConstraint(SpringLayout.SOUTH, lblE, 0, SpringLayout.SOUTH, lblLineE);
+				sl_panel_5.putConstraint(SpringLayout.EAST, lblE, 0, SpringLayout.WEST, lblLineE);
+				sl_panel_5.putConstraint(SpringLayout.EAST, lblLineE, 0, SpringLayout.EAST, panel_5);
+				sl_panel_5.putConstraint(SpringLayout.VERTICAL_CENTER, lblLineE, 0, SpringLayout.VERTICAL_CENTER, panel_5);
+				lblLineE.setPreferredSize(new Dimension(100, 50));
+				lblLineE.setMinimumSize(new Dimension(100, 50));
+				lblLineE.setMaximumSize(new Dimension(100, 50));
+				panel_5.add(lblLineE);
+				lblLineE.setHorizontalAlignment(SwingConstants.CENTER);
+				lblLineE.setOpaque(true);
+		
+				lblLineS = new JLabel("x-S");
+				sl_panel_5.putConstraint(SpringLayout.WEST, lblS, 0, SpringLayout.WEST, lblLineS);
+				sl_panel_5.putConstraint(SpringLayout.SOUTH, lblS, 0, SpringLayout.NORTH, lblLineS);
+				sl_panel_5.putConstraint(SpringLayout.EAST, lblS, 0, SpringLayout.EAST, lblLineS);
+				sl_panel_5.putConstraint(SpringLayout.SOUTH, lblLineS, 0, SpringLayout.SOUTH, panel_5);
+				sl_panel_5.putConstraint(SpringLayout.HORIZONTAL_CENTER, lblLineS, 0, SpringLayout.HORIZONTAL_CENTER, panel_5);
+				lblLineS.setPreferredSize(new Dimension(100, 50));
+				lblLineS.setMinimumSize(new Dimension(100, 50));
+				lblLineS.setMaximumSize(new Dimension(100, 50));
+				panel_5.add(lblLineS);
+				lblLineS.setHorizontalAlignment(SwingConstants.CENTER);
+				lblLineS.setOpaque(true);
 
-		lblLineW = new JLabel("New label");
+		lblLineW = new JLabel("x-W");
+		sl_panel_5.putConstraint(SpringLayout.NORTH, lblW, 0, SpringLayout.NORTH, lblLineW);
+		sl_panel_5.putConstraint(SpringLayout.WEST, lblW, 0, SpringLayout.EAST, lblLineW);
+		sl_panel_5.putConstraint(SpringLayout.SOUTH, lblW, 0, SpringLayout.SOUTH, lblLineW);
+		sl_panel_5.putConstraint(SpringLayout.WEST, lblLineW, 0, SpringLayout.WEST, panel_5);
+		sl_panel_5.putConstraint(SpringLayout.VERTICAL_CENTER, lblLineW, 0, SpringLayout.VERTICAL_CENTER, panel_5);
+		lblLineW.setPreferredSize(new Dimension(100, 50));
+		lblLineW.setMinimumSize(new Dimension(100, 50));
+		lblLineW.setMaximumSize(new Dimension(100, 50));
+		panel_5.add(lblLineW);
 		lblLineW.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineW = new GridBagConstraints();
-		gbc_lblLineW.fill = GridBagConstraints.BOTH;
-		gbc_lblLineW.weighty = 1.0;
-		gbc_lblLineW.weightx = 1.0;
-		gbc_lblLineW.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineW.gridx = 0;
-		gbc_lblLineW.gridy = 2;
-		panel_1.add(lblLineW, gbc_lblLineW);
+		lblLineW.setOpaque(true);
 
-		lblW = new JLabel("W");
-		GridBagConstraints gbc_lblW = new GridBagConstraints();
-		gbc_lblW.insets = new Insets(0, 0, 5, 5);
-		gbc_lblW.gridx = 1;
-		gbc_lblW.gridy = 2;
-		panel_1.add(lblW, gbc_lblW);
-
-		lblE = new JLabel("E");
-		GridBagConstraints gbc_lblE = new GridBagConstraints();
-		gbc_lblE.insets = new Insets(0, 0, 5, 5);
-		gbc_lblE.gridx = 3;
-		gbc_lblE.gridy = 2;
-		panel_1.add(lblE, gbc_lblE);
-
-		lblLineE = new JLabel("New label");
-		lblLineE.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineE = new GridBagConstraints();
-		gbc_lblLineE.fill = GridBagConstraints.BOTH;
-		gbc_lblLineE.weighty = 1.0;
-		gbc_lblLineE.weightx = 1.0;
-		gbc_lblLineE.insets = new Insets(0, 0, 5, 0);
-		gbc_lblLineE.gridx = 4;
-		gbc_lblLineE.gridy = 2;
-		panel_1.add(lblLineE, gbc_lblLineE);
-
-		lblS = new JLabel("S");
-		GridBagConstraints gbc_lblS = new GridBagConstraints();
-		gbc_lblS.insets = new Insets(0, 0, 5, 5);
-		gbc_lblS.gridx = 2;
-		gbc_lblS.gridy = 3;
-		panel_1.add(lblS, gbc_lblS);
-
-		panel_3 = new JPanel();
-		tabbedPane.addTab("Ambient", null, panel_3, null);
-		GridBagLayout gbl_panel_3 = new GridBagLayout();
-		gbl_panel_3.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
-		gbl_panel_3.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-		panel_3.setLayout(gbl_panel_3);
-
-		lblLineAmbN = new JLabel("New label");
-		lblLineAmbN.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineAmbN = new GridBagConstraints();
-		gbc_lblLineAmbN.fill = GridBagConstraints.BOTH;
-		gbc_lblLineAmbN.weighty = 1.0;
-		gbc_lblLineAmbN.weightx = 1.0;
-		gbc_lblLineAmbN.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineAmbN.gridx = 2;
-		gbc_lblLineAmbN.gridy = 0;
-		panel_3.add(lblLineAmbN, gbc_lblLineAmbN);
-
-		lblLineAmbN.setOpaque(true);
-
-		lblNewLabel = new JLabel("N");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.gridx = 2;
-		gbc_lblNewLabel.gridy = 1;
-		panel_3.add(lblNewLabel, gbc_lblNewLabel);
-
-		lblLineAmbW = new JLabel("New label");
-		lblLineAmbW.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineAmbW = new GridBagConstraints();
-		gbc_lblLineAmbW.fill = GridBagConstraints.BOTH;
-		gbc_lblLineAmbW.weighty = 1.0;
-		gbc_lblLineAmbW.weightx = 1.0;
-		gbc_lblLineAmbW.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineAmbW.gridx = 0;
-		gbc_lblLineAmbW.gridy = 2;
-		panel_3.add(lblLineAmbW, gbc_lblLineAmbW);
-
-		lblNewLabel_1 = new JLabel("W");
-		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_1.gridx = 1;
-		gbc_lblNewLabel_1.gridy = 2;
-		panel_3.add(lblNewLabel_1, gbc_lblNewLabel_1);
-
-		lblNewLabel_2 = new JLabel("E");
-		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
-		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_2.gridx = 3;
-		gbc_lblNewLabel_2.gridy = 2;
-		panel_3.add(lblNewLabel_2, gbc_lblNewLabel_2);
-
-		lblLineAmbE = new JLabel("New label");
-		lblLineAmbE.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineAmbE = new GridBagConstraints();
-		gbc_lblLineAmbE.fill = GridBagConstraints.BOTH;
-		gbc_lblLineAmbE.weighty = 1.0;
-		gbc_lblLineAmbE.weightx = 1.0;
-		gbc_lblLineAmbE.insets = new Insets(0, 0, 5, 0);
-		gbc_lblLineAmbE.gridx = 4;
-		gbc_lblLineAmbE.gridy = 2;
-		panel_3.add(lblLineAmbE, gbc_lblLineAmbE);
-
-		lblNewLabel_3 = new JLabel("S");
-		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
-		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel_3.gridx = 2;
-		gbc_lblNewLabel_3.gridy = 3;
-		panel_3.add(lblNewLabel_3, gbc_lblNewLabel_3);
-		lblLineAmbE.setOpaque(true);
-		lblLineAmbW.setOpaque(true);
-
-		lblLineAmbS = new JLabel("New label");
-		lblLineAmbS.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineAmbS = new GridBagConstraints();
-		gbc_lblLineAmbS.fill = GridBagConstraints.BOTH;
-		gbc_lblLineAmbS.weightx = 1.0;
-		gbc_lblLineAmbS.weighty = 1.0;
-		gbc_lblLineAmbS.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineAmbS.gridx = 2;
-		gbc_lblLineAmbS.gridy = 4;
-		panel_3.add(lblLineAmbS, gbc_lblLineAmbS);
-		lblLineAmbS.setOpaque(true);
+		tabAmbient = new JPanel();
+		tabbedPane.addTab("Ambient", null, tabAmbient, null);
+		tabAmbient.setLayout(new BorderLayout(0, 0));
 
 		minmaxAmbient = new MinMaxSlider(0, 1023);
 		GridBagLayout gbl_minmaxAmbient = (GridBagLayout) minmaxAmbient.getLayout();
@@ -383,36 +313,79 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		gbl_minmaxAmbient.rowHeights = new int[] { 0, 0 };
 		gbl_minmaxAmbient.columnWeights = new double[] { 0.0, 0.0, 1.0 };
 		gbl_minmaxAmbient.columnWidths = new int[] { 0, 0, 0 };
-		GridBagConstraints gbc_minmaxAmbient = new GridBagConstraints();
-		gbc_minmaxAmbient.gridwidth = 5;
-		gbc_minmaxAmbient.insets = new Insets(0, 0, 0, 5);
-		gbc_minmaxAmbient.fill = GridBagConstraints.BOTH;
-		gbc_minmaxAmbient.gridx = 0;
-		gbc_minmaxAmbient.gridy = 5;
-		panel_3.add(minmaxAmbient, gbc_minmaxAmbient);
-		lblLineN.setOpaque(true);
-		lblLineE.setOpaque(true);
-		lblLineW.setOpaque(true);
-
-		lblLineS = new JLabel("New label");
-		lblLineS.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblLineS = new GridBagConstraints();
-		gbc_lblLineS.fill = GridBagConstraints.BOTH;
-		gbc_lblLineS.weighty = 1.0;
-		gbc_lblLineS.weightx = 1.0;
-		gbc_lblLineS.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLineS.gridx = 2;
-		gbc_lblLineS.gridy = 4;
-		panel_1.add(lblLineS, gbc_lblLineS);
-		lblLineS.setOpaque(true);
-
-		minmaxLine = new MinMaxSlider(0, 1023);
-		GridBagConstraints gbc_minmaxLine = new GridBagConstraints();
-		gbc_minmaxLine.fill = GridBagConstraints.BOTH;
-		gbc_minmaxLine.gridwidth = 5;
-		gbc_minmaxLine.gridx = 0;
-		gbc_minmaxLine.gridy = 5;
-		panel_1.add(minmaxLine, gbc_minmaxLine);
+		tabAmbient.add(minmaxAmbient, BorderLayout.SOUTH);
+		
+		panel_4 = new JPanel();
+		tabAmbient.add(panel_4);
+				SpringLayout sl_panel_4 = new SpringLayout();
+				panel_4.setLayout(sl_panel_4);
+				
+						lblNameN = new JLabel("N");
+						lblNameN.setHorizontalAlignment(SwingConstants.CENTER);
+						panel_4.add(lblNameN);
+				
+						lblNameE = new JLabel("E");
+						panel_4.add(lblNameE);
+				
+						lblNameS = new JLabel("S");
+						lblNameS.setHorizontalAlignment(SwingConstants.CENTER);
+						panel_4.add(lblNameS);
+				
+						lblNameW = new JLabel("W");
+						panel_4.add(lblNameW);
+		
+				lblLineAmbN = new JLabel("x-N");
+				sl_panel_4.putConstraint(SpringLayout.NORTH, lblNameN, 0, SpringLayout.SOUTH, lblLineAmbN);
+				sl_panel_4.putConstraint(SpringLayout.WEST, lblNameN, 0, SpringLayout.WEST, lblLineAmbN);
+				sl_panel_4.putConstraint(SpringLayout.EAST, lblNameN, 0, SpringLayout.EAST, lblLineAmbN);
+				sl_panel_4.putConstraint(SpringLayout.NORTH, lblLineAmbN, 0, SpringLayout.NORTH, panel_4);
+				sl_panel_4.putConstraint(SpringLayout.HORIZONTAL_CENTER, lblLineAmbN, 0, SpringLayout.HORIZONTAL_CENTER, panel_4);
+				lblLineAmbN.setMaximumSize(new Dimension(100, 50));
+				lblLineAmbN.setMinimumSize(new Dimension(100, 50));
+				panel_4.add(lblLineAmbN);
+				lblLineAmbN.setPreferredSize(new Dimension(100, 50));
+				lblLineAmbN.setHorizontalAlignment(SwingConstants.CENTER);
+				
+						lblLineAmbN.setOpaque(true);
+										
+												lblLineAmbE = new JLabel("x-E");
+												sl_panel_4.putConstraint(SpringLayout.NORTH, lblNameE, 0, SpringLayout.NORTH, lblLineAmbE);
+												sl_panel_4.putConstraint(SpringLayout.SOUTH, lblNameE, 0, SpringLayout.SOUTH, lblLineAmbE);
+												sl_panel_4.putConstraint(SpringLayout.EAST, lblNameE, 0, SpringLayout.WEST, lblLineAmbE);
+												sl_panel_4.putConstraint(SpringLayout.EAST, lblLineAmbE, 0, SpringLayout.EAST, panel_4);
+												sl_panel_4.putConstraint(SpringLayout.VERTICAL_CENTER, lblLineAmbE, 0, SpringLayout.VERTICAL_CENTER, panel_4);
+												lblLineAmbE.setMaximumSize(new Dimension(100, 50));
+												lblLineAmbE.setMinimumSize(new Dimension(100, 50));
+												panel_4.add(lblLineAmbE);
+												lblLineAmbE.setPreferredSize(new Dimension(100, 50));
+												lblLineAmbE.setHorizontalAlignment(SwingConstants.CENTER);
+												lblLineAmbE.setOpaque(true);
+										
+												lblLineAmbS = new JLabel("x-S");
+												sl_panel_4.putConstraint(SpringLayout.WEST, lblNameS, 0, SpringLayout.WEST, lblLineAmbS);
+												sl_panel_4.putConstraint(SpringLayout.SOUTH, lblNameS, 0, SpringLayout.NORTH, lblLineAmbS);
+												sl_panel_4.putConstraint(SpringLayout.EAST, lblNameS, 0, SpringLayout.EAST, lblLineAmbS);
+												sl_panel_4.putConstraint(SpringLayout.SOUTH, lblLineAmbS, 0, SpringLayout.SOUTH, panel_4);
+												sl_panel_4.putConstraint(SpringLayout.HORIZONTAL_CENTER, lblLineAmbS, 0, SpringLayout.HORIZONTAL_CENTER, panel_4);
+												lblLineAmbS.setMaximumSize(new Dimension(100, 50));
+												lblLineAmbS.setMinimumSize(new Dimension(100, 50));
+												panel_4.add(lblLineAmbS);
+												lblLineAmbS.setPreferredSize(new Dimension(100, 50));
+												lblLineAmbS.setHorizontalAlignment(SwingConstants.CENTER);
+												lblLineAmbS.setOpaque(true);
+								
+										lblLineAmbW = new JLabel("x-W");
+										sl_panel_4.putConstraint(SpringLayout.NORTH, lblNameW, 0, SpringLayout.NORTH, lblLineAmbW);
+										sl_panel_4.putConstraint(SpringLayout.WEST, lblNameW, 0, SpringLayout.EAST, lblLineAmbW);
+										sl_panel_4.putConstraint(SpringLayout.SOUTH, lblNameW, 0, SpringLayout.SOUTH, lblLineAmbW);
+										sl_panel_4.putConstraint(SpringLayout.WEST, lblLineAmbW, 0, SpringLayout.WEST, panel_4);
+										sl_panel_4.putConstraint(SpringLayout.VERTICAL_CENTER, lblLineAmbW, 0, SpringLayout.VERTICAL_CENTER, panel_4);
+										panel_4.add(lblLineAmbW);
+										lblLineAmbW.setMaximumSize(new Dimension(100, 50));
+										lblLineAmbW.setMinimumSize(new Dimension(100, 50));
+										lblLineAmbW.setPreferredSize(new Dimension(100, 50));
+										lblLineAmbW.setHorizontalAlignment(SwingConstants.CENTER);
+										lblLineAmbW.setOpaque(true);
 
 		lblColNE = new JLabel(" NE");
 		sl_centerPanel.putConstraint(SpringLayout.NORTH, lblColNE, 0, SpringLayout.NORTH, centerPanel);
@@ -426,7 +399,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lblPosRight = new JLabel("New label");
 		sl_centerPanel.putConstraint(SpringLayout.NORTH, lblPosRight, 0, SpringLayout.SOUTH, lblColNE);
 		sl_centerPanel.putConstraint(SpringLayout.WEST, lblPosRight, 0, SpringLayout.EAST, panel_2);
-		sl_centerPanel.putConstraint(SpringLayout.EAST, lblPosRight, 570, SpringLayout.WEST, centerPanel);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, lblPosRight, 0, SpringLayout.EAST, centerPanel);
 		lblPosRight.setHorizontalAlignment(SwingConstants.CENTER);
 		centerPanel.add(lblPosRight);
 
