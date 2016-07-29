@@ -72,19 +72,27 @@ public class MinMaxSlider extends JPanel {
 	private JSlider sldrMax;
 	private JSlider sldrMin;
 	private Set<ChangeListener> listeners = new HashSet<ChangeListener>(); 
+	private String minPropertyName;
+	private String maxPropertyName;
 
 	/**
 	 * Create the panel.
 	 */
-	public MinMaxSlider(int l, int u) {
+	public MinMaxSlider(int l, int u, String id) {
 		if (lbound > ubound) {
 			ubound = lbound + 1;
 		}
 
 		this.ubound = u;
 		this.lbound = l;
-		min = lbound;
-		max = ubound;
+		minPropertyName = id+"_minmax_min";
+		maxPropertyName = id+"_minmax_max";
+		min = Integer.parseInt(RoverProperties.getProperty(minPropertyName, Integer.toString(lbound)));
+		max = Integer.parseInt(RoverProperties.getProperty(maxPropertyName, Integer.toString(ubound)));
+		if (min<lbound)
+			min = lbound;
+		if (max>ubound)
+			max = ubound;
 
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0 };
@@ -217,6 +225,7 @@ public class MinMaxSlider extends JPanel {
 	}
 
 	private void updateMax(int v) {
+		RoverProperties.setProperty(maxPropertyName, Integer.toString(v));
 		max = v;
 		sldrMax.setValue(v);
 		fldMax.setText(Integer.toString(v));
@@ -228,8 +237,8 @@ public class MinMaxSlider extends JPanel {
 	}
 
 	private void updateMin(int v) {
-		min = v;
-		
+		RoverProperties.setProperty(minPropertyName, Integer.toString(v));
+		min = v;		
 		sldrMin.setValue(v);
 		fldMin.setText(Integer.toString(v));
 		

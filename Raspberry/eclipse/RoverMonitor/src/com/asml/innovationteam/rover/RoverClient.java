@@ -13,22 +13,24 @@ import javax.swing.SwingUtilities;
 public class RoverClient {
 	private RegisterMap map;
 	private String address;
+	private int port;
+	private ClientThread thr;
+	private Object lock = new Object();
+	private Set<IRoverChanged> listeners;
+
 	public int getPort() {
 		return port;
 	}
 
 	public void setPort(int port) {
 		this.port = port;
+		RoverProperties.setProperty("port", Integer.toString(port));
 	}
 
 	public void setAddress(String address) {
 		this.address = address;
+		RoverProperties.setProperty("address", address);
 	}
-
-	private int port;
-	private ClientThread thr;
-	private Object lock = new Object();
-	private Set<IRoverChanged> listeners;
 
 	interface IRoverChanged {
 		public void changed();
@@ -42,9 +44,9 @@ public class RoverClient {
 		N, E, S, W
 	}
 
-	RoverClient(String address, int port) {
-		this.address = address;
-		this.port = port;
+	RoverClient() {
+		address = RoverProperties.getProperty("address", "localhost");
+		port = Integer.parseInt(RoverProperties.getProperty("port", "34343"));
 		listeners = new HashSet<IRoverChanged>();
 		map = new RegisterMap();
 	}
