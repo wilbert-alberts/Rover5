@@ -135,10 +135,10 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lineSensors.add(new SensorAndUIBind(lblLineW, minmaxLine, "W", LineSensorID.W));
 
 		lineAmbientSensors = new ArrayList<MainWindow.SensorAndUIBind>();
-		lineSensors.add(new SensorAndUIBind(lblLineAmbN, minmaxAmbient, "N", LineSensorID.N));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbE, minmaxAmbient, "E", LineSensorID.E));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbS, minmaxAmbient, "S", LineSensorID.S));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbW, minmaxAmbient, "W", LineSensorID.W));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbN, minmaxAmbient, "N", LineSensorID.N));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbE, minmaxAmbient, "E", LineSensorID.E));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbS, minmaxAmbient, "S", LineSensorID.S));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbW, minmaxAmbient, "W", LineSensorID.W));
 	}
 
 	private void initializeGrays() {
