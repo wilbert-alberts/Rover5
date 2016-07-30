@@ -251,7 +251,7 @@ extern int RV_getAnalogLine(int ambient[], int active[])
 	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
 		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
 		if (result == OK) {
-			ambient[i] = v;
+			active[i] = v;
 		}
 	}
 
@@ -278,7 +278,7 @@ extern int RV_getAnalogCollision(int ambient[] ,int active[])
 	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
 		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
 		if (result == OK) {
-			ambient[i] = v;
+			active[i] = v;
 		}
 	}
 
