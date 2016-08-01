@@ -57,16 +57,12 @@ public class RoverReader implements IRoverReader {
 		setRegister8(is, map, RegisterMap.REG_LEFTDC);
 		setRegister8(is, map, RegisterMap.REG_RIGHTDIR);
 		setRegister8(is, map, RegisterMap.REG_RIGHTDC);
-		setRegister8(is, map, RegisterMap.REG_COLLISION);
-		setRegister8(is, map, RegisterMap.REG_LINE);
 		setRegister32(is, map, RegisterMap.REG_LEFTPOS);
 		setRegister32(is, map, RegisterMap.REG_RIGHTPOS);
-		setRegister16(is, map, RegisterMap.REG_AMB_LINE_OFFSET);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_N);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_E);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_S);
 		setRegister16(is, map, RegisterMap.REG_AMB_LINE_W);
-		setRegister16(is, map, RegisterMap.REG_AMB_COL_OFFSET);
 		setRegister16(is, map, RegisterMap.REG_AMB_COL_NE);
 		setRegister16(is, map, RegisterMap.REG_AMB_COL_SE);
 		setRegister16(is, map, RegisterMap.REG_AMB_COL_SW);

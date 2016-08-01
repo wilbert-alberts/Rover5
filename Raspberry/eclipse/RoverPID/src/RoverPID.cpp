@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	double torqueL;
 	double torqueR;
 
-	RV_setFrequency(FREQUENCY);
+	LOOP_setFrequency(FREQUENCY);
 
 	RV_start();
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
 	while (ResultValue != ReflexxesAPI::RML_FINAL_STATE_REACHED)
 	{
-		RV_waitForNewData();
+		LOOP_ForNewData();
 
 		// Retrieve new data
 		pos->getPosition(&posL, &posR);

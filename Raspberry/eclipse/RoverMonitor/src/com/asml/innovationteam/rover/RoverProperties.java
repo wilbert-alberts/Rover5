@@ -60,6 +60,7 @@ public class RoverProperties {
 			getProps().store(os, "Rover properties");
 		} catch (Exception e) {
 			// TODO: handle exception
+			System.err.println(e);
 		}
 	}
 

@@ -169,11 +169,6 @@ static void comm_EmptyReceiveBuffer() {
 		REG_write8(REG_LEFTDC, comm_ReceiveBuffer.LEFTDC);
 		REG_write8(REG_RIGHTDIR, comm_ReceiveBuffer.RIGHTDIR);
 		REG_write8(REG_RIGHTDC, comm_ReceiveBuffer.RIGHTDC);
-    uint16_t* v;
-    v = (uint16_t* )comm_ReceiveBuffer.AMB_COL_OFFSET;
-    REG_write16(REG_AMB_COL_OFFSET, *v);
-    v = (uint16_t* )comm_ReceiveBuffer.AMB_LINE_OFFSET;
-    REG_write16(REG_AMB_LINE_OFFSET, *v);
 	} else {
 		REG_logAll(&comm_ReceiveBuffer);
 	}

@@ -180,45 +180,6 @@ public class RoverClient {
 		}
 	}
 
-	public boolean isLineVisible(LineSensorID ls) {
-		int c;
-		synchronized (lock) {
-			c = map.getRegister(RegisterMap.REG_COLLISION);
-		}
-		switch (ls) {
-		case N:
-			return (c & (1 << 0)) != 0;
-		case E:
-			return (c & (1 << 1)) != 0;
-		case S:
-			return (c & (1 << 2)) != 0;
-		case W:
-			return (c & (1 << 3)) != 0;
-		default:
-			return false;
-		}
-	}
-
-	public boolean isColliding(CollisionDirection cd) {
-		int c;
-		synchronized (lock) {
-			c = map.getRegister(RegisterMap.REG_COLLISION);
-		}
-		switch (cd) {
-		case NE:
-			return (c & (1 << 0)) != 0;
-		case SE:
-			return (c & (1 << 1)) != 0;
-		case SW:
-			return (c & (1 << 2)) != 0;
-		case NW:
-			return (c & (1 << 3)) != 0;
-		default:
-			return false;
-		}
-
-	}
-
 	class ClientThread extends Thread {
 		IRoverReader rr;
 		boolean connected = false;
@@ -236,7 +197,7 @@ public class RoverClient {
 		public void run() {
 			RegisterMap m = new RegisterMap();
 			try {
-				rr = new RoverReader(address, port);
+				rr = new RoverReaderSim(address, port);
 				connected = true;
 				rr.getInSync();
 				while (connected) {

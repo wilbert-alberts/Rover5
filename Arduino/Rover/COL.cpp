@@ -7,11 +7,9 @@
 
 static uint16_t col_ambient[COL_NR_SENSORS];
 static uint16_t col_active[COL_NR_SENSORS];
-static uint8_t  col_digitalized[COL_NR_SENSORS];
 
 static void col_setLights(int value);
 static void col_readSensors(uint16_t* dst);
-static void col_digitalize();
 static void col_writeRegisters();
 
 
@@ -35,7 +33,6 @@ extern void COL_loop()
    delayMicroseconds(50);
    col_readSensors(col_active);
    col_setLights(LOW);
-   col_digitalize();
    col_writeRegisters();
 }
 
@@ -84,12 +81,7 @@ static void col_setLights(int value)
 static void col_readSensors(uint16_t* dst)
 {
   static const int pins[] = { PIN_COL_NE, PIN_COL_SE, PIN_COL_SW, PIN_COL_NW }; 
-/*
-  static const int pins[] = { PIN_COL_NE, 
-                              PIN_COL_NE, 
-                              PIN_COL_NE, 
-                              PIN_COL_NE }; 
-                              */
+
   int v;
   
   for (int i=0; i<COL_NR_SENSORS; i++) {
@@ -99,28 +91,14 @@ static void col_readSensors(uint16_t* dst)
   }
 }
 
-static void col_digitalize()
-{
-  uint16_t offset;
-  
-  REG_read16(REG_AMB_COL_OFFSET, &offset);
-  for (int i=0; i<COL_NR_SENSORS; i++) {
-    col_digitalized[i] = col_ambient[i] + offset < col_active[i];   
-  }
-}
-
 static void col_writeRegisters()
 {
   static const int registersAmb[] = { REG_AMB_COL_NE, REG_AMB_COL_SE, REG_AMB_COL_SW, REG_AMB_COL_NW };
   static const int registersIR[] = { REG_IR_COL_NE, REG_IR_COL_SE, REG_IR_COL_SW, REG_IR_COL_NW };
-  static const int power[] = { REG_COL_NE , REG_COL_SE , REG_COL_SW , REG_COL_NW };
-  static byte mask = 0;
   
   for (int i=0; i<COL_NR_SENSORS; i++) {
     REG_write16(registersAmb[i], col_ambient[i]);
     REG_write16(registersIR[i], col_active[i]);
-    mask |= col_digitalized[i] ? power[i] : 0;
   }
-  REG_write8(REG_COLLISION, mask);
 }
 

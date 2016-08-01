@@ -38,16 +38,12 @@ extern int REG_setup() {
 		REG_ADDREGISTER(LEFTDC)
 		REG_ADDREGISTER(RIGHTDIR)
 		REG_ADDREGISTER(RIGHTDC)
-		REG_ADDREGISTER(COLLISION)
-		REG_ADDREGISTER(LINE)
 		REG_ADDREGISTER(LEFTPOS)
 		REG_ADDREGISTER(RIGHTPOS)
-		REG_ADDREGISTER(AMB_COL_OFFSET)
 		REG_ADDREGISTER(AMB_COL_NE)
 		REG_ADDREGISTER(AMB_COL_SE)
 		REG_ADDREGISTER(AMB_COL_SW)
 		REG_ADDREGISTER(AMB_COL_NW)
-		REG_ADDREGISTER(AMB_LINE_OFFSET)
 		REG_ADDREGISTER(AMB_LINE_N)
 		REG_ADDREGISTER(AMB_LINE_E)
 		REG_ADDREGISTER(AMB_LINE_S)
@@ -169,12 +165,10 @@ extern int REG_readLong(REG_map* src, int id, long* val) {
 		*val = (long) *v32;
 		break;
 
-	case REG_AMB_LINE_OFFSET:
 	case REG_AMB_LINE_N:
 	case REG_AMB_LINE_E:
 	case REG_AMB_LINE_S:
 	case REG_AMB_LINE_W:
-	case REG_AMB_COL_OFFSET:
 	case REG_AMB_COL_NE:
 	case REG_AMB_COL_SE:
 	case REG_AMB_COL_SW:
@@ -197,8 +191,6 @@ extern int REG_readLong(REG_map* src, int id, long* val) {
 	case REG_LEFTDC:
 	case REG_RIGHTDIR:
 	case REG_RIGHTDC:
-	case REG_COLLISION:
-	case REG_LINE:
 		offset = reg_address[id] -  ((uint8_t*)&reg_map);
 		v8 = (uint8_t*)&s[offset];
 		*val = (long) *v8;
@@ -276,16 +268,12 @@ extern void REG_logAll(REG_map* src) {
 	LOG_U8(src, LEFTDC);
 	LOG_U8(src, RIGHTDIR);
 	LOG_U8(src, RIGHTDC);
-	LOG_U8(src, COLLISION);
-	LOG_U8(src, LINE);
 	LOG_32(src, LEFTPOS);
 	LOG_32(src, RIGHTPOS);
-	LOG_U16(src, AMB_LINE_OFFSET);
 	LOG_U16(src, AMB_LINE_N);
 	LOG_U16(src, AMB_LINE_E);
 	LOG_U16(src, AMB_LINE_S);
 	LOG_U16(src, AMB_LINE_W);
-	LOG_U16(src, AMB_COL_OFFSET);
 	LOG_U16(src, AMB_COL_NE);
 	LOG_U16(src, AMB_COL_SE);
 	LOG_U16(src, AMB_COL_SW);

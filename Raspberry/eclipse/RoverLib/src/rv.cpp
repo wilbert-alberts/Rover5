@@ -128,78 +128,6 @@ extern int RV_move(int leftDirection, int rightDirection, int leftDC,
 	return result;
 }
 
-extern int RV_getLine(uint8_t* r) {
-	int result = OK;
-	LG_logEntry(__func__, "r: %p", r);
-
-	SAFE_INVOKE(REG_read8(REG_LINE, r), result, RV_GET_LINE_FAILED)
-
-	LG_logExit(__func__, result, "*r: 0x%0x", r);
-	return result;
-}
-
-extern int RV_getCollision(uint8_t* r) {
-	int result = OK;
-	LG_logEntry(__func__, "r: %p", r);
-
-	SAFE_INVOKE(REG_read8(REG_COLLISION, r), result, RV_GET_COLLISION_FAILED)
-
-	LG_logExit(__func__, result, "*r: 0x%0x", r);
-	return result;
-}
-
-extern int RV_getColAmbOffset(int* r) {
-	int result = OK;
-	LG_logEntry(__func__, "r: %p", r);
-
-	uint16_t o;
-
-	SAFE_INVOKE(REG_read16(REG_AMB_COL_OFFSET, &o), result, RV_GET_AMB_COL_OFFSET_FAILED)
-	if (result == OK) {
-		*r = o;
-	}
-	LG_logExit(__func__, result, "*r: %d", r);
-	return result;
-}
-
-extern int RV_setColAmbOffset(int r) {
-	int result = OK;
-	uint16_t offset = (uint16_t)(r);
-
-	LG_logEntry(__func__, "r: %d", r);
-
-	SAFE_INVOKE(REG_write16(REG_AMB_COL_OFFSET, offset), result, RV_SET_AMB_COL_OFFSET_FAILED)
-
-	LG_logExit(__func__, result, NULL);
-	return result;
-}
-
-extern int RV_getLineAmbOffset(uint16_t* r) {
-	int result = OK;
-	uint16_t o;
-	LG_logEntry(__func__, "r: %p", r);
-
-	SAFE_INVOKE(REG_read16(REG_AMB_LINE_OFFSET, &o), result, RV_GET_AMB_LINE_OFFSET_FAILED)
-
-	if (result == OK) {
-		*r = o;
-	}
-
-	LG_logExit(__func__, result, "*r: %d", r);
-	return result;
-}
-
-extern int RV_setLineAmbOffset(uint16_t r) {
-	int result = OK;
-	uint16_t offset = (uint16_t)(r);
-
-	LG_logEntry(__func__, "r: %d", r);
-
-	SAFE_INVOKE(REG_write16(REG_AMB_LINE_OFFSET, offset), result, RV_SET_AMB_LINE_OFFSET_FAILED)
-
-	LG_logExit(__func__, result, NULL);
-	return result;
-}
 
 
 extern int RV_getAVRTime(long* millis, long* micros)
@@ -222,66 +150,77 @@ extern int RV_getAVRTime(long* millis, long* micros)
 	return result;
 }
 
-extern int RV_getAnalogLine(int ambient[], int active[])
+extern int RV_getLineSensors(RV_LineSensors* lineSensors)
 {
 	int result = OK;
 	uint16_t v;
 	
-	static const int ambientRegisters[]  =  {
-    REG_AMB_LINE_N,
-    REG_AMB_LINE_E,
-    REG_AMB_LINE_S,
-    REG_AMB_LINE_W,
+
+	static const int registers[]  =  {
+        REG_AMB_LINE_N,
+        REG_AMB_LINE_E,
+        REG_AMB_LINE_S,
+        REG_AMB_LINE_W,
+        REG_IR_LINE_N,
+        REG_IR_LINE_E,
+        REG_IR_LINE_S,
+        REG_IR_LINE_W
 	};
-	static const int activeRegisters[]  =  {
-    REG_IR_LINE_N,
-    REG_IR_LINE_E,
-    REG_IR_LINE_S,
-    REG_IR_LINE_W,
+	int* destinations[]  =  {
+        &lineSensors->N.ambient,
+        &lineSensors->E.ambient,
+        &lineSensors->S.ambient,
+        &lineSensors->W.ambient,
+        &lineSensors->N.active,
+        &lineSensors->E.active,
+        &lineSensors->S.active,
+        &lineSensors->W.active
 	};
 	LG_logEntry(__func__, "NOT IMPLEMENTED");
 
-	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
-		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
+	for (unsigned int i=0; i< sizeof(registers)/sizeof(int); i++) {
+		SAFE_INVOKE(REG_read16(registers[i], &v), result, RV_GET_ANALOGLINE_FAILED)
 		if (result == OK) {
-			ambient[i] = v;
+			*(destinations[i]) = v;
 		}
 	}
-
-	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
-		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGLINE_FAILED)
-		if (result == OK) {
-			active[i] = v;
-		}
-	}
-
 	LG_logExit(__func__, result, "NO RESULT");
 	return result;
 }
 
-extern int RV_getAnalogCollision(int ambient[] ,int active[])
+extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors)
 {
 	int result = OK;
 	uint16_t v;
 
-	static const int ambientRegisters[]  =  { REG_AMB_COL_NE, REG_AMB_COL_SE, REG_AMB_COL_SW, REG_AMB_COL_NW };
-	static const int activeRegisters[]  = { REG_IR_COL_NE, REG_IR_COL_SE, REG_IR_COL_SW, REG_IR_COL_NW };
+	static const int registers[]  =  {
+        REG_AMB_COL_NE,
+        REG_AMB_COL_SE,
+        REG_AMB_COL_SW,
+        REG_AMB_COL_NW,
+        REG_IR_COL_NE,
+        REG_IR_COL_SE,
+        REG_IR_COL_SW,
+        REG_IR_COL_NW
+	};
+	int* destinations[]  =  {
+        &collisionSensors->NE.ambient,
+        &collisionSensors->SE.ambient,
+        &collisionSensors->SW.ambient,
+        &collisionSensors->NW.ambient,
+        &collisionSensors->NE.active,
+        &collisionSensors->SE.active,
+        &collisionSensors->SW.active,
+        &collisionSensors->NW.active
+	};
+
 	LG_logEntry(__func__, "NOT IMPLEMENTED");
-
-	for (unsigned int i=0; i< sizeof(ambientRegisters)/sizeof(int); i++) {
-		SAFE_INVOKE(REG_read16(ambientRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
-		if (result == OK) {
-			ambient[i] = v;
-		}
-	}
-
-	for (unsigned int i=0; i< sizeof(activeRegisters)/sizeof(int); i++) {
-		SAFE_INVOKE(REG_read16(activeRegisters[i], &v), result, RV_GET_ANALOGCOLLISION_FAILED)
-		if (result == OK) {
-			active[i] = v;
-		}
-	}
-
+    for (unsigned int i=0; i< sizeof(registers)/sizeof(int); i++) {
+        SAFE_INVOKE(REG_read16(registers[i], &v), result, RV_GET_ANALOGLINE_FAILED)
+        if (result == OK) {
+            *(destinations[i]) = v;
+        }
+    }
 	LG_logExit(__func__, result, "NO RESULT");
 	return result;
 }

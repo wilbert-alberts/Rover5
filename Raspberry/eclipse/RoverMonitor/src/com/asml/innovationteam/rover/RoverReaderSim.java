@@ -32,16 +32,12 @@ public class RoverReaderSim implements IRoverReader {
 		setRegister(map, RegisterMap.REG_LEFTDC, 1<<8);
 		setRegister(map, RegisterMap.REG_RIGHTDIR, 1);
 		setRegister(map, RegisterMap.REG_RIGHTDC, 1<<8);
-		setRegister(map, RegisterMap.REG_COLLISION, 1<<8);
-		setRegister(map, RegisterMap.REG_LINE, 1<<8 );
 		setRegister(map, RegisterMap.REG_LEFTPOS, 1<<10);
 		setRegister(map, RegisterMap.REG_RIGHTPOS, 1<<10);
-		setRegister(map, RegisterMap.REG_AMB_COL_OFFSET, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_COL_NE, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_COL_SE, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_COL_SW, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_COL_NW, 1<<10);
-		setRegister(map, RegisterMap.REG_AMB_LINE_OFFSET, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_LINE_N, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_LINE_E, 1<<10);
 		setRegister(map, RegisterMap.REG_AMB_LINE_S, 1<<10);
