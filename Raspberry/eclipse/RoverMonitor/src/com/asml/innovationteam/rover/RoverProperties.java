@@ -51,6 +51,7 @@ public class RoverProperties {
 					saveScheduled = false;
 				}
 			}, 5000);
+			saveScheduled = true;
 		}
 	}
 
