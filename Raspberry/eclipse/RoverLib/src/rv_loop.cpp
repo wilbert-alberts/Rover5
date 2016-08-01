@@ -124,7 +124,6 @@ static void* lp_main(void* args) {
 		result = TR_traceRegmap();
 		result = SV_send();
 		result = OK;
-		//printf("*\n");
 
 		SAFE_INVOKE(lp_notifyWaiters(), result, RV_LOOP_ABORTED)
 		usleep(1000000ul / loop_frequency);

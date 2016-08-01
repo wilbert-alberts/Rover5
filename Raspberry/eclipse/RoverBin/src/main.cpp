@@ -20,6 +20,8 @@ int main (int argc, char* argv[])
     long right;
     int sig[4];
     int amb[4];
+    RV_LineSensors lineSensors;
+
     RV_loggingOff();
     RV_loopLoggingOff();
     RV_setFrequency(100);
@@ -27,10 +29,10 @@ int main (int argc, char* argv[])
     while(21);
     // RV_move(RV_BACKWARD, RV_BACKWARD, 70,70);
     for (int i=0; i<10000; i++) {
-      RV_getPosition(&left, &right);
+      //RV_getPosition(&left, &right);
       //printf("left: %ld, right: %ld\n", left, right);
       
-      RV_getAnalogCollision(sig, amb);
+      //RV_getAnalogCollision(sig, amb);
       //printf("left: %ld, right: %ld, NE: %d, SE: %d, SW: %d, NW: %d\n", 
       // 	     left, right, sig[0], sig[1], sig[2], sig[3]);
       
@@ -39,10 +41,17 @@ int main (int argc, char* argv[])
       //  i=100000;
       //}      
 
-      RV_getAnalogLine(sig, amb);
-      printf("left: %ld, right: %ld, N: %d, E: %d, S: %d, W: %d\n", 
-      	     left, right, sig[0], sig[1], sig[2], sig[3]);
-      
+      RV_getLineSensors(&lineSensors);
+      printf("left: %ld, right: %ld, active: N: %d, E: %d, S: %d, W: %d, ambient: N: %d, E: %d, S: %d, W: %d\n",
+      	     left, right,
+             lineSensors.N.active,
+             lineSensors.E.active,
+             lineSensors.S.active,
+             lineSensors.W.active,
+             lineSensors.N.ambient,
+             lineSensors.E.ambient,
+             lineSensors.S.ambient,
+             lineSensors.W.ambient);
       RV_waitForNewData();
     }
     

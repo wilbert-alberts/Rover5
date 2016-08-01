@@ -6,12 +6,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,11 +25,10 @@ import javax.swing.SwingUtilities;
 import com.asml.innovationteam.rover.RoverClient.CollisionDirection;
 import com.asml.innovationteam.rover.RoverClient.LineSensorID;
 
-import eu.hansolo.steelseries.extras.Radar;
 import eu.hansolo.steelseries.gauges.Radial;
-
-import java.awt.Component;
-import javax.swing.Box;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class MainWindow implements RoverClient.IRoverChanged {
 
@@ -57,8 +55,9 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private JLabel lblLineAmbW;
 	private JLabel lblLineAmbS;
 	private JLabel lblLineAmbE;
-	private ArrayList<SensorAndUIBind> lineSensors = null;
-	private ArrayList<SensorAndUIBind> lineAmbientSensors = null;
+	private List<SensorAndUIBind> lineSensors = null;
+	private List<SensorAndUIBind> lineAmbientSensors = null;
+	private List<CollisionSensorBind> collisionSensors =null;
 	private JLabel lblNameN;
 	private JLabel lblNameW;
 	private JLabel lblNameE;
@@ -127,7 +126,6 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	}
 
 	private void initializeSUI() {
-		// TODO Auto-generated method stub
 		lineSensors = new ArrayList<MainWindow.SensorAndUIBind>();
 		lineSensors.add(new SensorAndUIBind(lblLineN, minmaxLine, "N", LineSensorID.N));
 		lineSensors.add(new SensorAndUIBind(lblLineE, minmaxLine, "E", LineSensorID.E));
@@ -135,10 +133,16 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lineSensors.add(new SensorAndUIBind(lblLineW, minmaxLine, "W", LineSensorID.W));
 
 		lineAmbientSensors = new ArrayList<MainWindow.SensorAndUIBind>();
-		lineSensors.add(new SensorAndUIBind(lblLineAmbN, minmaxAmbient, "N", LineSensorID.N));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbE, minmaxAmbient, "E", LineSensorID.E));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbS, minmaxAmbient, "S", LineSensorID.S));
-		lineSensors.add(new SensorAndUIBind(lblLineAmbW, minmaxAmbient, "W", LineSensorID.W));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbN, minmaxAmbient, "N", LineSensorID.N));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbE, minmaxAmbient, "E", LineSensorID.E));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbS, minmaxAmbient, "S", LineSensorID.S));
+		lineAmbientSensors.add(new SensorAndUIBind(lblLineAmbW, minmaxAmbient, "W", LineSensorID.W));
+		
+		collisionSensors =  new ArrayList<CollisionSensorBind>();
+		collisionSensors.add(new CollisionSensorBind(lblColNE, CollisionDirection.NE));
+		collisionSensors.add(new CollisionSensorBind(lblColSE, CollisionDirection.SE));
+		collisionSensors.add(new CollisionSensorBind(lblColSW, CollisionDirection.SW));
+		collisionSensors.add(new CollisionSensorBind(lblColNW, CollisionDirection.NW));
 	}
 
 	private void initializeGrays() {
@@ -449,6 +453,22 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lblColSE.setHorizontalAlignment(SwingConstants.CENTER);
 		lblColSE.setOpaque(true);
 		centerPanel.add(lblColSE);
+		
+		JSlider sldrCollisionThr = new JSlider();
+		sldrCollisionThr.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				int v = sldrCollisionThr.getValue();
+				
+				if ((v>=0) && (v<1024)) {
+					RoverProperties.setProperty("collision_threshold", Integer.toString(v));
+				}
+			}
+		});
+		sldrCollisionThr.setMaximum(1023);
+		sl_centerPanel.putConstraint(SpringLayout.NORTH, sldrCollisionThr, 0, SpringLayout.SOUTH, lblColNW);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, sldrCollisionThr, 0, SpringLayout.EAST, lblColNW);
+		sl_centerPanel.putConstraint(SpringLayout.WEST, sldrCollisionThr, 0, SpringLayout.WEST, lblColNW);
+		centerPanel.add(sldrCollisionThr);
 		lblLineNBG = new Color(200, 100, 100);
 		lblLineWBG = new Color(200, 100, 100);
 		lblLineEBG = new Color(200, 100, 100);
@@ -466,17 +486,12 @@ public class MainWindow implements RoverClient.IRoverChanged {
 				radLeft.setLcdValue(rover.getLeftPosition());
 				radRight.setValue(rover.getRightTorque());
 				radRight.setLcdValue(rover.getRightPosition());
-				
-				lblColNE.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.NE)));
-				lblColSE.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.SE)));
-				lblColSW.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.SW)));
-				lblColNW.setBackground(getCollisionColor(rover.isColliding(CollisionDirection.NW)));
-
-				lblColNE.setText(Integer.toString(rover.getCollision(CollisionDirection.NE)));
-				lblColSE.setText(Integer.toString(rover.getCollision(CollisionDirection.SE)));
-				lblColSW.setText(Integer.toString(rover.getCollision(CollisionDirection.SW)));
-				lblColNW.setText(Integer.toString(rover.getCollision(CollisionDirection.NW)));
-				
+							
+				for (CollisionSensorBind cdb : collisionSensors) {
+					int v = rover.getCollision(cdb.cd);
+					setCollisionColor(cdb.fld, v);
+					setCollisionLbl(cdb.fld,  v);
+				}
 				for (SensorAndUIBind sui : lineSensors) {
 					int v = rover.getLine(sui.sensor);
 					setLineColor(sui.fld, sui.minmax, v);
@@ -490,14 +505,9 @@ public class MainWindow implements RoverClient.IRoverChanged {
 
 			}
 
-			public Color getCollisionColor(boolean collision) {
-				return collision ? Color.red : Color.green;
-			}
 
 			public void setLineColor(JLabel fld, MinMaxSlider minmax, int v) {
-
 				double range = minmax.getMax() - minmax.getMin();
-
 				double d = (v - minmax.getMin()) / range;
 				if (d < 0.0)
 					d = 0.0;
@@ -509,6 +519,20 @@ public class MainWindow implements RoverClient.IRoverChanged {
 			}
 
 			public void setLinebl(JLabel fld, String n, int v) {
+				fld.setText(Integer.toString(v));
+			}
+			
+			public void setCollisionColor(JLabel fld, int v) {
+				int collisionThr = Integer.parseInt(RoverProperties.getProperty("collision_threshold", Integer.toString(400)));
+
+				if (v > collisionThr)
+					fld.setBackground(Color.red);
+				else
+					fld.setBackground(Color.green);
+			}
+
+
+			public void setCollisionLbl(JLabel fld, int v) {
 				fld.setText(Integer.toString(v));
 			}
 		});
@@ -527,5 +551,14 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		public String name;
 		public LineSensorID sensor;
 		public MinMaxSlider minmax;
+	}
+	
+	class CollisionSensorBind {
+		public CollisionSensorBind(JLabel fld, CollisionDirection cd) {
+			this.fld = fld;
+			this.cd = cd;
+		}
+		public JLabel fld;
+		public CollisionDirection cd;
 	}
 }

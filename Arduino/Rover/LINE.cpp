@@ -7,7 +7,6 @@
 
 static uint16_t line_ambient[LINE_NR_SENSORS];
 static uint16_t line_active[LINE_NR_SENSORS];
-static uint8_t  line_digitalized[LINE_NR_SENSORS];
 
 static void line_setLights(int value);
 static void line_readSensors(uint16_t* dst);
@@ -32,7 +31,6 @@ extern void LINE_loop()
    delayMicroseconds(50);
    line_readSensors(line_active);
    line_setLights(LOW);
-   line_digitalize();
    line_writeRegisters();
 }
 
@@ -70,17 +68,6 @@ static void line_readSensors(uint16_t* dst)
   
 }
 
-static void line_digitalize()
-{
-  uint16_t offset;
-  
-  REG_read16(REG_AMB_LINE_OFFSET, &offset);
-
-  for (int i=0; i<LINE_NR_SENSORS; i++) {
-    line_digitalized[i] = line_ambient[i] + offset < line_active[i];   
-  }
-}
-
 static void line_writeRegisters()
 {
   static const int registersAmb[] = { 
@@ -95,19 +82,12 @@ static void line_writeRegisters()
     REG_IR_LINE_S,
     REG_IR_LINE_W,
     };
-  static const int power[] = {
-    REG_LINE_N,
-    REG_LINE_E,
-    REG_LINE_S,
-    REG_LINE_W,
-  };
+
   static int8_t mask = 0;
   
   for (int i=0; i<LINE_NR_SENSORS; i++) {
     REG_write16(registersAmb[i], line_ambient[i]);
     REG_write16(registersIR[i], line_active[i]);
-    mask |= line_digitalized[i] ? power[i] : 0;
   }
-  REG_write8(REG_LINE, mask);
 }
 

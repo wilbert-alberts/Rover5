@@ -10,30 +10,26 @@
 #define REG_LEFTDC          (4)
 #define REG_RIGHTDIR        (5)
 #define REG_RIGHTDC         (6)
-#define REG_COLLISION       (7)
-#define REG_LINE            (8)
-#define REG_LEFTPOS         (9)
-#define REG_RIGHTPOS        (10)
-#define REG_AMB_COL_OFFSET  (11)
-#define REG_AMB_COL_NE      (12)
-#define REG_AMB_COL_SE      (13)
-#define REG_AMB_COL_SW      (14)
-#define REG_AMB_COL_NW      (15)
-#define REG_AMB_LINE_OFFSET (16)
-#define REG_AMB_LINE_N      (17)
-#define REG_AMB_LINE_E      (18)
-#define REG_AMB_LINE_S      (19)
-#define REG_AMB_LINE_W      (20)
-#define REG_IR_COL_NE       (21)
-#define REG_IR_COL_SE       (22)
-#define REG_IR_COL_SW       (23)
-#define REG_IR_COL_NW       (24)
-#define REG_IR_LINE_N       (25)
-#define REG_IR_LINE_E       (26)
-#define REG_IR_LINE_S       (27)
-#define REG_IR_LINE_W       (28)
-#define REG_TRAILER         (29)
-#define REG_MAX             (30)
+#define REG_LEFTPOS         (7)
+#define REG_RIGHTPOS        (8)
+#define REG_AMB_COL_NE      (9)
+#define REG_AMB_COL_SE      (10)
+#define REG_AMB_COL_SW      (11)
+#define REG_AMB_COL_NW      (12)
+#define REG_AMB_LINE_N      (13)
+#define REG_AMB_LINE_E      (14)
+#define REG_AMB_LINE_S      (15)
+#define REG_AMB_LINE_W      (16)
+#define REG_IR_COL_NE       (17)
+#define REG_IR_COL_SE       (18)
+#define REG_IR_COL_SW       (19)
+#define REG_IR_COL_NW       (20)
+#define REG_IR_LINE_N       (21)
+#define REG_IR_LINE_E       (22)
+#define REG_IR_LINE_S       (23)
+#define REG_IR_LINE_W       (24)
+#define REG_TRAILER         (25)
+#define REG_MAX             (26)
 
 // Mask for the LINE register
 #define REG_LINE_N (1<<0)
@@ -56,16 +52,12 @@ typedef struct
 	  uint8_t LEFTDC;
 	  uint8_t RIGHTDIR;
 	  uint8_t RIGHTDC;
-	  uint8_t COLLISION;
-	  uint8_t LINE;
 	  int8_t  LEFTPOS[4];
 	  int8_t  RIGHTPOS[4];
-	  uint8_t AMB_LINE_OFFSET[2];
 	  uint8_t AMB_LINE_N[2];
 	  uint8_t AMB_LINE_E[2];
 	  uint8_t AMB_LINE_S[2];
 	  uint8_t AMB_LINE_W[2];
-	  uint8_t AMB_COL_OFFSET[2];
 	  uint8_t AMB_COL_NE[2];
 	  uint8_t AMB_COL_SE[2];
 	  uint8_t AMB_COL_SW[2];
