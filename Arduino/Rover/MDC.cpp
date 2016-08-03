@@ -18,13 +18,16 @@ extern void MDC_triggerAlive()
 
 extern bool MDC_checkAlive()
 {
-  bool result = millis()-mdc_lastAlive < MDC_ALIVEDELAY;
+  unsigned long delta  = millis()-mdc_lastAlive;
+  bool result = delta < MDC_ALIVEDELAY;
 
   if (!result)
   {
      analogWrite(PIN_PWM_LEFT,0);
      analogWrite(PIN_PWM_RIGHT,0);
-     Serial.println("Connection with Pi lost. Motors shutdown.");
+//     Serial.println("Connection with Pi lost. Motors shutdown.");
+//     Serial.print("Last seen: ");
+//     Serial.println(delta);
   }
   return result;
 }

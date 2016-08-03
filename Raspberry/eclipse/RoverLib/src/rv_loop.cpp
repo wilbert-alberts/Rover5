@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <errno.h>
+
+#define LINUX
 
 #ifdef LINUX
 #include <sys/timerfd.h>
@@ -82,7 +85,7 @@ static bool lp_waiterBlocked;      // Any blocked waiters?
 
 static void* lp_main(void* args);  // Actual body of periodical loop
 static int lp_notifyWaiters();
-static int lp_startTimer(int frequency);
+static int lp_startTimer(int frequency, int* timerfd);
 static void lp_stopTimer(int timerfd);
 /*
  * ---------------------------------------------------------------------------
@@ -225,23 +228,34 @@ static int lp_notifyWaiters() {
  * ---------------------------------------------------------------------------
  */
 
-static int lp_startTimer(int frequency)
+static int lp_startTimer(int frequency, int* timerfd)
 {
+    int result = OK;
     struct itimerspec tmr;
     long period = 1000000000L/lp_loopFrequency;
-    int timerfd;
 
     /* Set period of timer struct */
-    tmr.it_interval.tv_sec = 0;
-    tmr.it_interval.tv_nsec = period;
-    tmr.it_value.tv_sec = 0;
-    tmr.it_value.tv_nsec = period;
+    tmr.it_interval.tv_sec = period / 1000000000L;
+    tmr.it_interval.tv_nsec = period % 1000000000L;
+    tmr.it_value.tv_sec = period / 1000000000L;
+    tmr.it_value.tv_nsec = period % 1000000000L;
 
     /* Create the timer and start it */
-    timerfd = timerfd_create(CLOCK_MONOTONIC, 0);
-    timerfd_settime(timerfd, 0, &tmr, NULL);
+    *timerfd = timerfd_create(CLOCK_MONOTONIC, 0);
+    if (*timerfd == 0) {
+    	result = RV_UNABLE_TO_START_TIMER;
+ 	printf("RV_UNABLE_TO_START_TIMER, timer create, errno: %d\n", errno);
+    }
+    
+    if (result== OK) {
+    	result = timerfd_settime(*timerfd, 0, &tmr, NULL);
+	if (result != 0) {
+            result = RV_UNABLE_TO_START_TIMER;
+	    printf("RV_UNABLE_TO_START_TIMER, timer settime, errno: %d\n", errno);
+	}
+    }
 
-    return timerfd;
+    return result;
 }
 
 /*
@@ -252,12 +266,14 @@ static void lp_stopTimer(int timerfd)
 {
     struct itimerspec tmr;
 
+    if (timerfd != 0) {
     tmr.it_interval.tv_sec = 0;
     tmr.it_interval.tv_nsec = 0;
     tmr.it_value.tv_sec = 0;
     tmr.it_value.tv_nsec = 0;
     timerfd_settime(timerfd, 0, &tmr, NULL);
     close(timerfd);
+    }
 }
 
 /*
@@ -289,7 +305,7 @@ static void* lp_main(void* args) {
 	/* Initialize the timer structs such that it periodically
 	 * ticks at the desired frequency.
 	 */
-    timerfd = lp_startTimer(lp_loopFrequency);
+        result = lp_startTimer(lp_loopFrequency, &timerfd);
 
 	lp_running = true;
 	while ((lp_running) and (result == OK)) {
@@ -305,13 +321,23 @@ static void* lp_main(void* args) {
 		result = read(timerfd, &overruns, sizeof(uint64_t));
 		if (result<0) {
 		    result = RV_LOOP_ABORTED;
+		    printf("RV_LOOP_ABORTED errno: %d\n", errno);
+		}
+		else {
+		    if (result != 8) {
+		    	result = RV_LOOP_ABORTED;
+		    }
+		    else {
+		    	result = OK;
+	            }
 		}
 		/* Check whether the timer already expired. This indicates that the
 		 * requested frequency can not be achieved.
 		 */
-		if (overruns > 0) {
-		    printf("Warning: overrun(s) detected.\n");
+		if (overruns > 1) {
+		    printf("Warning: overrun(s) detected: %lld\n", overruns-1);
 		}
+		result = OK;
 	}
 
     lp_stopTimer(timerfd);

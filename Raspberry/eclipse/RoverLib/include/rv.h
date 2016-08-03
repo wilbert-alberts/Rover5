@@ -62,6 +62,7 @@
 #define RV_UNABLE_TO_GET_SOCKET         (-28)
 #define RV_UNABLE_TO_BIND               (-29)
 #define RV_UNABLE_INSTALL_SIGHANDLER    (-30)
+#define RV_UNABLE_TO_START_TIMER        (-31)
 
 
 /* RV_FORWARD and RV_BACKWARD are to be used when invoking the

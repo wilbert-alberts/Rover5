@@ -42,13 +42,12 @@ extern void COMM_loop() {
 }
 
 static void comm_doExchange() {
+  MDC_triggerAlive();
 	comm_FillSendBuffer();
 	comm_AcknowledgeRequest();
 	comm_Exchange();
 	comm_EmptyReceiveBuffer();
 	comm_EndExchange();
-
-	MDC_triggerAlive();
 }
 
 static void comm_FillSendBuffer() {

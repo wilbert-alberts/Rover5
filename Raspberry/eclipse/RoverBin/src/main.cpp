@@ -6,7 +6,7 @@
 
 int mustStop(RV_CollisionSensors* s)
 {
-    int d = 30;
+    int d = 130;
     if (s->NE.active > d)
 	return 1;
     if (s->SE.active > d)
@@ -30,7 +30,7 @@ int main (int argc, char* argv[])
     RV_loopLoggingOff();
     RV_setFrequency(50);
     RV_start();
-    RV_move(RV_FORWARD, RV_FORWARD, 25,25);
+    RV_move(RV_FORWARD, RV_FORWARD, 30,30);
     for (int i=0; i<10000; i++) {
       RV_getPosition(&left, &right);
       //printf("left: %ld, right: %ld\n", left, right);

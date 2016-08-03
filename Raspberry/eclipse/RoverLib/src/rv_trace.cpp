@@ -159,7 +159,7 @@ static int tr_dumpBuffer(FILE* of, int idx) {
 	 * and writing them to file.
 	 */
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
-		result = REG_readLong(src, idx, &v);
+		result = REG_readLong(src, i, &v);
 		if (result == OK)
 			fprintf(of, "%ld\t",  v);
 	}
