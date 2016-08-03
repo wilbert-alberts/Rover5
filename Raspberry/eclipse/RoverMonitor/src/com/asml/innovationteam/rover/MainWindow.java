@@ -72,6 +72,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	private JPanel panel_5;
 	private Radial radLeft;
 	private Radial radRight;
+	private JToggleButton btnConnect;
 
 	/**
 	 * Launch the application.
@@ -178,7 +179,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		panel.add(txtAddress);
 		txtAddress.setColumns(10);
 
-		JToggleButton btnConnect = new JToggleButton("Connect");
+		btnConnect = new JToggleButton("Connect");
 		btnConnect.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
 				if (btnConnect.isSelected()) {
@@ -537,6 +538,18 @@ public class MainWindow implements RoverClient.IRoverChanged {
 			}
 		});
 
+	}
+
+	@Override
+	public void disconnected() {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				btnConnect.setSelected(false);
+				btnConnect.setText("Disconnected");
+			}
+		});
 	}
 
 	class SensorAndUIBind {
