@@ -21,6 +21,7 @@ int main (int argc, char* argv[])
     int sig[4];
     int amb[4];
     RV_LineSensors lineSensors;
+    RV_LineSensors lineSensorsFiltered;
 
     RV_loggingOff();
     RV_loopLoggingOff();
@@ -42,6 +43,8 @@ int main (int argc, char* argv[])
       //}      
 
       RV_getLineSensors(&lineSensors);
+      RV_getLineSensorsFiltered(&lineSensorsFiltered);
+      /*
       printf("left: %ld, right: %ld, active: N: %d, E: %d, S: %d, W: %d, ambient: N: %d, E: %d, S: %d, W: %d\n",
       	     left, right,
              lineSensors.N.active,
@@ -52,6 +55,16 @@ int main (int argc, char* argv[])
              lineSensors.E.ambient,
              lineSensors.S.ambient,
              lineSensors.W.ambient);
+      */
+      printf("raw: N: %d, E: %d, S: %d, W: %d, filtered: N: %d, E: %d, S: %d, W: %d\n",
+             lineSensors.N.active,
+             lineSensors.E.active,
+             lineSensors.S.active,
+             lineSensors.W.active,
+             lineSensorsFiltered.N.active,
+             lineSensorsFiltered.E.active,
+             lineSensorsFiltered.S.active,
+             lineSensorsFiltered.W.active);
       RV_waitForNewData();
     }
     

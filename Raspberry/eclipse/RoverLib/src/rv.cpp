@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include "rv_log.h"
+#include "rv_filter.h"
 #include "rv_exchange.h"
 #include "rv_loop.h"
 #include "rv_reg.h"
@@ -50,7 +51,8 @@ extern int RV_start() {
 	SAFE_INVOKE(EX_setup(), result, RV_START_FAILED)
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
 	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
-	SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
+    SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
+    SAFE_INVOKE(RV_initLineSensorFilters(), result, RV_START_FAILED)
 	SAFE_INVOKE(LP_start(), result, RV_START_FAILED)
 
 	LG_logExit(__func__, result, NULL);
@@ -186,6 +188,17 @@ extern int RV_getLineSensors(RV_LineSensors* lineSensors)
 	}
 	LG_logExit(__func__, result, "NO RESULT");
 	return result;
+}
+
+extern int RV_getLineSensorsFiltered(RV_LineSensors* lineSensors)
+{
+    int result = OK;
+    LG_logEntry(__func__, "lineSensors: %p", lineSensors);
+
+    result = RV_getFilteredLineSensors(lineSensors);
+
+    LG_logExit(__func__, result, "lineSensor N: %d, E: %d, S: %d, W: %d", lineSensors->N.active, lineSensors->E.active, lineSensors->S.active, lineSensors->W.active);
+    return result;
 }
 
 extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors)

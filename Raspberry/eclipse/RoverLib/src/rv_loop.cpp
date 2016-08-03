@@ -7,6 +7,7 @@
 #include "rv_log.h"
 #include "rv_exchange.h"
 #include "rv_trace.h"
+#include "rv_filter.h"
 #include "rv_server.h"
 
 #define SAFE_INVOKE(f, r, c) \
@@ -121,6 +122,7 @@ static void* lp_main(void* args) {
 	lp_running = true;
 	while ((lp_running) and (result == OK)) {
 		result = EX_communicate();
+		result = RV_filterLineSensorFilter();
 		result = TR_traceRegmap();
 		result = SV_send();
 		result = OK;

@@ -112,6 +112,7 @@ extern int RV_move(int leftDirection, // RV_FORWARD, RV_BACKWARD
         int rightDC);
 
 extern int RV_getLineSensors(RV_LineSensors* lineSensors);
+extern int RV_getLineSensorsFiltered(RV_LineSensors* lineSensors);
 
 extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors);
 
