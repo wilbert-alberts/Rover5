@@ -109,19 +109,16 @@ static int ex_communicateSPI() {
 		REG_logAll(&ex_buffer);
 	} 
 	if (result == OK) {
-	        uint8_t dcl;
-		uint8_t dcr;
-		uint8_t dirl;
-		uint8_t dirr;
-		REG_read8(REG_LEFTDIR, &dirl);
-		REG_read8(REG_LEFTDC, &dcl);
-		REG_read8(REG_RIGHTDIR, &dirr);
-		REG_read8(REG_RIGHTDC, &dcr);
+	    // Whatever the AVR sent back, we want to keep
+	    // the DC and direction registers. So we copy
+	    // the existing values over the ones we just
+	    // received before updating the registermap
+	    // as a whole.
+		REG_read8(REG_LEFTDIR, &ex_buffer.LEFTDIR);
+		REG_read8(REG_LEFTDC, &ex_buffer.LEFTDC);
+		REG_read8(REG_RIGHTDIR, &ex_buffer.RIGHTDIR);
+		REG_read8(REG_RIGHTDC, &ex_buffer.RIGHTDC);
 		REG_writeAll(&ex_buffer);
-		REG_write8(REG_LEFTDIR, dirl);
-		REG_write8(REG_LEFTDC, dcl);
-		REG_write8(REG_RIGHTDIR, dirr);
-		REG_write8(REG_RIGHTDC, dcr);
 	}
 	
 	//SAFE_INVOKE(REG_writeAll(&ex_buffer), result, RV_EXCHANGESPI_FAILED)

@@ -27,21 +27,15 @@ extern void COMM_setup() {
 	pinMode(PIN_ACKEXC, OUTPUT);
 	pinMode(MISO, OUTPUT);
 	pinMode(MOSI, INPUT);
-//  pinMode(PIN_RECEIVING, OUTPUT);
-//  pinMode(PIN_RTS, INPUT);
-
-	pinMode(43, OUTPUT);
 
 	digitalWrite(PIN_ACKEXC, LOW);
 	digitalWrite(MISO, LOW);
-//  digitalWrite(PIN_RECEIVING, LOW);
 
 	SPCR |= _BV(SPE);
 
 }
 
 extern void COMM_loop() {
-	static int s = HIGH;
 	if (digitalRead(PIN_REQEXC) == HIGH) {
 		comm_doExchange();
 	}
@@ -126,34 +120,17 @@ static void comm_AcknowledgeRequest() {
 
 ISR (SPI_STC_vect)
 {
-	PORTL |= _BV(PL6);     // digitalWrite(43, HIGH);
 	SPDR = *comm_SendPtr++;// 1us
 	*comm_RecvPtr++ = SPDR;// 0.75us
 	comm_NrBytesReceived++;// 0.25us
 	comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);// 0.5us
-//    digitalWrite(PIN_RECEIVING, LOW);
-	PORTL &= ~(_BV(PL6));// digitalWrite(43, HIGH);
 }
 
 static void comm_Exchange() {
-	/*
-	 while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-
-	 while ((SPSR & _BV(SPIF)) ==0 )
-	 MDC_checkAlive();
-
-	 digitalWrite(43, HIGH);
-	 SPDR = *comm_SendPtr++;
-	 *comm_RecvPtr++ = SPDR;
-	 comm_NrBytesReceived++;
-	 comm_Ready = comm_NrBytesReceived >= sizeof(comm_SendBuffer);
-	 digitalWrite(43, LOW);
-	 }
-	 */
-
-	while ((!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
-		//if (digitalRead(PIN_RTS) == HIGH)
-		//  digitalWrite(PIN_RECEIVING, HIGH);
+  bool alive = true;
+	
+	while (alive && (!comm_Ready) && (digitalRead(PIN_REQEXC) == HIGH)) {
+    alive = MDC_checkAlive();
 		delay(1);
 	}
 	SPI.detachInterrupt();
@@ -173,8 +150,6 @@ static void comm_EmptyReceiveBuffer() {
 }
 
 static void comm_EndExchange() {
-	//digitalWrite(PIN_RECEIVING, LOW);
-
 	while (digitalRead(PIN_REQEXC) == HIGH) {
 		MDC_checkAlive();
 	}

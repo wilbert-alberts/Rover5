@@ -6,6 +6,8 @@ C_UPPER_SRCS :=
 CXX_SRCS := 
 OBJ_SRCS := 
 C++_SRCS := 
+INO_SRCS := 
+PDE_SRCS := 
 CC_SRCS := 
 ASM_SRCS := 
 CPP_SRCS := 
@@ -18,6 +20,8 @@ ARCHIVES :=
 C_UPPER_DEPS := 
 CXX_DEPS := 
 OBJS := 
+INO_DEPS := 
+PDE_DEPS := 
 CPP_DEPS := 
 C_DEPS := 
 

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include "rv_log.h"
-#include "rv_filter.h"
 #include "rv_exchange.h"
 #include "rv_loop.h"
 #include "rv_reg.h"
@@ -52,7 +51,6 @@ extern int RV_start() {
 	SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
 	SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
     SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
-    SAFE_INVOKE(RV_initLineSensorFilters(), result, RV_START_FAILED)
 	SAFE_INVOKE(LP_start(), result, RV_START_FAILED)
 
 	LG_logExit(__func__, result, NULL);
@@ -180,26 +178,24 @@ extern int RV_getLineSensors(RV_LineSensors* lineSensors)
 	};
 	LG_logEntry(__func__, "NOT IMPLEMENTED");
 
-	for (unsigned int i=0; i< sizeof(registers)/sizeof(int); i++) {
+	for (unsigned int i=0; (result == OK) && (i < sizeof(registers)/sizeof(int)); i++) {
 		SAFE_INVOKE(REG_read16(registers[i], &v), result, RV_GET_ANALOGLINE_FAILED)
 		if (result == OK) {
 			*(destinations[i]) = v;
 		}
 	}
-	LG_logExit(__func__, result, "NO RESULT");
+    LG_logExit(__func__, result, "lineSensors N: (%d, %d), E: (%d, %d), S: (%d, %d), W: (%d, %d)",
+            lineSensors->N.active,
+            lineSensors->N.ambient,
+            lineSensors->E.active,
+            lineSensors->E.ambient,
+            lineSensors->S.active,
+            lineSensors->S.ambient,
+            lineSensors->W.active,
+            lineSensors->W.ambient);
 	return result;
 }
 
-extern int RV_getLineSensorsFiltered(RV_LineSensors* lineSensors)
-{
-    int result = OK;
-    LG_logEntry(__func__, "lineSensors: %p", lineSensors);
-
-    result = RV_getFilteredLineSensors(lineSensors);
-
-    LG_logExit(__func__, result, "lineSensor N: %d, E: %d, S: %d, W: %d", lineSensors->N.active, lineSensors->E.active, lineSensors->S.active, lineSensors->W.active);
-    return result;
-}
 
 extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors)
 {
@@ -228,14 +224,22 @@ extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors)
 	};
 
 	LG_logEntry(__func__, "NOT IMPLEMENTED");
-    for (unsigned int i=0; i< sizeof(registers)/sizeof(int); i++) {
+    for (unsigned int i=0; (result == OK) && (i< sizeof(registers)/sizeof(int)); i++) {
         SAFE_INVOKE(REG_read16(registers[i], &v), result, RV_GET_ANALOGLINE_FAILED)
         if (result == OK) {
             *(destinations[i]) = v;
         }
     }
-	LG_logExit(__func__, result, "NO RESULT");
-	return result;
+    LG_logExit(__func__, result, "lineSensors N: (%d, %d), E: (%d, %d), S: (%d, %d), W: (%d, %d)",
+            collisionSensors->NE.active,
+            collisionSensors->NE.ambient,
+            collisionSensors->SE.active,
+            collisionSensors->SE.ambient,
+            collisionSensors->SW.active,
+            collisionSensors->SW.ambient,
+            collisionSensors->NW.active,
+            collisionSensors->NW.ambient);
+    return result;
 }
 
 extern int RV_waitForNewData()

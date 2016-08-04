@@ -24,6 +24,7 @@ extern bool MDC_checkAlive()
   {
      analogWrite(PIN_PWM_LEFT,0);
      analogWrite(PIN_PWM_RIGHT,0);
+     Serial.println("Connection with Pi lost. Motors shutdown.");
   }
   return result;
 }
