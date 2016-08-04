@@ -3,6 +3,22 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+#ifdef LINUX
+#include <sys/timerfd.h>
+#else
+
+/* Section to allow compilation under cygwin on windows. */
+
+int timerfd_create(int clockid, int flags) { return 0; }
+int timerfd_settime(int fd, int flags,
+                    const struct itimerspec *new_value,
+                    struct itimerspec *old_value) { return 0; }
+
+int timerfd_gettime(int fd, struct itimerspec *curr_value) { return 0; }
+
+#endif
+
+
 #include "rv.h"
 #include "rv_log.h"
 #include "rv_exchange.h"
@@ -119,6 +135,19 @@ static void* lp_main(void* args) {
 
 	LG_logEntry(__func__, NULL);
 
+	struct itimerspec tmr;
+	int timerfd;
+	long period = 1000000000L/loop_frequency;
+	uint64_t overruns;
+
+    tmr.it_interval.tv_sec = 0;
+    tmr.it_interval.tv_nsec = period;
+    tmr.it_value.tv_sec = 0;
+    tmr.it_value.tv_nsec = period;
+
+	timerfd = timerfd_create(CLOCK_MONOTONIC,  0);
+	timerfd_settime(timerfd, 0, &tmr, NULL);
+
 	lp_running = true;
 	while ((lp_running) and (result == OK)) {
 		result = EX_communicate();
@@ -128,9 +157,13 @@ static void* lp_main(void* args) {
 		result = OK;
 
 		SAFE_INVOKE(lp_notifyWaiters(), result, RV_LOOP_ABORTED)
-		usleep(1000000ul / loop_frequency);
-	}
 
+		result = read(timerfd, &overruns, sizeof(uint64_t));
+		if (result<0) {
+		    result = RV_LOOP_ABORTED;
+		}
+	}
+	close(timerfd);
 	LG_logExit(__func__, result, NULL);
 	printf("Loop ended: %d\n", result);
 	return NULL;

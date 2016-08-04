@@ -16,6 +16,7 @@
 static REG_map* tr_buffer;
 static int tr_bufferIndex;
 static int tr_bufferSize;
+static bool tr_bufferOverrun;
 
 static int TR_dumpBuffer(FILE* of, int idx);
 
@@ -25,6 +26,7 @@ extern int TR_setup(int size) {
 
 	tr_bufferIndex = 0;
 	tr_bufferSize = size;
+	tr_bufferOverrun = false;
 
 	tr_buffer = (REG_map*)calloc(size, sizeof(REG_map));
 	if (tr_buffer == NULL) {
@@ -40,6 +42,8 @@ extern int TR_traceRegmap() {
 	LG_logEntry(__func__, NULL);
 
 	REG_readAll(tr_buffer + tr_bufferIndex);
+
+	tr_bufferOverrun |= (1+tr_bufferIndex==tr_bufferSize);
 	tr_bufferIndex = (1 + tr_bufferIndex) % tr_bufferSize;
 
 	LG_logExit(__func__, result, NULL);
@@ -48,6 +52,7 @@ extern int TR_traceRegmap() {
 
 extern int TR_dumpBuffers(FILE* of) {
 	int result = OK;
+	int idx;
 	LG_logEntry(__func__, "of: %p", of);
 
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
@@ -55,13 +60,21 @@ extern int TR_dumpBuffers(FILE* of) {
 	}
 	fprintf(of,"\n");
 
-	int idx = (tr_bufferIndex + 1) % tr_bufferSize;
+	if (tr_bufferOverrun ) {
+	    idx = (tr_bufferIndex + 1) % tr_bufferSize;
+	}
+	else {
+	    idx=0;
+	}
 	do
 	{
 		result = TR_dumpBuffer(of, idx);
 
 		idx = (idx + 1) % tr_bufferSize;
 	} while ((result == OK) && (idx != tr_bufferIndex));
+
+    tr_bufferIndex = 0;
+    tr_bufferOverrun = false;
 
 	LG_logExit(__func__, result, NULL);
 	return result;
@@ -75,7 +88,7 @@ static int TR_dumpBuffer(FILE* of, int idx) {
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
 		result = REG_readLong(src, idx, &v);
 		if (result == OK)
-			fprintf(of, "%ld",  v);
+			fprintf(of, "%ld\t",  v);
 	}
 	fprintf(of,"\n");
 
