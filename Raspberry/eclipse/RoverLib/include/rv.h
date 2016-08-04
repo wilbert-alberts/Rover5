@@ -59,66 +59,115 @@
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)
 
-// Mask for the LINE register
-#define REG_LINE_N (1<<0)
-#define REG_LINE_E (1<<1)
-#define REG_LINE_S (1<<2)
-#define REG_LINE_W (1<<3)
-
-// Mask for the COLLISION register
-#define REG_COL_NE (1<<0)
-#define REG_COL_SE (1<<1)
-#define REG_COL_SW (1<<2)
-#define REG_COL_NW (1<<3)
-
+/* RV_IRSensor struct holds values representing the output
+ * of a IR sensor. As each sensor is read twice, (once
+ * with illumination on and once without illumination),
+ * two fields are present:
+ * - active: reading with illumination ON
+ * - ambient: reading with illumination OFF
+ *
+ * The readings are the direct outputs of the AVR AD converters.
+ * As the AVR AD converters have a resolution of 10 bits,
+ * the range of values varies from 0 to 1023.
+ */
 typedef struct
 {
     int ambient;
     int active;
 } RV_IRSensor;
 
+
+/* RV_CollisionSensors and RV_LineSensors represent the outputs
+ * of the collision and line sensors. They are organized along
+ * their orientation.
+ */
 typedef struct
 {
-    RV_IRSensor NE;
-    RV_IRSensor SE;
-    RV_IRSensor SW;
-    RV_IRSensor NW;
+    RV_IRSensor NE;       // North East
+    RV_IRSensor SE;       // South East
+    RV_IRSensor SW;       // South West
+    RV_IRSensor NW;       // North West
 } RV_CollisionSensors;
 
 typedef struct
 {
-    RV_IRSensor N;
-    RV_IRSensor E;
-    RV_IRSensor S;
-    RV_IRSensor W;
+    RV_IRSensor N;       // North
+    RV_IRSensor E;       // East
+    RV_IRSensor S;       // South
+    RV_IRSensor W;       // West
 } RV_LineSensors;
 
+/* The following function enable and disable function tracing.
+ * This can be done for the user side and for the thread that
+ * executes the periodical loop.
+ *
+ * Note that these functions can be called even before
+ * RV_start()
+ */
 extern int RV_loopLoggingOn();
 extern int RV_loopLoggingOff();
 extern int RV_loggingOn();
 extern int RV_loggingOff();
 
+/* RV_start initializes the hardware and starts the periodical
+ * loop.
+ */
 extern int RV_start();
+
+/* RV_setFrequency can be used to set the frequency of the
+ * periodicaly loop.
+ */
 extern int RV_setFrequency(int herz);
 
+/* RV_stop signals the periodical loop to stop. It does
+ * not wait for the thread executing the loop to end.
+ */
 extern int RV_stop();
 
+/* RV_waitForNewData blocks until the periodical loop has
+ * executed at least once more and new data is available.
+ * This function can be used to run in sync with the
+ * periodical loop.
+ */
 extern int RV_waitForNewData();
 
+/* RV_getPosition returns the values of the position sensors.
+ * Note that these sensors measure the rotation of the wheels
+ * which, due to slip, does not necessarly directly translate
+ * linearly a position in the real world.
+ */
 extern int RV_getPosition(long* leftPos, long* rightPos);
 
-extern int RV_move(int leftDirection, // RV_FORWARD, RV_BACKWARD
-        int rightDirection, int leftDC,        // from 0 to 255
+/* RV_move instructs the Rover to move. Movement is controlled
+ * by specifying a direction for each track and a duty cycle
+ * for the motors for each track.
+ */
+extern int RV_move(int leftDirection,      // RV_FORWARD, RV_BACKWARD
+        int rightDirection, int leftDC,    // from 0 to 255
         int rightDC);
 
+/* RV_getLineSensors returns the values of the linesensors
+ * represented by a RV_LineSensors struct.
+ */
 extern int RV_getLineSensors(RV_LineSensors* lineSensors);
 extern int RV_getLineSensorsFiltered(RV_LineSensors* lineSensors);
 
+/* RV_getCollisionSensors returns the values of the collisionsensors
+ * represented by a RV_CollisionSensors struct.
+ */
 extern int RV_getCollisionSensors(RV_CollisionSensors* collisionSensors);
 
-/* Expert usage */
+/* RV_getAVRTime returns the time the AVR has been running expressed in
+ * milli- and microseconds. The AVR uses 32bit integers for these values
+ * so after approx 70 minutes, the micros value will wrap around.
+ * After 49 days, the millis will wrap around.
+ */
 extern int RV_getAVRTime(long* millis, long* micros);
 
+/* The periodical loop maintains a cyclic buffer of 1000 entries of
+ * RegistersMaps. RV_dumpBuffersToFile leads to dumping their
+ * content into a file named by 'name'.
+ */
 extern int RV_dumpBuffersToFile(const char* name);
 
 #endif
