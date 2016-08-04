@@ -13,7 +13,18 @@
  *      Copyright: ASML.
  */
 
+/*
+ * ---------------------------------------------------------------------------
+ *               Includes
+ * ---------------------------------------------------------------------------
+ */
 #include <stdint.h>
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Defines
+ * ---------------------------------------------------------------------------
+ */
 
 /* Result codes returned by any of the Rover's functions. Anything else then
  * zero indicates an error.
@@ -59,6 +70,13 @@
 #define RV_FORWARD   (0)
 #define RV_BACKWARD  (1)
 
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Type definitions
+ * ---------------------------------------------------------------------------
+ */
+
 /* RV_IRSensor struct holds values representing the output
  * of a IR sensor. As each sensor is read twice, (once
  * with illumination on and once without illumination),
@@ -96,6 +114,14 @@ typedef struct
     RV_IRSensor S;       // South
     RV_IRSensor W;       // West
 } RV_LineSensors;
+
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Function prototypes
+ * ---------------------------------------------------------------------------
+ */
+
 
 /* The following function enable and disable function tracing.
  * This can be done for the user side and for the thread that
@@ -143,14 +169,14 @@ extern int RV_getPosition(long* leftPos, long* rightPos);
  * for the motors for each track.
  */
 extern int RV_move(int leftDirection,      // RV_FORWARD, RV_BACKWARD
-        int rightDirection, int leftDC,    // from 0 to 255
-        int rightDC);
+                   int rightDirection,
+                   int leftDC,             // from 0 to 255
+                   int rightDC);
 
 /* RV_getLineSensors returns the values of the linesensors
  * represented by a RV_LineSensors struct.
  */
 extern int RV_getLineSensors(RV_LineSensors* lineSensors);
-extern int RV_getLineSensorsFiltered(RV_LineSensors* lineSensors);
 
 /* RV_getCollisionSensors returns the values of the collisionsensors
  * represented by a RV_CollisionSensors struct.

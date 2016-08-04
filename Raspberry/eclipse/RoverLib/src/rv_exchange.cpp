@@ -1,8 +1,27 @@
 /*
  * rv_exchange.cpp
  *
+ * This module realizes interaction with the AVR.
+ *
+ * Interaction with the AVR consists of the following phases:
+ * - The PI indicates that it wants to exchange and waits for the AVR to
+ *   become ready
+ * - The AVR prepares and indicates that it is ready to exchange
+ * - Pi and AVR exchange using SPI
+ * - The PI indicates end of transmission and waits on AVR to acknowledge.
+ * - The AVR acknowledges end of transmission
+ *
  *  Created on: Jun 27, 2016
  *      Author: walberts
+ *      Copyright: ASML.
+ *
+ *
+ */
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Includes
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -14,11 +33,15 @@
 #include "rv_log.h"
 #include "rv_reg.h"
 
-#define REQEXC (5)
-#define ACKEXC (6)
+/*
+ * ---------------------------------------------------------------------------
+ *               Defines
+ * ---------------------------------------------------------------------------
+ */
+
+#define REQEXC  (5)
+#define ACKEXC  (6)
 #define SS     	(4)
-//#define RTS 	(3)  
-//#define RECEIVING	(7)
 
 #define SPICHANNEL (0)
 #define SPISPEED   (2000000UL) // 2Mhz
@@ -30,21 +53,46 @@
 			r = c; \
 	}
 
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Static function declarations.
+ * ---------------------------------------------------------------------------
+ */
+
 static int ex_communicateSPI();
 static int ex_fillHeaderTrailer(REG_map* m);
 static int ex_checkHeaderTrailer(REG_map* m);
 static void ex_logBuffer(REG_map* m);
 static void ex_mysleep(int ndelay);
 
+/*
+ * ---------------------------------------------------------------------------
+ *               Static module data.
+ * ---------------------------------------------------------------------------
+ */
+
 int ex_spiByteDelay = 7000; // in nanoseconds; e.g. 7 us
 
 static REG_map ex_buffer;
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Module implementation
+ * ---------------------------------------------------------------------------
+ */
 
 extern int EX_setup() {
 	int result = OK;
 	int fd = 0;
 	LG_logEntry(__func__, NULL);
 
+	/* Set data directions on a number of pins.
+	 *
+	 * SS - Slave select is output for PI
+	 * REQEXC - Request exchange is output for PI
+	 * ACKEXC - Acknowledge exchange request is input for PI.
+	 */
 	pinMode(SS, OUTPUT);
 	digitalWrite(SS, HIGH);
 
@@ -53,6 +101,7 @@ extern int EX_setup() {
 
 	pinMode(ACKEXC, INPUT);
 
+	/* Setup SPI channel and speed */
 	fd = wiringPiSPISetup(SPICHANNEL, SPISPEED);
 	result = (fd == -1) ? RV_EXCHANGE_SETUP_FAILED : OK;
 
@@ -60,17 +109,26 @@ extern int EX_setup() {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 extern int EX_communicate() {
 	int result = OK;
 	LG_logEntry(__func__, NULL);
 
+	/* Request exchange by setting REQEXC HIGH */
 	digitalWrite(REQEXC, HIGH);
+	/* Wait for AVR to acknowledge */
 	while ((result == OK) and (digitalRead(ACKEXC) == LOW))
 		; // Busy wait
 
+	/* SPI exchange */
 	SAFE_INVOKE(ex_communicateSPI(), result, RV_EXCHANGE_FAILED)
 
+	/* Indicate end of exchange */
 	digitalWrite(REQEXC, LOW);
+	/* Wait for AVR to acknowledge */
 	while ((digitalRead(ACKEXC) == HIGH))
 		; // Busy wait
 
@@ -79,36 +137,55 @@ extern int EX_communicate() {
 }
 
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 static int ex_communicateSPI() {
 	int result = OK;
 	LG_logEntry(__func__, NULL);
 	uint8_t* b;
 	// const struct timespec delta = { 0, 1 };
 
+	/* Retrieve data to be exchanged from register map */
 	REG_readAll(&ex_buffer);
+
+	/* Ensure that header and trailer are properly filled */
 	SAFE_INVOKE(ex_fillHeaderTrailer(&ex_buffer), result,
 			RV_EXCHANGESPI_FAILED)
 
+	/* Pull down slave select. This signals the AVR
+	 * that SPI data is coming.
+	 * */
 	digitalWrite(SS, LOW);
 
+	/* Due to the fact that the AVR requires a little bit of time
+	 * between two bytes, we need to perform the transfer byte
+	 * by byte.
+	 */
 	b = (uint8_t*) &ex_buffer;
 	for (unsigned int i = 0; i < sizeof(ex_buffer); i++) {
 
+	    /* Exchange exactly one byte */
 		wiringPiSPIDataRW(SPICHANNEL, (unsigned char*) (b + i), 1);
 
 		///We need to sleep here for a little while ~20us
 		ex_mysleep(ex_spiByteDelay);
 	}
 
+	/* Indicate end of SPI transfer by making Slave select high */
 	digitalWrite(SS, HIGH);
 
+	/* Check integrity of message received from AVR */
 	SAFE_INVOKE(ex_checkHeaderTrailer(&ex_buffer), result,
 			RV_EXCHANGESPI_FAILED)
+
+	/* If data is not OK, log to console */
 	if (result != OK) {
 		ex_logBuffer(&ex_buffer);
 		REG_logAll(&ex_buffer);
 	} 
-	if (result == OK) {
+	else {
 	    // Whatever the AVR sent back, we want to keep
 	    // the DC and direction registers. So we copy
 	    // the existing values over the ones we just
@@ -121,11 +198,13 @@ static int ex_communicateSPI() {
 		REG_writeAll(&ex_buffer);
 	}
 	
-	//SAFE_INVOKE(REG_writeAll(&ex_buffer), result, RV_EXCHANGESPI_FAILED)
-
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 static int ex_fillHeaderTrailer(REG_map* m) {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
@@ -148,6 +227,10 @@ static int ex_fillHeaderTrailer(REG_map* m) {
 
 	return OK;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 static int ex_checkHeaderTrailer(REG_map* m) {
 	uint8_t* header = (uint8_t*) (&m->HEADER);
@@ -172,12 +255,27 @@ static int ex_checkHeaderTrailer(REG_map* m) {
 	return OK;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * Dump registermap to stdout for diagnostic purposes.
+ */
+
 static void ex_logBuffer(REG_map* m) {
 	uint8_t* p = (uint8_t*) m;
 	for (unsigned int i = 0; i < sizeof(REG_map); i++) {
 		printf("%d: %d\n", i, p[i]);
 	}
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * We need to sleep for a small delay. The linux scheduler does not allow
+ * us to sleep for that duration. Therefore we use some kind of busy waiting
+ * here.
+ *
+ */
 
 static void ex_mysleep(int ndelay)
 {

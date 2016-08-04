@@ -1,3 +1,24 @@
+/*
+ * rv_reg.cpp - Realizing operations on the register map
+ *
+ *
+ * In order to allow efficient reading/writing of registers, a map
+ * is calculated translating each register index into a pointer to
+ * the memory location of the current REG_map. This map is initialized
+ * by REG_setup.
+ *
+ *
+ *  Created on: Jul 27, 2016
+ *      Author: walberts
+ *      Copyright: ASML.
+ */
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Includes
+ * ---------------------------------------------------------------------------
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <semaphore.h>
@@ -7,6 +28,11 @@
 #include "rv_log.h"
 #include "rv_reg.h"
 
+/*
+ * ---------------------------------------------------------------------------
+ *               Defines
+ * ---------------------------------------------------------------------------
+ */
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
 		r = f; \
@@ -14,22 +40,71 @@
 			r = c; \
 	}
 
+/*
+ * REG_ADDREGISTER adds a register to the administration. It stores the
+ * address of the data w.r.t. the current register map and it records
+ * the name of the register in the map of registernames.
+ */
 #define REG_ADDREGISTER(R) 							\
   reg_address[REG_ ## R] = (uint8_t*) &reg_map.R; 	\
   reg_name[REG_ ## R] = #R;
 
-static REG_map reg_map;
-static sem_t reg_sem;
-static uint8_t* reg_address[REG_MAX];
-static const char* reg_name[REG_MAX];
+/*
+ * The LOG macros below allow type dependent logging of register
+ * values to stdout. They are used by REG_logAll
+ */
+#define LOG_U32(S, R) \
+{\
+    uint32_t* v = (uint32_t*) (&(S->R));        \
+    printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+}
+
+#define LOG_32(S, R) \
+{\
+    int32_t* v = (int32_t*) (&(S->R));       \
+    printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+}
+
+#define LOG_U16(S, R) \
+{\
+    uint16_t* v = (uint16_t*) (&(S->R));        \
+    printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+}
+
+#define LOG_U8(S, R) \
+{\
+    uint8_t* v = (uint8_t*) (&(S->R));       \
+    printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Static module data
+ * ---------------------------------------------------------------------------
+ */
+
+static REG_map reg_map;   // The current register map
+static sem_t reg_sem;     // Semaphore protecting access to current register map
+static uint8_t* reg_address[REG_MAX];  // Map with register locations
+static const char* reg_name[REG_MAX];  // Map with register names
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Module implementation
+ * ---------------------------------------------------------------------------
+ */
 
 extern int REG_setup() {
 	int result = OK;
 	LG_logEntry(__func__, NULL);
 
+	/* Fill the registermap with zeros and initialize
+	 * the protection semaphore
+	 */
 	bzero(&reg_map, sizeof(reg_map));
 	SAFE_INVOKE(sem_init(&reg_sem, 0, 1), result, RV_SEM_INIT_FAILED)
 
+	/* Initialize the name and location maps */
 	if (result == OK) {
 		REG_ADDREGISTER(HEADER)
 		REG_ADDREGISTER(MICROS)
@@ -63,6 +138,19 @@ extern int REG_setup() {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ * Read/Write operations
+ *
+ * Each read and write operations tries to wait for the protection
+ * semaphore before actually reading/writing a registers. Obviously
+ * the semaphore is released before exiting the function.
+ *
+ * Each access consists of determining the memory location, casting
+ * it to a destination suitable to hold the data type (8, 16 or 32 bit),
+ * and then reading/writing into that location.
+ */
+
 extern int REG_write8(int id, uint8_t val) {
 	int result = OK;
 	LG_logEntry(__func__, "id: %d, val: %d", id, val);
@@ -77,6 +165,10 @@ extern int REG_write8(int id, uint8_t val) {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 extern int REG_write16(int id, uint16_t val) {
 	int result = OK;
 	LG_logEntry(__func__, "id: %d, val: %d", id, val);
@@ -89,6 +181,10 @@ extern int REG_write16(int id, uint16_t val) {
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 extern int REG_write32(int id, int32_t val) {
 	int result = OK;
@@ -103,6 +199,10 @@ extern int REG_write32(int id, int32_t val) {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 extern int REG_read8(int id, uint8_t* val) {
 	int result = OK;
 	LG_logEntry(__func__, "id: %d, val: %p", id, val);
@@ -115,6 +215,10 @@ extern int REG_read8(int id, uint8_t* val) {
 	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 extern int REG_read16(int id, uint16_t* val) {
 	int result = OK;
@@ -129,6 +233,10 @@ extern int REG_read16(int id, uint16_t* val) {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 extern int REG_read32(int id, int32_t* val) {
 	int result = OK;
 	LG_logEntry(__func__, "id: %d, val: %p", id, val);
@@ -141,6 +249,21 @@ extern int REG_read32(int id, int32_t* val) {
 	LG_logExit(__func__, result, "*val: %d", *val);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * REG_readLong reads an arbitrary register and stores the result into a
+ * long variable. Note that this operation contains a switch statement
+ * making it unsuitable for regular usage inside a time critical section.
+ *
+ * As this operation works on a registermap represented by 'src', the
+ * regular map with memory locations per register doesn't work here.
+ * Instead, the map is used to determine an offset w.r.t. the start
+ * address of the memory structure. Then, this offset is used in
+ * combination with 'src' in order to determine the memory location
+ * holding the value to be retrieved.
+ */
 
 extern int REG_readLong(REG_map* src, int id, long* val) {
 	int result = OK;
@@ -204,6 +327,12 @@ extern int REG_readLong(REG_map* src, int id, long* val) {
 
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * REG_readAll, copy the current registermap into dst
+ */
+
 extern int REG_readAll(REG_map* dst) {
 	int result = OK;
 	LG_logEntry(__func__, "dst: %p", dst);
@@ -215,6 +344,12 @@ extern int REG_readAll(REG_map* dst) {
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * REG_writeAll, copy 'src' into the current registermap
+ */
 
 extern int REG_writeAll(REG_map* src) {
 	int result = OK;
@@ -228,6 +363,10 @@ extern int REG_writeAll(REG_map* src) {
 	return result;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ */
+
 extern const char* REG_getRegistername(int idx) {
 	if ((idx >= 0) && (idx < REG_MAX)) {
 		return reg_name[idx];
@@ -235,29 +374,9 @@ extern const char* REG_getRegistername(int idx) {
 	return NULL;
 }
 
-#define LOG_U32(S, R) \
-{\
-	uint32_t* v = (uint32_t*) (&(S->R));        \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
-}
-
-#define LOG_32(S, R) \
-{\
-	int32_t* v = (int32_t*) (&(S->R));       \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
-}
-
-#define LOG_U16(S, R) \
-{\
-	uint16_t* v = (uint16_t*) (&(S->R));        \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
-}
-
-#define LOG_U8(S, R) \
-{\
-	uint8_t* v = (uint8_t*) (&(S->R));       \
-	printf("%s: 0x%0x\n", reg_name[REG_ ## R], *v); \
-}
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 extern void REG_logAll(REG_map* src) {
 	printf("reg_map: \n");

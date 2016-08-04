@@ -3,6 +3,13 @@
  *
  *  Created on: Jul 27, 2016
  *      Author: walberts
+ *      Copyright: ASML.
+ */
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Includes
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -18,9 +25,13 @@
 #include "rv.h"
 #include "rv_reg.h"
 #include "rv_log.h"
+#include "rv_server.h"
 
-#define ROVER_PORT (34343)
-
+/*
+ * ---------------------------------------------------------------------------
+ *               Defines
+ * ---------------------------------------------------------------------------
+ */
 #define SAFE_INVOKE(f, r, c) \
 	if (r==OK) { \
 		r = f; \
@@ -30,17 +41,40 @@
 		} \
 	}
 
-static int   sv_socketFD;
-static int   sv_connectionFD;
-static bool  sv_connected;
-static pthread_t SV_TID;
-static sighandler_t sv_PrevHandler;
+/*
+ * ---------------------------------------------------------------------------
+ *               Static module data
+ * ---------------------------------------------------------------------------
+ */
 
-static int sv_reconnect();
+static int   sv_socketFD;     // socket for incoming connections.
+static int   sv_connectionFD; // socket for active connection.
+static bool  sv_connected;    // whether a connection is active.
+static pthread_t SV_TID;      // thread id for listen operation.
+static sighandler_t sv_PrevHandler; // previous signal handler
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Static function declarations.
+ * ---------------------------------------------------------------------------
+ */
+
+static int sv_startListening();
 static void* sv_accept(void*);
 static int sv_sendMap();
 static void sv_handleSigpipe(int r);
 
+/*
+ * ---------------------------------------------------------------------------
+ *               Module implementation
+ * ---------------------------------------------------------------------------
+ */
+
+/* SV_start sets up sockets to start listening for incoming connections.
+ * It also installs a signal handler in order to detect closed
+ * connections. Finally it invokes startListening which spawns
+ * the thread that listens for incoming connections.
+ */
 int SV_start()
 {
 	int result = OK;
@@ -48,10 +82,12 @@ int SV_start()
 
 	LG_logEntry(__func__, NULL);
 
+	/* Open socket that is to be bound to the ROVER_PORT */
 	sv_socketFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (sv_socketFD < 0)
 		result = RV_UNABLE_TO_GET_SOCKET;
 
+	/* Bind socket to port */
 	if (result == OK)
 	{
 		serv_addr.sin_family = AF_INET;
@@ -63,28 +99,38 @@ int SV_start()
 			result = RV_UNABLE_TO_BIND;
 	}
 
+	/* Install signal handler to react on connection closes. */
 	if (result == OK) {
 		sv_PrevHandler = signal(SIGPIPE, sv_handleSigpipe);
 		result = (sv_PrevHandler == SIG_ERR) ?  RV_UNABLE_INSTALL_SIGHANDLER: OK;
 	}
 
+	/* Start listening */
 	if (result == OK)
-		result = sv_reconnect();
+		result = sv_startListening();
 
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ */
 
 int SV_stop()
 {
 	int result = OK;
 	LG_logEntry(__func__, NULL);
 
+	/* Stop acting on connection closes, reinstall previous signal handler. */
 	signal(SIGPIPE, sv_PrevHandler);
 	sv_connected = false;
 
+	/* In case client was connected, close connection */
 	if (sv_connectionFD > 0)
 		close(sv_connectionFD);
+
+	/* In case we were listening, stop listening */
 	if (sv_socketFD > 0)
 		close(sv_socketFD);
 
@@ -92,25 +138,47 @@ int SV_stop()
 	return result;
 }
 
-int sv_reconnect()
+/*
+ * ---------------------------------------------------------------------------
+ * sv_startListening
+ *
+ * Creates the 'listen for incoming connections' thread.
+ * Before doing that, disconnect any pending connections.
+ */
+
+int sv_startListening()
 {
 	int result = OK;
 	LG_logEntry(__func__, NULL);
 
 	pthread_attr_t threadAttributes;
 	
+	/* If a client was connected, disconnect it */
 	if (sv_connectionFD > 0) {
 		close(sv_connectionFD);
 		sv_connectionFD = 0;
 		sv_connected = false;
 	}
 	
+	/* Initialize thread and spawn it. This thread blocks on listening
+	 * for incoming connections.
+	 */
 	pthread_attr_init(&threadAttributes);
 	result = pthread_create(&SV_TID, &threadAttributes, sv_accept, NULL);
 
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * sv_acccept
+ *
+ * Block on incoming connections. As soon a connection has been established,
+ * sv_connected is set to true resulting in writing to it whenever a
+ * new registermap has been received.
+ *
+ */
 
 void* sv_accept(void* )
 {
@@ -131,11 +199,20 @@ void* sv_accept(void* )
 	return NULL;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * SV_send in general is invoked from the periodical loop. It checks
+ * sv_connected in order to determine whether the current registermap
+ * should be written to the socket.
+ */
+
 int SV_send()
 {
 	int result = OK;
 
 	LG_logEntry(__func__, NULL);
+	/* If connected, write to socket */
 	if (sv_connected)
 	{
 		sv_sendMap();
@@ -143,6 +220,13 @@ int SV_send()
 	LG_logExit(__func__, OK, NULL);
 	return result;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * sv_sendMap retrieves the current registermap and writes it to the socket.
+ *
+ */
 
 int sv_sendMap()
 {
@@ -156,7 +240,15 @@ int sv_sendMap()
 	return result == sizeof(m) ? 0 : -1;
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ *
+ * In case the connection is terminated, SIGPIPE is send. sv_handleSigpipe
+ * handles that signal by start listening again,.
+ *
+ */
+
 void sv_handleSigpipe(int r)
 {
-	sv_reconnect();
+	sv_startListening();
 }
