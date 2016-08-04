@@ -4,12 +4,17 @@
 #include "rv.h"
 
 
-int mustStop(int s[4])
+int mustStop(RV_CollisionSensors* s)
 {
-    for (int i=0; i<4; i++) {
-    	if (s[i]>500)
-	    return 1;
-    }
+    int d = 30;
+    if (s->NE.active > d)
+	return 1;
+    if (s->SE.active > d)
+	return 1;
+    if (s->SW.active > d)
+	return 1;
+    if (s->NW.active > d)
+	return 1;
     return 0;
 }
 
@@ -18,29 +23,27 @@ int main (int argc, char* argv[])
 {
     long left;
     long right;
-    int sig[4];
-    int amb[4];
-    RV_LineSensors lineSensors;
     RV_LineSensors lineSensorsFiltered;
+    RV_LineSensors lineSensors;
+    RV_CollisionSensors collisionSensors;
 
     RV_loggingOff();
     RV_loopLoggingOff();
-    RV_setFrequency(100);
+    RV_setFrequency(50);
     RV_start();
-    while(21);
-    // RV_move(RV_BACKWARD, RV_BACKWARD, 70,70);
+    RV_move(RV_FORWARD, RV_FORWARD, 25,25);
     for (int i=0; i<10000; i++) {
-      //RV_getPosition(&left, &right);
+      RV_getPosition(&left, &right);
       //printf("left: %ld, right: %ld\n", left, right);
       
-      //RV_getAnalogCollision(sig, amb);
+      RV_getCollisionSensors(&collisionSensors);
       //printf("left: %ld, right: %ld, NE: %d, SE: %d, SW: %d, NW: %d\n", 
       // 	     left, right, sig[0], sig[1], sig[2], sig[3]);
       
-      //if (mustStop(sig)) {
-      //  RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
-      //  i=100000;
-      //}      
+      if (mustStop(&collisionSensors)) {
+        RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
+        i=100000;
+      }      
 
       RV_getLineSensors(&lineSensors);
       RV_getLineSensorsFiltered(&lineSensorsFiltered);
@@ -68,7 +71,7 @@ int main (int argc, char* argv[])
       RV_waitForNewData();
     }
     
-    //RV_dumpBuffersToFile("RV_trace.txt");
+    RV_dumpBuffersToFile("RV_trace.txt");
 
     RV_stop();
 }

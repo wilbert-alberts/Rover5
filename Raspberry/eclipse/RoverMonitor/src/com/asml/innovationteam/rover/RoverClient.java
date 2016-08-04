@@ -34,6 +34,7 @@ public class RoverClient {
 
 	interface IRoverChanged {
 		public void changed();
+		public void disconnected();
 	}
 
 	enum CollisionDirection {
@@ -209,15 +210,20 @@ public class RoverClient {
 					for (IRoverChanged l : listeners) {
 						l.changed();
 					}
-				}
+									}
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				for (IRoverChanged l : listeners) {
+					l.disconnected();
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e.printStackTrace();			
+				for (IRoverChanged l : listeners) {
+					l.disconnected();
+				}
 			}
-
 		}
 
 	}

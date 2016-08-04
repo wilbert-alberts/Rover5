@@ -44,8 +44,6 @@ extern void COMM_loop() {
 	static int s = HIGH;
 	if (digitalRead(PIN_REQEXC) == HIGH) {
 		comm_doExchange();
-		digitalWrite(13, s);
-		s = s == HIGH ? LOW : HIGH;
 	}
 }
 

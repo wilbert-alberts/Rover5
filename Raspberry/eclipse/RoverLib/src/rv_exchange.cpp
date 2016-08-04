@@ -107,8 +107,24 @@ static int ex_communicateSPI() {
 	if (result != OK) {
 		ex_logBuffer(&ex_buffer);
 		REG_logAll(&ex_buffer);
+	} 
+	if (result == OK) {
+	        uint8_t dcl;
+		uint8_t dcr;
+		uint8_t dirl;
+		uint8_t dirr;
+		REG_read8(REG_LEFTDIR, &dirl);
+		REG_read8(REG_LEFTDC, &dcl);
+		REG_read8(REG_RIGHTDIR, &dirr);
+		REG_read8(REG_RIGHTDC, &dcr);
+		REG_writeAll(&ex_buffer);
+		REG_write8(REG_LEFTDIR, dirl);
+		REG_write8(REG_LEFTDC, dcl);
+		REG_write8(REG_RIGHTDIR, dirr);
+		REG_write8(REG_RIGHTDC, dcr);
 	}
-	SAFE_INVOKE(REG_writeAll(&ex_buffer), result, RV_EXCHANGESPI_FAILED)
+	
+	//SAFE_INVOKE(REG_writeAll(&ex_buffer), result, RV_EXCHANGESPI_FAILED)
 
 	LG_logExit(__func__, result, NULL);
 	return result;

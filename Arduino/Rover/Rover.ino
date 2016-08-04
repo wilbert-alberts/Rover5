@@ -22,13 +22,14 @@ void setup() {
   //tst_movement();
   
   // put your setup code here, to run once
-  MDC_setup();
+  //MDC_setup();
   REG_setup();
   COL_setup();
   LINE_setup();
   MTR_setup();
   POS_setup();
   COMM_setup();
+  Serial.println("Setup ready");
 }
 
 void tst_line()
@@ -105,18 +106,23 @@ void tst_movement()
 }
 
 void loop() {
+  static int s=1;
+
   //Serial.print("loop: ");
   //Serial.println(millis());
   // put your main code here, to run repeatedly:
-
   REG_write32(REG_MICROS, micros());
   REG_write32(REG_MILLIS, millis());
-  
+
   COL_loop();
-  LINE_loop();
+  LINE_loop();  
   POS_loop();
   MTR_loop();
   COMM_loop();
+
+  digitalWrite(8, s);
+  s = 1-s;
+
 }
 
 
