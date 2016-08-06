@@ -84,10 +84,10 @@ void determineGainOffset(GainOffset* go, RV_LineSensors* ls, int nrsamples)
 	}
 
 	for (int i=4; i<nrsamples; i++) {
-		updateMinMax(&min[0],&max[0], ls->N.active);
-		updateMinMax(&min[1],&max[1], ls->E.active);
-		updateMinMax(&min[2],&max[2], ls->S.active);
-		updateMinMax(&min[3],&max[3], ls->W.active);
+		updateMinMax(&min[0],&max[0], ls[i].N.active);
+		updateMinMax(&min[1],&max[1], ls[i].E.active);
+		updateMinMax(&min[2],&max[2], ls[i].S.active);
+		updateMinMax(&min[3],&max[3], ls[i].W.active);
 	}
 
 	for (int i=0; i<4; i++) {

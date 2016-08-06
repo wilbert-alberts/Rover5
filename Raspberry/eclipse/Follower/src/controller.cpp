@@ -5,6 +5,7 @@
  *      Author: wilbert
  */
 
+#include <stdio.h>
 
 #include "pid.h"
 #include "controller.h"
@@ -30,6 +31,11 @@ int controlLoop(SensorStruct* s, ActuatorStruct* a)
 		out = 1.0;
 	if (out < -1.0)
 		out = -1.0;
+
+	a->right = out;
+	a->left = - out;
+
+	printf("%lf\t%lf\t%lf\t%lf\n", s->E, s->W, a->right, a->left);
 
 	return 0;
 }

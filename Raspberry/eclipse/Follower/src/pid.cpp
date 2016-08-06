@@ -7,7 +7,7 @@
 
 #include "pid.h"
 
-PID::PID(double kp, double ki, double kd, double period)
+PID::PID(double period, double kp, double ki, double kd)
 {
 	// TODO Auto-generated constructor stub
 	this->period = period;

@@ -15,6 +15,7 @@
 #include "actuator.h"
 
 #define COLLISIONSENS (130)
+#define FREQUENCY     (100)
 
 int checkCollision();
 
@@ -30,10 +31,15 @@ int main(int argc, char** argv)
 		printf("Unable to setup sensors.\n");
 		return -1;
 	}
+	if (controlSetup(FREQUENCY) != 0) {
+		printf("Unable to setup controller.\n");
+		return -1;
+	}
+
 
 	RV_loggingOff();
     RV_loopLoggingOff();
-    RV_setFrequency(100);
+    RV_setFrequency(FREQUENCY);
 
     printf("Position car such that it on top of and aligned with the line and press enter\n");
     scanf("%c", &c);
