@@ -11,6 +11,8 @@
 
 #define FREQUENCY     (100)
 #define MAXDURATION   (10)
+#define AMBDURATION   (5)
+#define NRAMBSAMPLES  (AMBDURATION * FREQUENCY)
 #define NRSAMPLES     (FREQUENCY * MAXDURATION)
 #define COLLISIONSENS (130)
 
@@ -21,8 +23,12 @@ typedef struct
 	double offset;
 } GainOffset;
 
-int mustStop(RV_CollisionSensors* s);
-void determineGainOffset(GainOffset* go, RV_LineSensors[], int nrsamples);
+int mustStop();
+void determineGainOffset(GainOffset* go, 
+		RV_LineSensors* ambient,
+		int nrAmbientSamples,
+		RV_LineSensors* ls, 
+		int nrsamples);
 void writeGainOffset(GainOffset* gof);
 
 
@@ -31,35 +37,37 @@ int main(int argc, char** argv)
 	char c;
     int i;
     RV_LineSensors lineSensors[NRSAMPLES];
-    RV_CollisionSensors collisionSensors;
+    RV_LineSensors ambient[NRAMBSAMPLES];
+    
     GainOffset gof[4];
 
     RV_loggingOff();
     RV_loopLoggingOff();
-    RV_setFrequency(100);
+    RV_setFrequency(FREQUENCY);
 
     printf("Position car such that it crosses the line and press enter\n");
     scanf("%c", &c);
 
     RV_start();
+    for (i=0; i<NRAMBSAMPLES; i++) {
+      RV_waitForNewData();
+      RV_getLineSensors(&ambient[i]);
+    }
+      
     for (i=0; i<NRSAMPLES; i++) {
-      RV_getCollisionSensors(&collisionSensors);
+      RV_waitForNewData();
 
-      if (mustStop(&collisionSensors)) {
-        RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
+      if (mustStop())
         break;
-      }
 
       if (i == FREQUENCY)
     	  RV_move(RV_FORWARD, RV_FORWARD, 30,30);
 
-
       RV_getLineSensors(&lineSensors[i]);
-      RV_waitForNewData();
     }
 
     RV_dumpBuffersToFile("RV_trace.txt");
-    determineGainOffset(gof, lineSensors, i);
+    determineGainOffset(gof, ambient, NRAMBSAMPLES, lineSensors, i);
 
     writeGainOffset(gof);
 
@@ -73,11 +81,27 @@ void updateMinMax(int* min, int* max, int val)
 	*max = val > *max ? val : *max;
 }
 
-void determineGainOffset(GainOffset* go, RV_LineSensors* ls, int nrsamples)
+void determineGainOffset(GainOffset* go, 
+		RV_LineSensors* ambient,
+		int nrAmbientSamples,
+		RV_LineSensors* ls, 
+		int nrsamples)
 {
 	int min[4];
 	int max[4];
-
+	long long sum[4] = { 0,0,0,0 };
+	
+	for (int i=0; i<nrAmbientSamples; i++) {
+		sum[0] += ambient[i].N.active;
+		sum[1] += ambient[i].E.active;
+		sum[2] += ambient[i].S.active;
+		sum[3] += ambient[i].W.active;
+	}
+	
+	for (int i=0; i<4; i++) {
+		go[i].offset = -sum[i]/nrAmbientSamples;
+	}
+	
 	for (int i=0; i<4; i++) {
 		min[i] = INT_MAX;
 		max[i] = INT_MIN;
@@ -91,23 +115,26 @@ void determineGainOffset(GainOffset* go, RV_LineSensors* ls, int nrsamples)
 	}
 
 	for (int i=0; i<4; i++) {
-		go[i].gain = 1.0 / (max[i] - min[i]);
-		go[i].offset = min[i];
+		go[i].gain = 1.0 / (max[i] - go[i].offset);
 	}
 }
 
 
-int mustStop(RV_CollisionSensors* s)
+int mustStop()
 {
-    int d = COLLISIONSENS;
-    if (s->NE.active > d)
+    RV_CollisionSensors s;
+
+    RV_getCollisionSensors(&s);
+
+    
+    if ((s.NE.active > COLLISIONSENS) ||
+        (s.SE.active > COLLISIONSENS) ||
+        (s.SW.active > COLLISIONSENS) ||
+        (s.NW.active > COLLISIONSENS)) 
+    {
+    	RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
 	return 1;
-    if (s->SE.active > d)
-	return 1;
-    if (s->SW.active > d)
-	return 1;
-    if (s->NW.active > d)
-	return 1;
+    }
     return 0;
 }
 

@@ -16,8 +16,9 @@
 
 #define COLLISIONSENS (130)
 #define FREQUENCY     (100)
+#define MAXDURATION   (10)
 
-int checkCollision();
+int mustStop();
 
 
 int main(int argc, char** argv)
@@ -25,7 +26,6 @@ int main(int argc, char** argv)
 	char c;
 	SensorStruct sensors;
 	ActuatorStruct actuators;
-	bool mustStop = false;
 
 	if (setupSensors()!=0) {
 		printf("Unable to setup sensors.\n");
@@ -46,16 +46,17 @@ int main(int argc, char** argv)
 
     RV_start();
 
-
-	while (!mustStop) {
-
+	for (int i=0; i<MAXDURATION*FREQUENCY; i++)
+	{
 		getSensors(&sensors);
 
 		controlLoop(&sensors, &actuators);
 
 		setActuators(&actuators);
 
-		mustStop = checkCollision();
+		if (mustStop())
+			break;
+		RV_waitForNewData();
 	}
 
 	RV_stop();
@@ -64,26 +65,20 @@ int main(int argc, char** argv)
 }
 
 
-
-
-int checkCollision()
+int mustStop()
 {
-	int result;
-	static RV_CollisionSensors s;
+    RV_CollisionSensors s;
 
-	result = RV_getCollisionSensors(&s);
-	if (result != OK)
-		return 1;
+    RV_getCollisionSensors(&s);
 
-    if (s.NE.active > COLLISIONSENS)
+    
+    if ((s.NE.active > COLLISIONSENS) ||
+        //(s.SE.active > COLLISIONSENS) ||
+        //(s.SW.active > COLLISIONSENS) ||
+        (s.NW.active > COLLISIONSENS)) 
+    {
+    	RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
 	return 1;
-    if (s.SE.active > COLLISIONSENS)
-	return 1;
-    if (s.SW.active > COLLISIONSENS)
-	return 1;
-    if (s.NW.active > COLLISIONSENS)
-	return 1;
-
+    }
     return 0;
 }
-

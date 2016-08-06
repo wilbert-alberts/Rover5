@@ -83,10 +83,10 @@ int getSensors(SensorStruct* s)
 	if (result != OK)
 		return result;
 
-	BWF_put(flt[0], ls.N.active * go[0].gain + go[0].offset);
-	BWF_put(flt[1], ls.E.active * go[1].gain + go[1].offset);
-	BWF_put(flt[2], ls.S.active * go[2].gain + go[2].offset);
-	BWF_put(flt[3], ls.W.active * go[3].gain + go[3].offset);
+	BWF_put(flt[0], (ls.N.active + go[0].offset) * go[0].gain);
+	BWF_put(flt[1], (ls.E.active + go[1].offset) * go[1].gain);
+	BWF_put(flt[2], (ls.S.active + go[2].offset) * go[2].gain);
+	BWF_put(flt[3], (ls.W.active + go[3].offset) * go[3].gain);
 
 	BWF_get(flt[0], &s->N);
 	BWF_get(flt[1], &s->E);

@@ -15,11 +15,9 @@
 
 int setActuators(ActuatorStruct* a)
 {
-	// Assuming a settable range between 25 and 50.
-	// Consequence: straight line is 37.5
 
-	double pwmL = 37.5 + a->left*12.5;
-	double pwmR = 37.5 + a->right*12.5;
+	double pwmL = 25 + a->left*50;
+	double pwmR = 25 + a->right*50;
 
 	int ipwmL = abs(round(pwmL));
 	int ipwmR = abs(round(pwmR));

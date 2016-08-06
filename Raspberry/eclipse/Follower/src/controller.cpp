@@ -15,7 +15,7 @@ static PID* pid;
 
 int controlSetup(int frequency)
 {
-	pid = new PID(1.0/frequency, 0.1, 0, 0 );
+	pid = new PID(1.0/frequency, 1.5, 0, 0 );
 
 	return 0;
 }
@@ -33,7 +33,7 @@ int controlLoop(SensorStruct* s, ActuatorStruct* a)
 		out = -1.0;
 
 	a->right = out;
-	a->left = - out;
+	a->left = -out;
 
 	printf("%lf\t%lf\t%lf\t%lf\n", s->E, s->W, a->right, a->left);
 
