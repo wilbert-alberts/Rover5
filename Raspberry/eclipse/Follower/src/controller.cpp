@@ -5,37 +5,47 @@
  *      Author: wilbert
  */
 
-#include <stdio.h>
-
 #include "pid.h"
 #include "controller.h"
 #include "actuator.h"
 
-static PID* pid;
-
-int controlSetup(int frequency)
+Controller::Controller(double frequency,
+        double kp,
+        double ki,
+        double kd,
+        Sensors& ss,
+        Actuators& as)
+: pid(1.0/frequency, kp, ki, kd)
+, sensors(ss)
+, actuators(as)
+, trError("C_Error")
+, trOut("C_Out")
 {
-	pid = new PID(1.0/frequency, 1.5, 0, 0 );
-
-	return 0;
 }
 
-int controlLoop(SensorStruct* s, ActuatorStruct* a)
+Controller::~Controller()
 {
-	double err = s->E - s->W;
+}
+
+int Controller::process()
+{
+	double err = sensors.getE() - sensors.getW();
 	double out;
 
-	pid->calculate(err, &out);
+	pid.calculate(err, &out);
+
+	trError.add(err);
+	trOut.add(out);
 
 	if (out > 1.0)
 		out = 1.0;
 	if (out < -1.0)
 		out = -1.0;
 
-	a->right = out;
-	a->left = -out;
+	actuators.setRight(out);
+	actuators.setLeft(-out);
 
-	printf("%lf\t%lf\t%lf\t%lf\n", s->E, s->W, a->right, a->left);
+	//printf("%lf\t%lf\t%lf\t%lf\n", s.getE(), s.getW(), a->right, a->left);
 
 	return 0;
 }

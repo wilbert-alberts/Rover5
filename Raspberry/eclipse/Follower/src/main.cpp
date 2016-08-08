@@ -7,12 +7,15 @@
 
 #include <stdio.h>
 
+#include <cstdlib>
+#include <iostream>
 
 #include <rv.h>
 
 #include "sensor.h"
 #include "controller.h"
 #include "actuator.h"
+#include "tracing.h"
 
 #define COLLISIONSENS (130)
 #define FREQUENCY     (100)
@@ -20,22 +23,12 @@
 
 int mustStop();
 
-
 int main(int argc, char** argv)
 {
 	char c;
-	SensorStruct sensors;
-	ActuatorStruct actuators;
-
-	if (setupSensors()!=0) {
-		printf("Unable to setup sensors.\n");
-		return -1;
-	}
-	if (controlSetup(FREQUENCY) != 0) {
-		printf("Unable to setup controller.\n");
-		return -1;
-	}
-
+	Sensors sensors;
+	Actuators actuators;
+	Controller controller(FREQUENCY, 1.5, 0, 0 , sensors, actuators);
 
 	RV_loggingOff();
     RV_loopLoggingOff();
@@ -48,21 +41,22 @@ int main(int argc, char** argv)
 
 	for (int i=0; i<MAXDURATION*FREQUENCY; i++)
 	{
-		getSensors(&sensors);
-
-		controlLoop(&sensors, &actuators);
-
-		setActuators(&actuators);
+		sensors.process();
+		controller.process();
+		actuators.process();
 
 		if (mustStop())
 			break;
+		Trace::stepTime();
 		RV_waitForNewData();
 	}
 
 	RV_stop();
 
 	RV_dumpBuffersToFile("RV_trace.txt");
+	Trace::dumpTraces("Ctrl_trace.txt");
 }
+
 
 
 int mustStop()

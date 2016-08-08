@@ -9,7 +9,8 @@ CPP_SRCS += \
 ../src/filter.cpp \
 ../src/main.cpp \
 ../src/pid.cpp \
-../src/sensor.cpp 
+../src/sensor.cpp \
+../src/tracing.cpp 
 
 OBJS += \
 ./src/actuator.o \
@@ -17,7 +18,8 @@ OBJS += \
 ./src/filter.o \
 ./src/main.o \
 ./src/pid.o \
-./src/sensor.o 
+./src/sensor.o \
+./src/tracing.o 
 
 CPP_DEPS += \
 ./src/actuator.d \
@@ -25,7 +27,8 @@ CPP_DEPS += \
 ./src/filter.d \
 ./src/main.d \
 ./src/pid.d \
-./src/sensor.d 
+./src/sensor.d \
+./src/tracing.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

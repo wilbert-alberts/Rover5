@@ -7,16 +7,16 @@
 
 #include "pid.h"
 
-PID::PID(double period, double kp, double ki, double kd)
+PID::PID(double _period, double _kp, double _ki, double _kd)
 {
 	// TODO Auto-generated constructor stub
-	this->period = period;
-	this->Kd = kd;
-	this->Kp = kp;
-	this->Ki = ki;
+	period = _period;
+	Kd = _kd;
+	Kp = _kp;
+	Ki = _ki;
 
-	this->prevErr = 0.0;
-	this->integral = 0.0;
+	prevErr = 0.0;
+	integral = 0.0;
 }
 
 PID::~PID()
