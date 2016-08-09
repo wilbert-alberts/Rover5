@@ -8,8 +8,9 @@
 #ifndef SENSOR_H_
 #define SENSOR_H_
 
+#include <string>
+
 #include "filter.h"
-#include "tracing.h"
 
 static const std::string orients[] = { "N", "E", "S", "W" };
 static const int nrOrients = sizeof(orients) / sizeof(std::string);
@@ -41,8 +42,9 @@ private:
 
     SensorConfig sensors[nrOrients];
 
-    Trace* trRaw[nrOrients];
-    Trace* trFiltered[nrOrients];
+    double raw[nrOrients];
+    double afterGO[nrOrients];
+    double filtered[nrOrients];
 
     int readGainOffset();
 };

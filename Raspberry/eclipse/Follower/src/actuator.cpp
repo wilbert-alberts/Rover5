@@ -15,9 +15,13 @@
 Actuators::Actuators()
 : left(0.0)
 , right(0.0)
-, trLeft("A_Torqueleft")
-, trRight("A_TorqueRight")
+, pwmL(0.0)
+, pwmR(0.0)
 {
+    RV_addTraceVariable("A_inL", &left);
+    RV_addTraceVariable("A_inR", &right);
+    RV_addTraceVariable("A_outPwmL", &pwmL);
+    RV_addTraceVariable("A_outPwmR", &pwmR);
 }
 
 Actuators::~Actuators()
@@ -36,17 +40,14 @@ void Actuators::setRight(double v)
 
 int Actuators::process()
 {
-    double pwmL = 25 + left*50;
-    double pwmR = 25 + right*50;
+    pwmL = 25 + left*50;
+    pwmR = 25 + right*50;
 
     int ipwmL = abs(round(pwmL));
     int ipwmR = abs(round(pwmR));
 
     int dirL = pwmL > 0 ? RV_FORWARD : RV_BACKWARD;
     int dirR = pwmR > 0 ? RV_FORWARD : RV_BACKWARD;
-
-    trLeft.add(pwmL);
-    trRight.add(pwmR);
 
     int result = RV_move(dirL, dirR, ipwmL, ipwmR);
 

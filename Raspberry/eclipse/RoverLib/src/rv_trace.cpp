@@ -20,6 +20,18 @@
 #include "rv_reg.h"
 #include "rv_log.h"
 
+
+/*
+ * ---------------------------------------------------------------------------
+ *               Type definitions
+ * ---------------------------------------------------------------------------
+ */
+
+typedef double* TR_UserRegisterVector;
+
+typedef const char*   TR_UserRegisterName;
+typedef double const* TR_UserRegisterSource;
+
 /*
  * ---------------------------------------------------------------------------
  *               Static module data
@@ -27,21 +39,27 @@
  */
 
 /* Pointer to memory area holding trace records */
-static REG_map* tr_buffer;
+static REG_map* tr_buffer = 0;
+
+static TR_UserRegisterName*      tr_usrRegNames = 0;
+static TR_UserRegisterSource*    tr_usrRegSrc = 0;
+static TR_UserRegisterVector*    tr_usrRegValues = 0;
+static int                       tr_usrRegisterIdx = 0;
+static int                       tr_usrRegSize = 0;
 
 /* Index of where to write next trace rcord in buffer */
-static int tr_bufferIndex;
+static int tr_bufferIndex = 0;
 
 /* Size of trace buffer, i.e. nr. records that can be
  * writte before buffer starts overwriting oldest records.
  */
-static int tr_bufferSize;
+static int tr_bufferSize = 0;
 
 /* Boolean indicating whether the buffer has overrun or not.
  * This one is used while writing buffers to file in order to
  * avoid writing empty records.
  */
-static bool tr_bufferOverrun;
+static bool tr_bufferOverrun = false;
 
 /*
  * ---------------------------------------------------------------------------
@@ -57,14 +75,15 @@ static int tr_dumpBuffer(FILE* of, int idx);
  * ---------------------------------------------------------------------------
  */
 
-extern int TR_setup(int size) {
+extern int TR_setup(int size, int nrUserRegisters) {
 	int result = OK;
-	LG_logEntry(__func__, "size: %d", size);
+	LG_logEntry(__func__, "size: %d, nrUserRegisters: %d", size, nrUserRegisters);
 
 	/* Initialize administration */
 	tr_bufferIndex = 0;
 	tr_bufferSize = size;
 	tr_bufferOverrun = false;
+    tr_usrRegSize = nrUserRegisters;
 
 	/* Allocate memory for records */
 	tr_buffer = (REG_map*)calloc(size, sizeof(REG_map));
@@ -72,9 +91,45 @@ extern int TR_setup(int size) {
 		result = RV_UNABLE_TO_MALLOC;
 	}
 
+    tr_usrRegNames = (const char**)calloc(nrUserRegisters, sizeof(const char*));
+    if (tr_buffer == NULL) {
+        result = RV_UNABLE_TO_MALLOC;
+    }
+
+    tr_usrRegSrc = (TR_UserRegisterSource*)calloc(nrUserRegisters, sizeof(double*));
+    if (tr_buffer == NULL) {
+        result = RV_UNABLE_TO_MALLOC;
+    }
+
+    tr_usrRegValues = (TR_UserRegisterVector*)calloc(size* nrUserRegisters, sizeof(double));
+    if (tr_buffer == NULL) {
+        result = RV_UNABLE_TO_MALLOC;
+    }
+
 	LG_logExit(__func__, result, NULL);
 	return result;
 }
+
+extern int TR_addUsrReg(const char* name, const double* var)
+{
+    int result = OK;
+    LG_logEntry(__func__, "name: %s, source: %p", name, var);
+
+
+    if (tr_usrRegisterIdx >= tr_usrRegSize) {
+        result = RV_OUT_OF_USR_REGISTERS;
+    }
+
+    if (result == OK) {
+        tr_usrRegNames[tr_usrRegisterIdx] = name;
+        tr_usrRegSrc[tr_usrRegisterIdx] = var;
+        tr_usrRegisterIdx ++;
+    }
+
+    LG_logExit(__func__, result, NULL);
+    return result;
+}
+
 
 /*
  * ---------------------------------------------------------------------------
@@ -88,6 +143,13 @@ extern int TR_traceRegmap() {
 	 * in current trace record.
 	 */
 	REG_readAll(tr_buffer + tr_bufferIndex);
+
+	/* Retrieve user registers and store in current
+	 * trace record.
+	 */
+	for (int i=0; i<tr_usrRegisterIdx; i++) {
+	    tr_usrRegValues[tr_bufferIndex][i] = *tr_usrRegSrc[i];
+	}
 
 	/* Update administration, advance bufferIndex
 	 * and administrate whether buffer has overrun.
@@ -112,6 +174,10 @@ extern int TR_dumpBuffers(FILE* of) {
 	for (int i = 0; (result == OK) && (i < REG_MAX); i++) {
 		fprintf(of, "%s\t", REG_getRegistername(i));
 	}
+    for (int i=0; i<tr_usrRegisterIdx; i++) {
+        fprintf(of, "%s\t", tr_usrRegNames[i]);
+    }
+
 	fprintf(of,"\n");
 
 	/* Determine index of oldest record. If no
@@ -163,6 +229,10 @@ static int tr_dumpBuffer(FILE* of, int idx) {
 		if (result == OK)
 			fprintf(of, "%ld\t",  v);
 	}
+
+    for (int i = 0; (result == OK) && (i < tr_usrRegisterIdx); i++) {
+        fprintf(of, "%0.12lg\t",  tr_usrRegValues[idx][i]);
+    }
 	/* Write EOL in order to ensure that next
 	 * record ends up on next line.
 	 */

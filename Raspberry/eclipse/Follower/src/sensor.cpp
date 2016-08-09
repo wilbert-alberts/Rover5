@@ -25,9 +25,23 @@ Sensors::Sensors()
 
 	for (int i=0; i<nrOrients; i++) {
 	    sensors[i].flt = new IIRFilter(3, as, bs);
-	    trRaw[i] = new Trace("s_Raw_"+orients[i]);
-	    trFiltered[i] = new Trace("S_Filt_"+orients[i]);
 	}
+
+    RV_addTraceVariable("S_inRaw_N", &raw[0]);
+    RV_addTraceVariable("S_inRaw_E", &raw[1]);
+    RV_addTraceVariable("S_inRaw_S", &raw[2]);
+    RV_addTraceVariable("S_inRaw_W", &raw[3]);
+
+    RV_addTraceVariable("S_inAfterGO_N", &afterGO[0]);
+    RV_addTraceVariable("S_inAfterGO_E", &afterGO[1]);
+    RV_addTraceVariable("S_inAfterGO_S", &afterGO[2]);
+    RV_addTraceVariable("S_inAfterGO_W", &afterGO[3]);
+
+    RV_addTraceVariable("S_inFiltered_N", &filtered[0]);
+    RV_addTraceVariable("S_inFiltered_E", &filtered[1]);
+    RV_addTraceVariable("S_inFiltered_S", &filtered[2]);
+    RV_addTraceVariable("S_inFiltered_W", &filtered[3]);
+
 }
 
 
@@ -35,8 +49,6 @@ Sensors::~Sensors()
 {
     for (int i=0; i<nrOrients; i++) {
         delete sensors[i].flt;
-        delete trRaw[i];
-        delete trFiltered[i];
     }
 }
 
@@ -76,19 +88,16 @@ int Sensors::process()
 	if (result != OK)
 		return result;
 
-    trRaw[0]->add(ls.N.active);
-    trRaw[1]->add(ls.E.active);
-    trRaw[2]->add(ls.S.active);
-    trRaw[3]->add(ls.W.active);
+    raw[0] = ls.N.active;
+    raw[1] = ls.E.active;
+    raw[2] = ls.S.active;
+    raw[3] = ls.W.active;
 
-	sensors[0].flt->put((ls.N.active + sensors[0].go.offset) * sensors[0].go.gain);
-	sensors[1].flt->put((ls.E.active + sensors[0].go.offset) * sensors[0].go.gain);
-	sensors[2].flt->put((ls.S.active + sensors[0].go.offset) * sensors[0].go.gain);
-	sensors[3].flt->put((ls.W.active + sensors[0].go.offset) * sensors[0].go.gain);
-
-	for (int i=0; i<nrOrients; i++) {
-	    trFiltered[i]->add(sensors[i].flt->get());
-	}
+    for (int i=0; i<nrOrients; i++) {
+        afterGO[i] = (raw[i] + sensors[i].go.offset) * sensors[i].go.gain;
+        sensors[i].flt->put(afterGO[i]);
+        filtered[i] =sensors[i].flt->get();
+    }
 
 	return OK;
 }

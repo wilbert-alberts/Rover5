@@ -8,7 +8,6 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include "tracing.h"
 #include "sensor.h"
 #include "actuator.h"
 #include "pid.h"
@@ -35,9 +34,9 @@ private:
     PID        pid;
     Sensors&   sensors;
     Actuators& actuators;
-
-    Trace      trError;
-    Trace      trOut;
+    double     error;
+    double     outRaw;
+    double     outNormalized;
 };
 
 #endif /* CONTROLLER_H_ */

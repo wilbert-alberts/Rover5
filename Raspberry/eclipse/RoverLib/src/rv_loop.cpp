@@ -23,9 +23,7 @@
 
 #define LINUX
 
-#ifdef LINUX
-#include <sys/timerfd.h>
-#else
+#ifdef __CYGWIN__
 
 /* Section to allow compilation under cygwin on windows. Note that this
  * section is expected to be removed.
@@ -37,6 +35,8 @@ int timerfd_settime(int fd, int flags,
 
 int timerfd_gettime(int fd, struct itimerspec *curr_value) { return 0; }
 
+#else
+#include <sys/timerfd.h>
 #endif
 
 

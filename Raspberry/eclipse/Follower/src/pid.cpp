@@ -7,7 +7,14 @@
 
 #include "pid.h"
 
-PID::PID(double _period, double _kp, double _ki, double _kd)
+#include "rv.h"
+
+PID::PID(const std::string& _id, double _period, double _kp, double _ki, double _kd)
+: id_in(_id+"_in")
+, id_p(_id+"_p")
+, id_i(_id+"_i")
+, id_d(_id+"_d")
+, id_out(_id+"_out")
 {
 	// TODO Auto-generated constructor stub
 	period = _period;
@@ -17,6 +24,12 @@ PID::PID(double _period, double _kp, double _ki, double _kd)
 
 	prevErr = 0.0;
 	integral = 0.0;
+
+	RV_addTraceVariable(id_in.c_str(), &in);
+    RV_addTraceVariable(id_p.c_str(), &p);
+    RV_addTraceVariable(id_i.c_str(), &i);
+    RV_addTraceVariable(id_d.c_str(), &d);
+    RV_addTraceVariable(id_out.c_str(), &out);
 }
 
 PID::~PID()
@@ -26,12 +39,14 @@ PID::~PID()
 
 void PID::calculate(double err, double* tL)
 {
+    in = err;
 	integral += (err * period);
 
-	double p = err * Kp;
-	double d = (err - prevErr) / period * Kd;
-	double i = integral * Ki;
+	p = err * Kp;
+	d = (err - prevErr) / period * Kd;
+	i = integral * Ki;
 
 	prevErr = err;
-	*tL = p+d+i;
+	out = p+d+i;
+	*tL = out;
 }

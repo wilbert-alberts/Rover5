@@ -51,7 +51,10 @@ static int   sv_socketFD;     // socket for incoming connections.
 static int   sv_connectionFD; // socket for active connection.
 static bool  sv_connected;    // whether a connection is active.
 static pthread_t SV_TID;      // thread id for listen operation.
+#ifdef __CYGWIN__
+#else
 static sighandler_t sv_PrevHandler; // previous signal handler
+#endif
 
 /*
  * ---------------------------------------------------------------------------
@@ -101,8 +104,12 @@ int SV_start()
 
 	/* Install signal handler to react on connection closes. */
 	if (result == OK) {
+#ifdef __CYGWIN__
+#else
+        signal(SIGPIPE, sv_handleSigpipe);
 		sv_PrevHandler = signal(SIGPIPE, sv_handleSigpipe);
 		result = (sv_PrevHandler == SIG_ERR) ?  RV_UNABLE_INSTALL_SIGHANDLER: OK;
+#endif
 	}
 
 	/* Start listening */
@@ -123,7 +130,9 @@ int SV_stop()
 	LG_logEntry(__func__, NULL);
 
 	/* Stop acting on connection closes, reinstall previous signal handler. */
+#ifndef __CYGWIN__
 	signal(SIGPIPE, sv_PrevHandler);
+#endif
 	sv_connected = false;
 
 	/* In case client was connected, close connection */

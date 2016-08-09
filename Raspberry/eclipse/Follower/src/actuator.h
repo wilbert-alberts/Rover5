@@ -8,7 +8,6 @@
 #ifndef ACTUATOR_H_
 #define ACTUATOR_H_
 
-#include "tracing.h"
 
 
 typedef struct
@@ -32,8 +31,8 @@ public:
 private:
     double left;
     double right;
-    Trace  trLeft;
-    Trace  trRight;
+    double pwmL;
+    double pwmR;
 };
 
 #endif /* ACTUATOR_H_ */

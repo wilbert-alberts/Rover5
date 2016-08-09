@@ -63,7 +63,7 @@
 #define RV_UNABLE_TO_BIND               (-29)
 #define RV_UNABLE_INSTALL_SIGHANDLER    (-30)
 #define RV_UNABLE_TO_START_TIMER        (-31)
-
+#define RV_OUT_OF_USR_REGISTERS         (-32)
 
 /* RV_FORWARD and RV_BACKWARD are to be used when invoking the
  * RV_move operation in order to define the Rover's movement direction.
@@ -196,5 +196,11 @@ extern int RV_getAVRTime(long* millis, long* micros);
  * content into a file named by 'name'.
  */
 extern int RV_dumpBuffersToFile(const char* name);
+
+/* Add a user register to be traced. Each time the periodic loop
+ * steps, the value pointed to by var is copied into the trace
+ * buffer. Note that this is the last action done in the loop.
+ */
+extern int RV_addTraceVariable(const char* name, double* var);
 
 #endif
