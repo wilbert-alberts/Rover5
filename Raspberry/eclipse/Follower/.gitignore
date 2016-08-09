@@ -1,2 +1,5 @@
-/Debug/
-/WindowsDebug/
+*.a
+*.o
+*.d
+*.exe
+Follower

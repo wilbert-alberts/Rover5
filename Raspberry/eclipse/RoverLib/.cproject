@@ -146,7 +146,7 @@
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1746929389" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.cygwin.base.1950100122" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.cygwin.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.1459736936" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base">
+							<tool command="g++ -dM " id="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base.1459736936" name="Cygwin C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.cygwin.base">
 								<option id="gnu.cpp.compiler.option.optimization.level.1922077622" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.1673172632" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1501158028" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
@@ -197,6 +197,7 @@
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="DebugSim"/>
 		<configuration configurationName="x86"/>
+		<configuration configurationName="WindowsDebug"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/RoverLib"/>
 		</configuration>

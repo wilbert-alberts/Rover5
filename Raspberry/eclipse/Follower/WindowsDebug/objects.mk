@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lRover -lwiringPi -lpthread
+LIBS := -lRover -lwiringPiSim -lpthread
 

@@ -44,19 +44,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: GainOffsetCalibration
+all: Follower.exe
 
 # Tool invocations
-GainOffsetCalibration: $(OBJS) $(USER_OBJS)
+Follower.exe: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C++ Linker'
-	g++ -L../../RoverLib/Debug -L../../wiringPi/Debug -o "GainOffsetCalibration" $(OBJS) $(USER_OBJS) $(LIBS)
+	@echo 'Invoking: Cygwin C++ Linker'
+	g++ -L../../wiringPiSim/WindowsDebug -L../../RoverLib/WindowsDebug -o "Follower.exe" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(INO_DEPS)$(PDE_DEPS)$(CPP_DEPS)$(C_DEPS) GainOffsetCalibration
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(INO_DEPS)$(PDE_DEPS)$(CPP_DEPS)$(C_DEPS) Follower.exe
 	-@echo ' '
 
 .PHONY: all clean dependents
