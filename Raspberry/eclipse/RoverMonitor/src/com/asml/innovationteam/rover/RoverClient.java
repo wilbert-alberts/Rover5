@@ -190,7 +190,8 @@ public class RoverClient {
 		}
 
 		public void disconnect() {
-			rr.disconnect();
+			if (rr != null)
+				rr.disconnect();
 			connected = false;
 		}
 
@@ -210,16 +211,18 @@ public class RoverClient {
 					for (IRoverChanged l : listeners) {
 						l.changed();
 					}
-									}
+				}
+				rr.disconnect();
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 				for (IRoverChanged l : listeners) {
 					l.disconnected();
 				}
+				rr.disconnect();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();			
+				//e.printStackTrace();
 				for (IRoverChanged l : listeners) {
 					l.disconnected();
 				}

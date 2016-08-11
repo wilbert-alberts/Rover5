@@ -184,8 +184,8 @@ public class MainWindow implements RoverClient.IRoverChanged {
 			public void itemStateChanged(ItemEvent arg0) {
 				if (btnConnect.isSelected()) {
 					setAddressAndPort();
-					rover.connect();
 					btnConnect.setText("Connected");
+					rover.connect();
 				} else {
 					rover.disconnect();
 					btnConnect.setText("Disconnected");

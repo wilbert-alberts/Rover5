@@ -21,6 +21,13 @@ public class RoverReader implements IRoverReader {
 	@Override
 	public void disconnect() {
 		connected= false;
+		try {
+			is.close();
+			socket.close();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 	
 	@Override
@@ -39,8 +46,9 @@ public class RoverReader implements IRoverReader {
 			c = is.read();
 			if (c == trailer[cursor]) {
 				cursor++;
-				if (cursor == 4)
+				if (cursor == 4) {
 					return;
+				}
 			} else {
 				cursor = 0;
 			}
