@@ -21,22 +21,21 @@
 #include <semaphore.h>
 #include <errno.h>
 
-#define LINUX
-
 #ifdef __CYGWIN__
 
-/* Section to allow compilation under cygwin on windows. Note that this
- * section is expected to be removed.
- */
-int timerfd_create(int clockid, int flags) { return 0; }
-int timerfd_settime(int fd, int flags,
-                    const struct itimerspec *new_value,
-                    struct itimerspec *old_value) { return 0; }
-
-int timerfd_gettime(int fd, struct itimerspec *curr_value) { return 0; }
+typedef struct
+{
+    int __not_used__;
+} LP_timerStruct;
 
 #else
 #include <sys/timerfd.h>
+
+typedef struct
+{
+    int timerFD;
+} LP_timerStruct;
+
 #endif
 
 
@@ -85,8 +84,10 @@ static bool lp_waiterBlocked;      // Any blocked waiters?
 
 static void* lp_main(void* args);  // Actual body of periodical loop
 static int lp_notifyWaiters();
-static int lp_startTimer(int frequency, int* timerfd);
-static void lp_stopTimer(int timerfd);
+static int lp_startTimer(int frequency, LP_timerStruct* tmr);
+static void lp_stopTimer(LP_timerStruct* tmr);
+static int lp_waitForTimer(LP_timerStruct* tmr);
+
 /*
  * ---------------------------------------------------------------------------
  *              Module implementation
@@ -228,11 +229,16 @@ static int lp_notifyWaiters() {
  * ---------------------------------------------------------------------------
  */
 
-static int lp_startTimer(int frequency, int* timerfd)
+static int lp_startTimer(int frequency, LP_timerStruct* timer)
 {
+#ifdef __CYGWIN__
+    int result = OK;
+
+    return result;
+#else
     int result = OK;
     struct itimerspec tmr;
-    long period = 1000000000L/lp_loopFrequency;
+    long period = 1000000000L / lp_loopFrequency;
 
     /* Set period of timer struct */
     tmr.it_interval.tv_sec = period / 1000000000L;
@@ -241,39 +247,94 @@ static int lp_startTimer(int frequency, int* timerfd)
     tmr.it_value.tv_nsec = period % 1000000000L;
 
     /* Create the timer and start it */
-    *timerfd = timerfd_create(CLOCK_MONOTONIC, 0);
-    if (*timerfd == 0) {
-    	result = RV_UNABLE_TO_START_TIMER;
- 	printf("RV_UNABLE_TO_START_TIMER, timer create, errno: %d\n", errno);
-    }
-    
-    if (result== OK) {
-    	result = timerfd_settime(*timerfd, 0, &tmr, NULL);
-	if (result != 0) {
-            result = RV_UNABLE_TO_START_TIMER;
-	    printf("RV_UNABLE_TO_START_TIMER, timer settime, errno: %d\n", errno);
-	}
+    timer->timerFD = timerfd_create(CLOCK_MONOTONIC, 0);
+    if (timer->timerFD == 0)
+    {
+        result = RV_UNABLE_TO_START_TIMER;
+        printf("RV_UNABLE_TO_START_TIMER, timer create, errno: %d\n", errno);
     }
 
+    if (result == OK)
+    {
+        result = timerfd_settime(timer->timerFD, 0, &tmr, NULL);
+        if (result != 0)
+        {
+            result = RV_UNABLE_TO_START_TIMER;
+            printf("RV_UNABLE_TO_START_TIMER, timer settime, errno: %d\n",
+                    errno);
+        }
+    }
     return result;
+#endif
 }
 
 /*
  * ---------------------------------------------------------------------------
  */
 
-static void lp_stopTimer(int timerfd)
+static void lp_stopTimer(LP_timerStruct* timer)
 {
+#ifdef __CYGWIN__
+#else
     struct itimerspec tmr;
 
-    if (timerfd != 0) {
-    tmr.it_interval.tv_sec = 0;
-    tmr.it_interval.tv_nsec = 0;
-    tmr.it_value.tv_sec = 0;
-    tmr.it_value.tv_nsec = 0;
-    timerfd_settime(timerfd, 0, &tmr, NULL);
-    close(timerfd);
+    if (timer->timerFD != 0)
+    {
+        tmr.it_interval.tv_sec = 0;
+        tmr.it_interval.tv_nsec = 0;
+        tmr.it_value.tv_sec = 0;
+        tmr.it_value.tv_nsec = 0;
+        timerfd_settime(timer->timerFD, 0, &tmr, NULL);
+        close (timer->timerFD);
     }
+#endif
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ */
+
+static int lp_waitForTimer(LP_timerStruct* timer)
+{
+#ifdef __CYGWIN__
+
+    int result = OK;
+
+    usleep(1000000L/lp_loopFrequency);
+
+    return result;
+#else
+
+    int result = OK;
+
+    /* Wait for the next period by reading from the timer */
+    result = read(timer->timerFD, &overruns, sizeof(uint64_t));
+    if (result < 0)
+    {
+        result = RV_LOOP_ABORTED;
+        printf("RV_LOOP_ABORTED errno: %d\n", errno);
+    }
+    else
+    {
+        if (result != 8)
+        {
+            result = RV_LOOP_ABORTED;
+        }
+        else
+        {
+            result = OK;
+        }
+    }
+    /* Check whether the timer already expired. This indicates that the
+     * requested frequency can not be achieved.
+     */
+    if (overruns > 1)
+    {
+        printf("Warning: overrun(s) detected: %lld\n", overruns - 1);
+        result = RV_LOOP_OVERRUNS;
+    }
+    return result;
+#endif
 }
 
 /*
@@ -292,10 +353,9 @@ static void lp_stopTimer(int timerfd)
 
 static void* lp_main(void* args) {
 	int result = OK;
-    int timerfd;
-    uint64_t overruns;
+    LP_timerStruct timer;
 
-	/* Now that lp_TID has a value, use it to enable/disable
+    /* Now that lp_TID has a value, use it to enable/disable
 	 * logging for this thread.
 	 */
 	LG_setLogging(lp_TID, lp_logging);
@@ -305,7 +365,7 @@ static void* lp_main(void* args) {
 	/* Initialize the timer structs such that it periodically
 	 * ticks at the desired frequency.
 	 */
-        result = lp_startTimer(lp_loopFrequency, &timerfd);
+    result = lp_startTimer(lp_loopFrequency, &timer);
 
 	lp_running = true;
 	while ((lp_running) and (result == OK)) {
@@ -318,29 +378,14 @@ static void* lp_main(void* args) {
 		SAFE_INVOKE(lp_notifyWaiters(), result, RV_LOOP_ABORTED)
 
 		/* Wait for the next period by reading from the timer */
-		result = read(timerfd, &overruns, sizeof(uint64_t));
-		if (result<0) {
-		    result = RV_LOOP_ABORTED;
-		    printf("RV_LOOP_ABORTED errno: %d\n", errno);
-		}
-		else {
-		    if (result != 8) {
-		    	result = RV_LOOP_ABORTED;
-		    }
-		    else {
-		    	result = OK;
-	            }
-		}
-		/* Check whether the timer already expired. This indicates that the
-		 * requested frequency can not be achieved.
-		 */
-		if (overruns > 1) {
-		    printf("Warning: overrun(s) detected: %lld\n", overruns-1);
-		}
-		result = OK;
+        result = lp_waitForTimer(&timer);
+
+		/* Ignore overruns */
+		if (result == RV_LOOP_OVERRUNS)
+		    result = OK;
 	}
 
-    lp_stopTimer(timerfd);
+    lp_stopTimer(&timer);
 
 	LG_logExit(__func__, result, NULL);
 	return NULL;

@@ -64,6 +64,8 @@
 #define RV_UNABLE_INSTALL_SIGHANDLER    (-30)
 #define RV_UNABLE_TO_START_TIMER        (-31)
 #define RV_OUT_OF_USR_REGISTERS         (-32)
+#define RV_LOOP_OVERRUNS                (-33)
+
 
 /* RV_FORWARD and RV_BACKWARD are to be used when invoking the
  * RV_move operation in order to define the Rover's movement direction.
