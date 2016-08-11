@@ -3,7 +3,7 @@ package com.asml.innovationteam.roversim;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Rover implements IRover {
+public class RandomRover implements IRover {
 	private int leftPos;
 	private int rightPos;
 	private int leftDC;
@@ -14,7 +14,6 @@ public class Rover implements IRover {
 	private Map<CollisionOrientation, Integer> ambientCollisionSensors = new HashMap<CollisionOrientation, Integer>();
 	private int millis;
 	private int micros;
-	
 
 	public int getMillis() {
 		millis = millis+1;

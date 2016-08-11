@@ -39,7 +39,7 @@ public class RoverWriter {
 				clientSocket = socket.accept();
 				os = clientSocket.getOutputStream();
 			}
-			Thread.sleep(500);
+			Thread.sleep(10);
 		}
 	}
 
@@ -113,7 +113,15 @@ public class RoverWriter {
 	}
 
 	public static void main(String[] args) throws Exception {
-		RoverWriter writer = new RoverWriter(34343, new Rover());
+		IRover rover=null ;
+		try {
+			rover = new RoverFromFile("RV_trace.txt");
+		}
+		catch (Exception e) {
+			rover = new RandomRover();
+		}
+
+		RoverWriter writer = new RoverWriter(34343, rover);
 		writer.startSimulation();
 	}
 
