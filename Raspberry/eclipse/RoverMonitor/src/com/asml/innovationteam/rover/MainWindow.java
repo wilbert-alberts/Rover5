@@ -32,7 +32,7 @@ import javax.swing.event.ChangeEvent;
 
 public class MainWindow implements RoverClient.IRoverChanged {
 
-	private JFrame frame;
+	private JFrame frmRoverMonitor;
 	private JTextField txtAddress;
 	private RoverClient rover;
 	private JLabel lblPosRight;
@@ -98,7 +98,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 				try {
 					MainWindow window = new MainWindow();
 					window.setRover(rover);
-					window.frame.setVisible(true);
+					window.frmRoverMonitor.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -163,13 +163,14 @@ public class MainWindow implements RoverClient.IRoverChanged {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 761, 474);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frmRoverMonitor = new JFrame();
+		frmRoverMonitor.setTitle("Rover monitor");
+		frmRoverMonitor.setBounds(100, 100, 761, 474);
+		frmRoverMonitor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmRoverMonitor.getContentPane().setLayout(new BorderLayout(0, 0));
 
 		JPanel panel = new JPanel();
-		frame.getContentPane().add(panel, BorderLayout.NORTH);
+		frmRoverMonitor.getContentPane().add(panel, BorderLayout.NORTH);
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		JLabel lblRoverServer = new JLabel("Address: ");
@@ -206,7 +207,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		panel.add(btnConnect);
 
 		JPanel centerPanel = new JPanel();
-		frame.getContentPane().add(centerPanel);
+		frmRoverMonitor.getContentPane().add(centerPanel);
 		SpringLayout sl_centerPanel = new SpringLayout();
 		centerPanel.setLayout(sl_centerPanel);
 
@@ -455,6 +456,7 @@ public class MainWindow implements RoverClient.IRoverChanged {
 		lblColSE.setOpaque(true);
 		centerPanel.add(lblColSE);
 		
+		JLabel lblCollision = new JLabel("collision");
 		JSlider sldrCollisionThr = new JSlider();
 		sldrCollisionThr.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
@@ -462,14 +464,21 @@ public class MainWindow implements RoverClient.IRoverChanged {
 				
 				if ((v>=0) && (v<1024)) {
 					RoverProperties.setProperty("collision_threshold", Integer.toString(v));
+					lblCollision.setText(Integer.toString(v));
 				}
 			}
 		});
-		sldrCollisionThr.setMaximum(1023);
+		sldrCollisionThr.setMaximum(1024);
 		sl_centerPanel.putConstraint(SpringLayout.NORTH, sldrCollisionThr, 0, SpringLayout.SOUTH, lblColNW);
 		sl_centerPanel.putConstraint(SpringLayout.EAST, sldrCollisionThr, 0, SpringLayout.EAST, lblColNW);
 		sl_centerPanel.putConstraint(SpringLayout.WEST, sldrCollisionThr, 0, SpringLayout.WEST, lblColNW);
 		centerPanel.add(sldrCollisionThr);
+		
+		lblCollision.setHorizontalAlignment(SwingConstants.CENTER);
+		sl_centerPanel.putConstraint(SpringLayout.NORTH, lblCollision, 0, SpringLayout.SOUTH, sldrCollisionThr);
+		sl_centerPanel.putConstraint(SpringLayout.EAST, lblCollision, 0, SpringLayout.EAST, sldrCollisionThr);
+		sl_centerPanel.putConstraint(SpringLayout.WEST, lblCollision, 0, SpringLayout.WEST, sldrCollisionThr);
+		centerPanel.add(lblCollision);
 		lblLineNBG = new Color(200, 100, 100);
 		lblLineWBG = new Color(200, 100, 100);
 		lblLineEBG = new Color(200, 100, 100);
