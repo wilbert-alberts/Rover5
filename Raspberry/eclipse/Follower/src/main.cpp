@@ -19,7 +19,7 @@
 
 #define COLLISIONSENS (130)
 #define FREQUENCY     (100)
-#define MAXDURATION   (10)
+#define MAXDURATION   (130)
 
 int mustStop();
 
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
 	Sensors sensors;
 	Actuators actuators;
-	Controller controller(FREQUENCY, 1.2, 0.2, -0.1 , sensors, actuators);
+	Controller controller(FREQUENCY, 2.5, 0, 0.2 , sensors, actuators);
 
 
     RV_start();
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 	{
 		sensors.process();
 		controller.process();
-		actuators.process();
+		//actuators.process();
 
 		if (mustStop())
 			break;

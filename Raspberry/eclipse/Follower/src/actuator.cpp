@@ -40,8 +40,8 @@ void Actuators::setRight(double v)
 
 int Actuators::process()
 {
-    pwmL = 25 + left*50;
-    pwmR = 25 + right*50;
+    pwmL = 25 + left*75;
+    pwmR = 25 + right*75;
 
     int ipwmL = abs(round(pwmL));
     int ipwmR = abs(round(pwmR));
