@@ -39,10 +39,12 @@ int Controller::process()
 
 	pid.calculate(error, &outRaw);
 
-	if (outRaw > 1.0)
+	outNormalized = outRaw;
+	if (outNormalized > 1.0)
 		outNormalized = 1.0;
-	if (outRaw < -1.0)
+	if (outNormalized < -1.0)
 	    outNormalized = -1.0;
+
 
 	actuators.setRight(outNormalized);
 	actuators.setLeft(-outNormalized);
