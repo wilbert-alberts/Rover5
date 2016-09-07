@@ -306,6 +306,7 @@ static int lp_waitForTimer(LP_timerStruct* timer)
 #else
 
     int result = OK;
+    uint64_t overruns = 0;
 
     /* Wait for the next period by reading from the timer */
     result = read(timer->timerFD, &overruns, sizeof(uint64_t));

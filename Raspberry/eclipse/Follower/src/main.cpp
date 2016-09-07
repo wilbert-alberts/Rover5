@@ -54,7 +54,6 @@ int main(int argc, char** argv)
 	RV_stop();
 
 	RV_dumpBuffersToFile("RV_trace.txt");
-	Trace::dumpTraces("Ctrl_trace.txt");
 }
 
 
@@ -67,8 +66,8 @@ int mustStop()
 
     
     if ((s.NE.active > COLLISIONSENS) ||
-        //(s.SE.active > COLLISIONSENS) ||
-        //(s.SW.active > COLLISIONSENS) ||
+        (s.SE.active > COLLISIONSENS) ||
+        (s.SW.active > COLLISIONSENS) ||
         (s.NW.active > COLLISIONSENS)) 
     {
     	RV_move(RV_FORWARD, RV_FORWARD, 0, 0);
