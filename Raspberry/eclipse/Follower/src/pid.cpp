@@ -30,6 +30,9 @@ PID::PID(const std::string& _id, double _period, double _kp, double _ki, double 
     RV_addTraceVariable(id_i.c_str(), &i);
     RV_addTraceVariable(id_d.c_str(), &d);
     RV_addTraceVariable(id_out.c_str(), &out);
+    RV_addTraceVariable("PID_P", &Kp);
+    RV_addTraceVariable("PID_I", &Ki);
+    RV_addTraceVariable("PID_D", &Kd);
 }
 
 PID::~PID()
