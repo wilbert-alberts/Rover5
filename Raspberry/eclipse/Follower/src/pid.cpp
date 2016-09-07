@@ -40,7 +40,11 @@ PID::~PID()
 void PID::calculate(double err, double* tL)
 {
     in = err;
-	integral += (err * period);
+    if (((err>0.0) && (prevErr<0.0)) ||
+        ((err<0.0) && (prevErr>0.0)))
+        integral = 0.0;
+    else
+        integral += (err * period);
 
 	p = err * Kp;
 	d = (err - prevErr) / period * Kd;

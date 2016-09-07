@@ -19,7 +19,7 @@ int mustStop(RV_CollisionSensors* s)
 }
 
 
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     long left;
     long right;
@@ -28,7 +28,7 @@ int main (int argc, char* argv[])
 
     RV_loggingOff();
     RV_loopLoggingOff();
-    RV_setFrequency(100);
+    RV_setFrequency(1);
     RV_start();
     RV_move(RV_FORWARD, RV_FORWARD, 0,0);
     for (int i=0; 1 || i<10000; i++) {
@@ -56,8 +56,9 @@ int main (int argc, char* argv[])
              lineSensors.S.ambient,
              lineSensors.W.ambient);
       RV_waitForNewData();
+
     }
-    
+
     RV_dumpBuffersToFile("RV_trace.txt");
 
     RV_stop();

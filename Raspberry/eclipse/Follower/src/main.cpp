@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
 	Sensors sensors;
 	Actuators actuators;
-	Controller controller(FREQUENCY, 1.5, 0, 0 , sensors, actuators);
+	Controller controller(FREQUENCY, 1.2, 0.2, -0.1 , sensors, actuators);
 
 
     RV_start();
