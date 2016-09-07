@@ -31,7 +31,6 @@
  */
 
 #define TRACEBUFFERSIZE (1000)
-#define USRREGISTERSIZE (50)
 
 #define rv_IntToDirection(d,i,r)\
 { 								\
@@ -79,7 +78,7 @@ extern int RV_start()
     wiringPiSetup();
     SAFE_INVOKE(EX_setup(), result, RV_START_FAILED)
     SAFE_INVOKE(REG_setup(), result, RV_START_FAILED)
-    SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE, USRREGISTERSIZE), result, RV_START_FAILED)
+    SAFE_INVOKE(TR_setup(TRACEBUFFERSIZE), result, RV_START_FAILED)
     SAFE_INVOKE(SV_start(), result, RV_START_FAILED)
     SAFE_INVOKE(LP_start(), result, RV_START_FAILED)
 

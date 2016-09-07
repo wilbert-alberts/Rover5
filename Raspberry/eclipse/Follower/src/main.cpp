@@ -26,18 +26,21 @@ int mustStop();
 int main(int argc, char** argv)
 {
 	char c;
-	Sensors sensors;
-	Actuators actuators;
-	Controller controller(FREQUENCY, 1.5, 0, 0 , sensors, actuators);
 
 	RV_loggingOff();
     RV_loopLoggingOff();
     RV_setFrequency(FREQUENCY);
 
+	Sensors sensors;
+	Actuators actuators;
+	Controller controller(FREQUENCY, 1.5, 0, 0 , sensors, actuators);
+
+
+    RV_start();
     printf("Position car such that it on top of and aligned with the line and press enter\n");
     scanf("%c", &c);
 
-    RV_start();
+//    RV_start();
 
 	for (int i=0; i<MAXDURATION*FREQUENCY; i++)
 	{
@@ -54,7 +57,6 @@ int main(int argc, char** argv)
 	RV_stop();
 
 	RV_dumpBuffersToFile("RV_trace.txt");
-	Trace::dumpTraces("Ctrl_trace.txt");
 }
 
 

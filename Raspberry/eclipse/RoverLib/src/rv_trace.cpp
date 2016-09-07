@@ -21,6 +21,8 @@
 #include "rv_log.h"
 
 
+#define MAXNRUSRREGS (50)
+
 /*
  * ---------------------------------------------------------------------------
  *               Type definitions
@@ -43,7 +45,7 @@ static REG_map* tr_buffer = 0;
 
 static TR_UserRegisterName*      tr_usrRegNames = 0;
 static TR_UserRegisterSource*    tr_usrRegSrc = 0;
-static TR_UserRegisterVector*    tr_usrRegValues = 0;
+static double*                   tr_usrRegValues = 0;
 static int                       tr_usrRegisterIdx = 0;
 static int                       tr_usrRegSize = 0;
 
@@ -68,6 +70,7 @@ static bool tr_bufferOverrun = false;
  */
 
 static int tr_dumpBuffer(FILE* of, int idx);
+static int tr_setupUsrRegMemory(int nrUserRegisters);
 
 /*
  * ---------------------------------------------------------------------------
@@ -75,15 +78,15 @@ static int tr_dumpBuffer(FILE* of, int idx);
  * ---------------------------------------------------------------------------
  */
 
-extern int TR_setup(int size, int nrUserRegisters) {
+extern int TR_setup(int size) {
 	int result = OK;
-	LG_logEntry(__func__, "size: %d, nrUserRegisters: %d", size, nrUserRegisters);
+	LG_logEntry(__func__, "size: %d", size);
 
 	/* Initialize administration */
 	tr_bufferIndex = 0;
 	tr_bufferSize = size;
 	tr_bufferOverrun = false;
-    tr_usrRegSize = nrUserRegisters;
+    tr_usrRegSize = MAXNRUSRREGS;
 
 	/* Allocate memory for records */
 	tr_buffer = (REG_map*)calloc(size, sizeof(REG_map));
@@ -91,18 +94,8 @@ extern int TR_setup(int size, int nrUserRegisters) {
 		result = RV_UNABLE_TO_MALLOC;
 	}
 
-    tr_usrRegNames = (const char**)calloc(nrUserRegisters, sizeof(const char*));
-    if (tr_buffer == NULL) {
-        result = RV_UNABLE_TO_MALLOC;
-    }
-
-    tr_usrRegSrc = (TR_UserRegisterSource*)calloc(nrUserRegisters, sizeof(double*));
-    if (tr_buffer == NULL) {
-        result = RV_UNABLE_TO_MALLOC;
-    }
-
-    tr_usrRegValues = (TR_UserRegisterVector*)calloc(size* nrUserRegisters, sizeof(double));
-    if (tr_buffer == NULL) {
+    tr_usrRegValues = (double*)calloc(size* tr_usrRegSize, sizeof(double));
+    if (tr_usrRegValues == NULL) {
         result = RV_UNABLE_TO_MALLOC;
     }
 
@@ -116,8 +109,12 @@ extern int TR_addUsrReg(const char* name, const double* var)
     LG_logEntry(__func__, "name: %s, source: %p", name, var);
 
 
-    if (tr_usrRegisterIdx >= tr_usrRegSize) {
+    if (tr_usrRegisterIdx >= MAXNRUSRREGS) {
         result = RV_OUT_OF_USR_REGISTERS;
+    }
+
+    if ((tr_usrRegNames == NULL) || (tr_usrRegSrc == NULL)) {
+    	result = tr_setupUsrRegMemory(MAXNRUSRREGS);
     }
 
     if (result == OK) {
@@ -126,8 +123,29 @@ extern int TR_addUsrReg(const char* name, const double* var)
         tr_usrRegisterIdx ++;
     }
 
+
     LG_logExit(__func__, result, NULL);
     return result;
+}
+
+
+static int tr_setupUsrRegMemory(int nrUserRegisters)
+{
+ 	int result = OK;
+	LG_logEntry(__func__, NULL);
+
+   tr_usrRegNames = (const char**)calloc(nrUserRegisters, sizeof(const char*));
+    if (tr_usrRegNames == NULL) {
+        result = RV_UNABLE_TO_MALLOC;
+    }
+
+    tr_usrRegSrc = (TR_UserRegisterSource*)calloc(nrUserRegisters, sizeof(double*));
+    if (tr_usrRegSrc == NULL) {
+        result = RV_UNABLE_TO_MALLOC;
+    }
+
+	LG_logExit(__func__, result, NULL);
+	return result;
 }
 
 
@@ -148,7 +166,7 @@ extern int TR_traceRegmap() {
 	 * trace record.
 	 */
 	for (int i=0; i<tr_usrRegisterIdx; i++) {
-	    tr_usrRegValues[tr_bufferIndex][i] = *tr_usrRegSrc[i];
+	    tr_usrRegValues[tr_bufferIndex*tr_usrRegisterIdx+i] = *tr_usrRegSrc[i];
 	}
 
 	/* Update administration, advance bufferIndex
@@ -231,7 +249,7 @@ static int tr_dumpBuffer(FILE* of, int idx) {
 	}
 
     for (int i = 0; (result == OK) && (i < tr_usrRegisterIdx); i++) {
-        fprintf(of, "%0.12lg\t",  tr_usrRegValues[idx][i]);
+        fprintf(of, "%0.12lg\t",  tr_usrRegValues[idx*tr_usrRegisterIdx+i]);
     }
 	/* Write EOL in order to ensure that next
 	 * record ends up on next line.

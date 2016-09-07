@@ -19,7 +19,7 @@
 /* Allocate memory for 'size' trace records and initialize
  * administration for tracing.
  */
-extern int TR_setup(int size, int nrUserRegisters);
+extern int TR_setup(int size);
 
 /* Retrieve current register map and append it to the tracebuffer. Note that
  * tracebuffer is cyclic. When it's full, the oldest records will be overwritten
