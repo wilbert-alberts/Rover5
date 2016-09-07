@@ -16,13 +16,15 @@ IIRFilter::IIRFilter(int o, double as[], double bs[])
 {
     A = new double[o];
     B = new double[o];
+    X = new double[o];
+    Y = new double[o];
     for (int i = 0; i < order; i++)
     {
         A[i] = as[i];
         B[i] = bs[i];
+	X[i] = 0.0;
+	Y[i] = 0.0;
     }
-    X = new double[o];
-    Y = new double[o];
 }
 
 IIRFilter::~IIRFilter()
